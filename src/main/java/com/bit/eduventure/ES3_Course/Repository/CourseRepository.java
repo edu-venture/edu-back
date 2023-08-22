@@ -1,5 +1,6 @@
 package com.bit.eduventure.ES3_Course.Repository;
 
+import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 
