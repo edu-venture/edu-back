@@ -26,4 +26,8 @@ public interface UserService {
 
     void deleteUser(int id);
 
+    /* 납부서 조회할 때 쓰는 거 */
+    public String getUserNo(int userNo);
+
+
 }

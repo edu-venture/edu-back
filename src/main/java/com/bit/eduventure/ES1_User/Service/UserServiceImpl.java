@@ -152,4 +152,14 @@ private  final EmailService emailService;
     }
 
 
+    /* 납부서 조회할 때 쓰는 거 */
+    @Override
+    public String getUserNo(int userNo) {
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return user.getUserName();
+    }
+
+
 }

@@ -48,11 +48,12 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     Page<User> findByUserTelContaining(String searchKeyword, Pageable pageable);
 
     Page<User> findByUserNameContainingOrUserIdContainingOrUserTypeContainingOrUserTelContaining(String searchKeyword, String searchKeyword1, String searchKeyword2, String searchKeyword3, Pageable pageable);
+
+    /* 시간표 등록할 때 선생님 이름 불러오려고 만든 거 */
+    Optional<User> findByUserName(String teacherName);
 //    @Query( value = "select * from t_user where user_name=:userId", nativeQuery = true)
 //
 //    Optional<User>  findByUserId(  @Param("userId") String userId);
-
-
 
 
 
