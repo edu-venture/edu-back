@@ -22,11 +22,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class CourseController {
 
-    private final CourseRepository courseRepository;
     private final CourseService courseService;
-
-
-
 
     @PostMapping("/getcourse")
     public ResponseEntity<?> getcourse(@RequestBody CourseDTO courseDTO) {

@@ -20,13 +20,4 @@ public class TimeTableUpdateRequestDTO {
     private String teacherName; // 선생님 이름 (userName)
     private String couColor;
 
-    public TimeTableUpdateRequestDTO(Course course) {
-        this.couNo = course.getCouNo();
-        this.claName = course.getClaName();
-        this.couWeek = course.getCouWeek();
-        this.couTime = course.getCouTime();
-        this.couColor = course.getCouColor();
-        this.couClass =course.getCouClass();
-        this.teacherName = course.getCouTeacher().getUserName();
-    }
 }

@@ -1,7 +1,5 @@
 package com.bit.eduventure.ES3_Course.Entity;
 
-
-import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,24 +13,24 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Course {
-
+    //반
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer couNo;
+    @Column(name = "COU_NO")
+    private Integer couNo;      //아이디값
 
-    private String claName;
+    @Column(name = "COU_NAME")
+    private String claName;     //반 이름
 
-    @ManyToOne
-    @JoinColumn(name = "USER_NO")
-    private User couTeacher;
-
-    private String couWeek; /* 요일 */
-    private String couTime; /* n교시 */
-    private String couClass; /* 강의실 */
-    private String couColor;
+    @Column(name = "COU_TEACHER")
+    private String userId;      //담당 선생님 유저 아이디
 
     public CourseDTO EntityToDTO(){
-        CourseDTO courseDTO = CourseDTO.builder().id(this.couTeacher.getId()).couNo(this.couNo).claName(this.claName).couWeek(this.couWeek).couTime(this.couTime).couClass(this.couClass).couColor(this.couColor).build();
+        CourseDTO courseDTO = CourseDTO.builder()
+                .couNo(this.couNo)
+                .claName(this.claName)
+                .userId(this.userId)
+                .build();
         return courseDTO;
 
     }

@@ -17,7 +17,5 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     Course findByCouNo(int couNo);
 
-    List<Course> findByClaNameAndCouWeek(String claName, String couWeek);
-
-    List<Course> findByCouTeacher(User user);
+    Course findByClaName(String claName);
 }
