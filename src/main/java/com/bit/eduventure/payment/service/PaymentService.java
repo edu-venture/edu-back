@@ -213,4 +213,8 @@ public class PaymentService {
         // 조회된 모든 Payment 엔터티 삭제
         repository.deleteAll(paymentsToDelete);
     }
+
+    public List<Payment> list() {
+        return repository.findAll();
+    }
 }

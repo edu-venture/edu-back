@@ -2,6 +2,7 @@ package com.bit.eduventure.payment.dto;
 
 import com.bit.eduventure.payment.entity.Payment;
 import com.bit.eduventure.payment.entity.Product;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;

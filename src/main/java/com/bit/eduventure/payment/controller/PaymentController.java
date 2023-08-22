@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.util.ListUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -56,7 +57,7 @@ public class PaymentController {
             List<Payment> payments = paymentService.getPayment(userNo, dateTime);
 
             //payments 리스트가 null이거나 비어 있으면, 예외처리
-            if(payments == null || payments.isEmpty()) {
+            if (payments == null || payments.isEmpty()) {
                 throw new IllegalArgumentException("결제 정보가 없습니다.");
             }
 
@@ -129,7 +130,7 @@ public class PaymentController {
 
     /* 영수증 조회 */
     @GetMapping("/{userNo}/receipt/{issDate}")
-    public ResponseEntity<?> getReceipt (@PathVariable int userNo, @PathVariable String issDate) {
+    public ResponseEntity<?> getReceipt(@PathVariable int userNo, @PathVariable String issDate) {
 
         // 클라이언트에게 전달할 최종 응답 객체 생성
         ResponseDTO<ReceiptGetResponseDTO> response = new ResponseDTO<>();
@@ -141,7 +142,7 @@ public class PaymentController {
             List<Payment> payments = paymentService.getReceipt(userNo, dateTime);
 
             //payments 리스트가 null이거나 비어 있으면, 예외처리
-            if(ListUtils.isEmpty(payments)) {
+            if (ListUtils.isEmpty(payments)) {
                 throw new IllegalArgumentException("결제 정보가 없습니다.");
             }
 
@@ -160,5 +161,44 @@ public class PaymentController {
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    @GetMapping("/list-list")
+    public ResponseEntity<?> getReceiptList() {
+        ResponseDTO<ReceiptListResponseDTO> response = new ResponseDTO<>();
+        try {
+            List<ReceiptListResponseDTO> returnList = new ArrayList<>();
+            List<Payment> paymentList = paymentService.list();
+            for (Payment payment : paymentList) {
+
+                //부모 아이디 찾아서 넘겨주기
+                int parenId = userService.findById(payment.getUserNo()).getUserJoinId();
+                String parentTel = userService.findById(parenId).getUserTel();
+
+                ReceiptListResponseDTO dto = ReceiptListResponseDTO.builder()
+                        .payNo(payment.getPayNo())
+                        .userNo(payment.getUserNo())
+                        .products(payment.getProduct())
+                        .payDate(payment.getPayDate())
+                        .payFrom(payment.getPayFrom())
+                        .payTo(payment.getPayTo())
+                        .payMethod(payment.getPayMethod())
+                        .isPay(payment.isPay())
+                        .totalPrice(payment.getTotalPrice())
+                        .parentTel(parentTel)
+                        .build();
+                returnList.add(dto);
+            }
+            response.setItems(returnList);
+            response.setStatusCode(HttpStatus.OK.value());
+
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            response.setErrorMessage(e.getMessage());
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.badRequest().body(response);
+        }
+
+
     }
 }

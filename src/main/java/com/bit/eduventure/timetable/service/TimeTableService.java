@@ -3,7 +3,6 @@ package com.bit.eduventure.timetable.service;
 import com.bit.eduventure.timetable.dto.TimeTableDTO;
 import com.bit.eduventure.timetable.dto.TimeTableGetResponseDTO;
 import com.bit.eduventure.timetable.dto.TimeTableRegistResquestDTO;
-import com.bit.eduventure.timetable.dto.TimeTableUpdateRequestDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
 import com.bit.eduventure.ES1_User.Entity.User;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -54,6 +52,7 @@ public class TimeTableService {
         String teacherName = userRepository.findByUserId(course.getUserId()).get().getUserName();
 
         TimeTableGetResponseDTO dto = TimeTableGetResponseDTO.builder()
+                .couNo(timeTable.getTimeNo())
                 .claName(course.getClaName())
                 .couWeek(timeTable.getTimeWeek())
                 .couTime(timeTable.getTimeClass())
@@ -75,6 +74,7 @@ public class TimeTableService {
             Course course = courseRepository.findByClaName(timeTable.getClaName());
 
             TimeTableGetResponseDTO dto = TimeTableGetResponseDTO.builder()
+                    .couNo(timeTable.getTimeNo())
                     .claName(course.getClaName())
                     .couWeek(timeTable.getTimeWeek())
                     .couTime(timeTable.getTimeClass())
@@ -88,14 +88,14 @@ public class TimeTableService {
     }
 
     /* 시간표 삭제 */
-    public void deleteTimetable(String claName, String couWeek) {
-        List<Course> courses = timeTableRepository.findByClaNameAndTimeWeek(claName, couWeek);
-        if (!courses.isEmpty()) {
-            for (Course course : courses) {
-                courseRepository.delete(course);
+    public void deleteTimetable(String claName, String timeWeek) {
+        List<TimeTable> timeTables = timeTableRepository.findByClaNameAndTimeWeek(claName, timeWeek);
+        if (!timeTables.isEmpty()) {
+            for (TimeTable timeTable : timeTables) {
+                timeTableRepository.delete(timeTable);
             }
         } else {
-            throw new IllegalArgumentException("Course not found");
+            throw new IllegalArgumentException("TimeTable not found");
         }
     }
 
