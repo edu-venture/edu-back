@@ -21,14 +21,4 @@ public class TimeTableGetResponseDTO {
     private String couColor;
     private String teacherName; // 선생님 이름 (userName)
 
-    public TimeTableGetResponseDTO(Course course) {
-        this.couNo = course.getCouNo();
-        this.claName = course.getClaName();
-        this.couWeek = course.getCouWeek();
-        this.couTime = course.getCouTime();
-        this.couColor = course.getCouColor();
-        this.couClass =course.getCouClass();
-        this.teacherName = course.getCouTeacher().getUserName();
-    }
-
 }

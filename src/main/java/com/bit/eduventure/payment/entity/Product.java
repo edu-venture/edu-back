@@ -18,9 +18,11 @@ public class Product {
 
 	@Id
 	private int proNo;
-	
+
+	//반 이름
 	private String proName;
-	
+
+	//반 가격
 	private int proPrice;
 	
 	private String proInfo;

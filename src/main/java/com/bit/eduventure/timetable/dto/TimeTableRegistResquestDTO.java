@@ -21,16 +21,4 @@ public class TimeTableRegistResquestDTO {
     private String couClass; // 강의실
     private String teacherName; // 선생님 이름 (userName)
     private String couColor;
-
-    public Course toEntity() {
-        return Course.builder()
-                .couNo(this.couNo)
-                .claName(this.claName)
-                .couWeek(this.couWeek)
-                .couTime(this.couTime)
-                .couClass(this.couClass)
-                .couColor(this.couColor)
-                .build();
-    }
-
 }

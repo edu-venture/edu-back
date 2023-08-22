@@ -15,7 +15,6 @@ public class ProductService {
 	private final ProductRepository productRepository;
 
     /* 납부서 등록할 때 상품명 불러오기 */
-
     public List<Product> findProductsByProNames(List<String> proNames) {
         return productRepository.findByProNameIn(proNames);
     }
