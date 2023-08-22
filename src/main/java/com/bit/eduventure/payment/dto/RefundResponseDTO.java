@@ -6,6 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/* 환불할 때 받는 응답 */
 @Data
 public class RefundResponseDTO {
 

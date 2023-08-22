@@ -76,6 +76,7 @@ public class SecurityConfiguration {
                     authorizeRequests.requestMatchers("/user/deleteselectusers").permitAll();
                     authorizeRequests.requestMatchers("/payment/**").permitAll();
                     authorizeRequests.requestMatchers("/timetable/**").permitAll();
+                    authorizeRequests.requestMatchers("/iamport/**").permitAll();
 
                     //이외의 요청은 인증된 사용자만 사용자만 사용가능
                     authorizeRequests.anyRequest().authenticated();
