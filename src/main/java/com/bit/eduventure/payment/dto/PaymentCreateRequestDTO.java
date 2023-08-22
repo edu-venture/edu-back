@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/* 납부서 등록할 때 요청받는 DTO */
+/* 납부서 등록할 때 요청 받는 DTO */
 @Data
 public class PaymentCreateRequestDTO {
     private int userNo;
