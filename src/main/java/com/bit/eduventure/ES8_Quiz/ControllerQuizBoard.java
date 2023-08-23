@@ -63,7 +63,7 @@ public class ControllerQuizBoard {
                     QuizBoardDTO.builder()
                             .boardNo(board.getBoardNo())
                             .boardTitle(board.getBoardTitle())
-                            .boardWriter(board.getBoardWriter())
+                            .boardWriter(board.getBoardWriter()).claName(board.getClaName()).option1(board.getOption1()).option2(board.getOption2()).option3(board.getOption3()).option4(board.getOption4()).answer(board.getAnswer())
                             .boardContent(board.getBoardContent())
                             .boardRegdate(board.getBoardRegdate().toString())
                             .boardCnt(board.getBoardCnt())
@@ -80,7 +80,7 @@ public class ControllerQuizBoard {
 
             responseDTO.setPageItems(pageBoardDTO);
             responseDTO.setStatusCode(HttpStatus.OK.value());
-
+            System.out.println(pageBoardDTO);
             return ResponseEntity.ok().body(responseDTO);
 
         } catch(Exception e) {

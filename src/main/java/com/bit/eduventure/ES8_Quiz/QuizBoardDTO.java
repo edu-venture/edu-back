@@ -1,10 +1,7 @@
 package com.bit.eduventure.ES8_Quiz;
 
 import com.bit.eduventure.ES7_Board.Entity.Board;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class QuizBoardDTO {
 
 
