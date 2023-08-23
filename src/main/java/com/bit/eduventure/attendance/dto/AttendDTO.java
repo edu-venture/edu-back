@@ -18,16 +18,17 @@ public class AttendDTO {
 
 
     private int id;
-    private String userId;
     private LocalDateTime attStart;
     private LocalDateTime attFinish;
     private LocalDate attDate;
     private String attContent;
 
+    private int userNo;
+
 
     public AttendDTO(Attend attend) {
         this.id = attend.getId();
-        this.userId = attend.getUserId();
+        this.userNo = attend.getUserNo();
         this.attStart = attend.getAttStart();
         this.attFinish = attend.getAttFinish();
         this.attDate = attend.getAttDate();
@@ -38,7 +39,7 @@ public class AttendDTO {
     public Attend DTOToEntity() {
         Attend attend = Attend.builder()
                 .id(this.id)
-                .userId(this.userId)
+                .userNo(this.userNo)
                 .attStart(this.attStart)
                 .attFinish(this.attFinish)
                 .attContent(this.attContent)

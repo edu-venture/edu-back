@@ -48,7 +48,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     //아이디 제공 메소드
     @Override
     public String getUsername() {
-        return this.user.getUserId();
+        return this.user.getId().toString();
     }
 
     //계정 만료 여부
