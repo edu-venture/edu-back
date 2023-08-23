@@ -441,13 +441,12 @@ if(userRepository.existsById(student.getId())){
         }
     }
 
-    @GetMapping("/teacher-list")
-    public ResponseEntity<?> getTeacherList() {
+    @GetMapping("/type-list/{userType}")
+    public ResponseEntity<?> getTeacherList(@PathVariable String userType) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
         List<UserDTO> userDTOList = new ArrayList<>();
         try {
-            String userType = "teacher";
-            List<User> userList = userService.getTeacherList(userType);
+            List<User> userList = userService.getUserTypeList(userType);
 
             for (User user : userList) {
                 userDTOList.add(user.EntityToDTO());
