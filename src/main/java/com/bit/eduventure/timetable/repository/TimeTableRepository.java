@@ -11,6 +11,7 @@ public interface TimeTableRepository extends JpaRepository<TimeTable, Integer> {
 
     List<TimeTable> findByClaNameAndTimeWeek(String claName, String timeWeek);
 
-    List<TimeTable> findAllByClaName(String claName);
+    List<TimeTable> findAllByCouNo(int couNo);
 
+    List<TimeTable> findAllByClaName(String claName);
 }
