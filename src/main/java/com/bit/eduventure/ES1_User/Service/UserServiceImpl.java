@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -151,25 +150,6 @@ private  final EmailService emailService;
     public void deleteUser(int id) {
         userRepository.deleteById(id);
     }
-
-
-    /* 납부서 조회할 때 쓰는 거 */
-    @Override
-    public String getUserNo(int userNo) {
-        User user = userRepository.findById(userNo)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        return user.getUserName();
-    }
-
-    //권한에 맞는 유저 리스트 뽑기
-    @Override
-    public List<User> getTeacherList(String userType) {
-        List<User> userList = userRepository.findAllByUserType(userType);
-        return userList;
-    }
-
-
 
 
 }

@@ -143,6 +143,8 @@ public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPh
     public ResponseEntity<?> givinggps(){
         ResponseDTO<GPS> responseDTO = new ResponseDTO<>();
         List <GPS> gpslist = gpsRepository.findLatestForEachCarNumber();
+        System.out.println(gpslist);
+        System.out.println("igiveyougps 의 gpslist");
         try {
             System.out.println(gpslist);
             Optional<GPS> gps1 = gpslist.stream().filter(a -> a.getCarnumber() == 1).findFirst();
