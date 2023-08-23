@@ -5,7 +5,6 @@ import com.bit.eduventure.ES7_Board.Entity.BoardFile;
 import com.bit.eduventure.ES7_Board.Entity.BoardFileId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -18,11 +17,11 @@ public interface BoardFileRepository  extends JpaRepository<BoardFile, BoardFile
 
 
 
-    @Query(value = "SELECT IFNULL(MAX(F.BOARD_FILE_NO),0)+1 FROM t_board_file F WHERE F.BOARD_NO= :boardNo", nativeQuery = true)
+    @Query(value = "SELECT IFNULL(MAX(F.BOARD_FILE_NO),0)+1 FROM T_BOARD_FILE F WHERE F.BOARD_NO= :boardNo", nativeQuery = true)
     public int findMaxFileNo(int boardNo);
 
 
-    List<BoardFile> findByBoardBoardNo(@Param("boardNo") int boardNo);
+    List<BoardFile> findByBoardBoardNo(int boardNo);
 
 
 //    List<BoardFile> findByBoardNo(int boardNo);

@@ -23,6 +23,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +100,7 @@ public class UserController {
 
 
     @GetMapping("/user-list")
-    public ResponseEntity<?> getUserList(@PageableDefault(page = 0, size = 1000) Pageable pageable,
+    public ResponseEntity<?> getUserList(@PageableDefault(page = 0, size = 10) Pageable pageable,
                                          @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                          @RequestParam(value = "searchCondition", required = false) String searchCondition,
                                          @RequestParam(value = "searchKeyword", required = false) String searchKeyword) {
@@ -119,7 +120,7 @@ public class UserController {
             System.out.println("이게 페이지유저");
             Page<UserDTO> pageUserDTO = pageUser.map(user ->
                             UserDTO.builder()
-                                    .id(user.getId()).approval(user.getApproval())
+                                    .id(user.getId())
                                     .userId(user.getUserId()).couNo(user.getCourse().getCouNo())
                                     .userPw(user.getUserPw()).userBus(user.getUserBus())
 //                .userEmail(this.userEmail)
@@ -146,12 +147,6 @@ public class UserController {
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
-
-
-
-
-
-
 
     /////여기에
     @PostMapping("/getuser")
@@ -207,7 +202,7 @@ if(userRepository.existsById(student.getId())){
      userme = userService.findById(student.getId());
 }else{
      userme = new User();
-     userme.setUserTel("부모사라짐");
+     userme.setUserTel("엄마없음");
      userme.setCourse(new Course().builder().couNo(1).build());
 }
 
@@ -264,10 +259,6 @@ if(userRepository.existsById(student.getId())){
         UserDTO parentDTO = joinDTO.getParentDTO();
         System.out.println(userDTO);
         System.out.println(parentDTO);
-        if(userDTO.getCouNo()==null){
-            userDTO.setCouNo(1);
-            parentDTO.setCouNo(1);
-        }
         try {
             User parent = parentDTO.DTOToEntity();
             User user = userDTO.DTOToEntity();
@@ -313,8 +304,6 @@ if(userRepository.existsById(student.getId())){
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
         System.out.println("admin가입에 들어왔다.");
         System.out.println(memberDTO);
-        memberDTO.setApproval("x");
-
 
         try {
             User user = memberDTO.DTOToEntity();
@@ -335,7 +324,6 @@ if(userRepository.existsById(student.getId())){
             responseDTO.setItem(joinUserDTO);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
-
         } catch (Exception e) {
             responseDTO.setErrorMessage(e.getMessage());
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
@@ -446,6 +434,29 @@ if(userRepository.existsById(student.getId())){
                 responseDTO.setErrorMessage("login failed");
                 return ResponseEntity.badRequest().body(responseDTO);
             }
+        } catch (Exception e) {
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @GetMapping("/teacher-list")
+    public ResponseEntity<?> getTeacherList() {
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+        List<UserDTO> userDTOList = new ArrayList<>();
+        try {
+            String userType = "teacher";
+            List<User> userList = userService.getTeacherList(userType);
+
+            for (User user : userList) {
+                userDTOList.add(user.EntityToDTO());
+            }
+
+            responseDTO.setItems(userDTOList);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+
+            return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
             responseDTO.setErrorMessage(e.getMessage());
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());

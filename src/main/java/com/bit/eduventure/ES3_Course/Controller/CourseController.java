@@ -22,11 +22,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class CourseController {
 
-    private final CourseRepository courseRepository;
     private final CourseService courseService;
-
-
-
 
     @PostMapping("/getcourse")
     public ResponseEntity<?> getcourse(@RequestBody CourseDTO courseDTO) {
@@ -48,10 +44,6 @@ public class CourseController {
 
     }
 
-
-
-
-
     @GetMapping("/course-list")
     public ResponseEntity<?> getCourseList(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
@@ -68,6 +60,22 @@ public class CourseController {
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
         } catch(Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @GetMapping("/course/{teacher}")
+    public ResponseEntity<?> getCourse(@PathVariable int teacher) {
+        ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
+        try {
+            CourseDTO courseDTO = courseService.findByTeacherId(teacher).EntityToDTO();
+
+            responseDTO.setItem(courseDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
             responseDTO.setErrorMessage(e.getMessage());
             return ResponseEntity.badRequest().body(responseDTO);
