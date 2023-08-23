@@ -143,12 +143,14 @@ public class AttendanceController {
     }
 
     // 특정 사용자의 출석 기록 조회
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getAttendanceRecordsByUser(@PathVariable String userId) {
+    @GetMapping("/attend")
+    public ResponseEntity<?> getAttendanceRecordsByUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<List<AttendDTO>> responseDTO = new ResponseDTO<>();
+        int userId = Integer.parseInt(customUserDetails.getUsername());
+
         try {
 
-            User user = userService.findByUserId(userId);
+            User user = userService.findById(userId);
             List<AttendDTO> records = attendanceService.getAttendanceRecordsByUser(user);
 
             responseDTO.setItem(records);
@@ -164,27 +166,37 @@ public class AttendanceController {
     }
 
     // 특정 날짜의 특정 사용자 출석 기록 조회
-    @GetMapping("/{userId}/{date}")
-    public ResponseEntity<List<AttendDTO>> getAttendanceRecordsByUserAndDate(@PathVariable String userId,
+    @GetMapping("/attend/date/{date}")
+    public ResponseEntity<?> getAttendanceRecordsByUserAndDate(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                                              @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
-        User user = new User();
-        user.setUserId(userId);
+        ResponseDTO<List<AttendDTO>> responseDTO = new ResponseDTO<>();
+        int userId = Integer.parseInt(customUserDetails.getUsername());
 
-        Attend attend = new Attend();
-        attend.setAttDate(date);
+        try {
 
-        List<AttendDTO> records = attendanceService.getAttendanceRecordsByUserAndDate(user, date);
-        return ResponseEntity.ok(records);
+            User user = userService.findById(userId);
+            List<AttendDTO> records = attendanceService.getAttendanceRecordsByUserAndDate(user, date);
+
+            responseDTO.setItem(records);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage(e.getMessage());
+
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
     }
 
     // 특정 달에 해당하는 특정 사용자 출석 기록 조회
-//    @GetMapping("/{userId}/{yearMonth}")
-//    public ResponseEntity<List<AttendDTO>> getAttendanceRecordsByUserAndMonth(@PathVariable Integer userId, @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
-//        User user = new User();
-//        user.setId(userId);
-//        List<AttendDTO> records = attendanceService.getAttendanceRecordsByUserAndMonth(user, yearMonth);
-//        return ResponseEntity.ok(records);
-//    }
+    @GetMapping("/attend/month/{yearMonth}")
+    public ResponseEntity<List<AttendDTO>> getAttendanceRecordsByUserAndMonth(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                                              @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
+        User user = new User();
+        user.setId(Integer.valueOf(customUserDetails.getUsername()));
+        List<AttendDTO> records = attendanceService.getAttendanceRecordsByUserAndMonth(user, yearMonth);
+        return ResponseEntity.ok(records);
+    }
 
 
     // 특정 사용자의 특정 날짜의 출석 기록 수정 (PUT 매핑 예시)
