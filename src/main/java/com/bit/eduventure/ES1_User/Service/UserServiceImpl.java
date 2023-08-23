@@ -164,7 +164,7 @@ private  final EmailService emailService;
 
     //권한에 맞는 유저 리스트 뽑기
     @Override
-    public List<User> getTeacherList(String userType) {
+    public List<User> getUserTypeList(String userType) {
         List<User> userList = userRepository.findAllByUserType(userType);
         return userList;
     }
