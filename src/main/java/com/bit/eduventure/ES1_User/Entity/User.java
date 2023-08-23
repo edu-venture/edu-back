@@ -33,6 +33,11 @@ public class User {
 //    private String userEmail;
     @Column(name = "USER_TEL")
     private String userTel;
+
+    @Column(name="USER_APPROVAL", columnDefinition = "varchar(10) default 'o'")
+    private String approval;
+
+
     @Column(name = "USER_BIRTH")
     private String userBirth;
     @Column(name = "USER_SCHOOL")
@@ -67,7 +72,7 @@ public class User {
     private String role;
     public UserDTO EntityToDTO() {
         UserDTO userDTO = UserDTO.builder()
-                .id(this.id).couNo(this.course.getCouNo())
+                .id(this.id).couNo(this.course.getCouNo()).approval(this.approval)
                 .userId(this.userId)
                 .userName(this.userName).userAddressDetail(this.userAddressDetail)
 //                .userEmail(this.userEmail)

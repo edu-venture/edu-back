@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 //update나 Delete가 발생했을 때 곧장 커밋 롤백 처리
@@ -49,12 +48,11 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     Page<User> findByUserTelContaining(String searchKeyword, Pageable pageable);
 
     Page<User> findByUserNameContainingOrUserIdContainingOrUserTypeContainingOrUserTelContaining(String searchKeyword, String searchKeyword1, String searchKeyword2, String searchKeyword3, Pageable pageable);
-
-    //권한에 맞는 유저 리스트 가져오기
-    List<User> findAllByUserType(String userType);
 //    @Query( value = "select * from t_user where user_name=:userId", nativeQuery = true)
 //
 //    Optional<User>  findByUserId(  @Param("userId") String userId);
+
+
 
 
 

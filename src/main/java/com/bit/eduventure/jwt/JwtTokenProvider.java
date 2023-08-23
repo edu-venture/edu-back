@@ -19,6 +19,7 @@ public class JwtTokenProvider {
     //BASE64 인코딩된 값
     //navercloud5todobootappgogibitcamp702
     private static final String SECRET_KEY = "bmF2ZXJjbG91ZDV0b2RvYm9vdGFwcGdvZ2liaXRjYW1wNzAy";
+
     //SECRET_KEY를 Key 객체로 변환
     Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
