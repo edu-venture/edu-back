@@ -12,7 +12,7 @@ class CorsConfig {
     public CorsFilter corsFilter() {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
+        CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
 
         config.setAllowCredentials(true);
         config.addAllowedOriginPattern("*"); // addAllowedOriginPattern("*") 대신 사용
