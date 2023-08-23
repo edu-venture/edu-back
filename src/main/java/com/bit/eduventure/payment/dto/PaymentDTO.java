@@ -1,26 +1,20 @@
-package com.bit.eduventure.payment.entity;
+package com.bit.eduventure.payment.dto;
 
-import com.bit.eduventure.payment.dto.PaymentDTO;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import com.bit.eduventure.payment.entity.Payment;
+import com.bit.eduventure.payment.entity.Product;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-@Entity
-//@Table: 테이블 이름등을 지정
-@Table(name="T_PAYMENT")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-//@IdClass(PaymentId.class)
-public class Payment {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+@Data
+@Builder
+public class PaymentDTO {
     private int payNo;
+    private Product product;
     private int userNo;
     private String payMethod;
     private int totalPrice;
@@ -33,13 +27,8 @@ public class Payment {
     private boolean isCancel;
     private String impUid;
 
-    @ManyToOne
-    @JoinColumn(name = "PRO_NO")
-    private Product product;
-
-
-    public PaymentDTO EntityTODTO() {
-        PaymentDTO paymentDTO = PaymentDTO.builder()
+    public Payment DTOTOEntity() {
+        Payment payment = Payment.builder()
                 .payNo(this.payNo)
                 .product(this.product)
                 .userNo(this.userNo)
@@ -54,8 +43,6 @@ public class Payment {
                 .isCancel(this.isCancel)
                 .impUid(this.impUid)
                 .build();
-        return paymentDTO;
+        return payment;
     }
-
-
 }

@@ -18,6 +18,7 @@ public class TimeTableDTO {
     private String timeColor;
     private String timeWeek;
     private String timeTeacher;
+    private int couNo;
     private String claName;
 
     public TimeTable DTOTOEntity() {
@@ -29,6 +30,7 @@ public class TimeTableDTO {
                 .timeWeek(this.timeWeek)
                 .timeClass(this.timeClass)
                 .timeTeacher(this.timeTeacher)
+                .couNo(this.couNo)
                 .claName(this.claName)
                 .build();
         return timeTable;
