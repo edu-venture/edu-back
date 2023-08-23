@@ -16,4 +16,8 @@ public interface CourseService {
     Optional<Course> findByCouNo(Integer couNo);
 
     List<String> getTimeWeeksByCouNo(Integer couNo);
+
+    Course findByClaName(String claName);
+
+    Course findByTeacherId(int id);
 }

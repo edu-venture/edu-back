@@ -120,7 +120,7 @@ public class UserController {
             Page<UserDTO> pageUserDTO = pageUser.map(user ->
                             UserDTO.builder()
                                     .id(user.getId())
-                                    .userId(user.getUserId())
+                                    .userId(user.getUserId()).couNo(user.getCourse().getCouNo())
                                     .userPw(user.getUserPw()).userBus(user.getUserBus())
 //                .userEmail(this.userEmail)
                                     .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote()).userConsultContent(user.getUserConsultContent())

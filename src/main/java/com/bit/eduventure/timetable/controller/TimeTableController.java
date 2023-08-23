@@ -3,7 +3,6 @@ package com.bit.eduventure.timetable.controller;
 import com.bit.eduventure.payment.dto.ResponseDTO;
 import com.bit.eduventure.timetable.dto.TimeTableGetResponseDTO;
 import com.bit.eduventure.timetable.dto.TimeTableRegistResquestDTO;
-import com.bit.eduventure.timetable.dto.TimeTableUpdateRequestDTO;
 import com.bit.eduventure.timetable.service.TimeTableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -65,11 +64,14 @@ public class TimeTableController {
     /* 시간표 목록 조회 */
     @GetMapping("/getTimeTable-list")
     public ResponseEntity<?> getAllTimetables() {
-
         ResponseDTO<TimeTableGetResponseDTO> response = new ResponseDTO<>();
 
         try {
+            System.out.println("시간표 컨트롤러 res111============");
+
             List<TimeTableGetResponseDTO> res = timeTableService.getAllTimetables();
+
+            System.out.println("res============"+res);
             response.setItems(res);
             response.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(response);

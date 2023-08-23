@@ -1,5 +1,6 @@
 package com.bit.eduventure.timetable.service;
 
+import com.bit.eduventure.ES3_Course.Service.CourseService;
 import com.bit.eduventure.timetable.dto.TimeTableDTO;
 import com.bit.eduventure.timetable.dto.TimeTableGetResponseDTO;
 import com.bit.eduventure.timetable.dto.TimeTableRegistResquestDTO;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -23,6 +25,7 @@ public class TimeTableService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final TimeTableRepository timeTableRepository;
+    private final CourseService courseService;
 
     /* 시간표 등록 */
     public void  registerTimetable(TimeTableRegistResquestDTO requestDTO) {
@@ -30,9 +33,10 @@ public class TimeTableService {
         // 선생님 이름으로 사용자 엔터티 조회
         User teacher = userRepository.findByUserName(requestDTO.getTeacherName())
                 .orElseThrow(() -> new IllegalArgumentException("Teacher not found"));
-
+        int couNo = courseService.findByClaName(requestDTO.getClaName()).getCouNo();
         // TimeTableDTO
         TimeTableDTO tableDTO = TimeTableDTO.builder()
+                .couNo(couNo)
                 .claName(requestDTO.getClaName())
                 .timeWeek(requestDTO.getCouWeek())
                 .timeClass(requestDTO.getCouTime())
@@ -49,7 +53,6 @@ public class TimeTableService {
     public TimeTableGetResponseDTO getTimetable(int timeNo) {
         TimeTable timeTable = timeTableRepository.findById(timeNo).get();
         Course course = courseRepository.findByClaName(timeTable.getClaName());
-        String teacherName = userRepository.findByUserId(course.getUserId()).get().getUserName();
 
         TimeTableGetResponseDTO dto = TimeTableGetResponseDTO.builder()
                 .couNo(timeTable.getTimeNo())
@@ -58,7 +61,7 @@ public class TimeTableService {
                 .couTime(timeTable.getTimeClass())
                 .couClass(timeTable.getTimePlace())
                 .couColor(timeTable.getTimeColor())
-                .teacherName(teacherName)
+                .teacherName(timeTable.getTimeTeacher())
                 .build();
 
         return dto;
@@ -95,16 +98,17 @@ public class TimeTableService {
 
     /* 시간표 전체 조회 */
     public List<TimeTableGetResponseDTO> getAllTimetables() {
-        List<TimeTable> timeTableList = timeTableRepository.findAll();
 
+        List<TimeTable> timeTableList = timeTableRepository.findAll();
         List<TimeTableGetResponseDTO> returnList = new ArrayList<>();
+        System.out.println("시간표 서비스 returnList1==========="+returnList);
 
         for (TimeTable timeTable : timeTableList) {
             Course course = courseRepository.findByClaName(timeTable.getClaName());
 
             TimeTableGetResponseDTO dto = TimeTableGetResponseDTO.builder()
                     .couNo(timeTable.getTimeNo())
-                    .claName(course.getClaName())
+                    .claName(timeTable.getClaName())
                     .couWeek(timeTable.getTimeWeek())
                     .couTime(timeTable.getTimeClass())
                     .couClass(timeTable.getTimePlace())
@@ -113,6 +117,8 @@ public class TimeTableService {
                     .build();
             returnList.add(dto);
         }
+
+        System.out.println("시간표 서비스 returnList2=============="+returnList);
         return returnList;
     }
 

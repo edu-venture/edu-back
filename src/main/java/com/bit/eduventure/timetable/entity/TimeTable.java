@@ -24,6 +24,7 @@ public class TimeTable {
     private String timeClass;   //수업 ??교시
     private String timeWeek;    //수업 ??요일
     private String timeTeacher;
+    private int couNo;
     private String claName;      //반 조인 컬럼대체
 
     public TimeTableDTO EntityTODTO() {
@@ -35,6 +36,7 @@ public class TimeTable {
                 .timeWeek(this.timeWeek)
                 .timeClass(this.timeClass)
                 .timeTeacher(this.timeTeacher)
+                .couNo(this.couNo)
                 .claName(this.claName)
                 .build();
         return timeTableDTO;

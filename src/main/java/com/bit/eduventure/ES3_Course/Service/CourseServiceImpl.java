@@ -44,6 +44,17 @@ public class CourseServiceImpl  implements CourseService {
     }
 
     @Override
+    public Course findByClaName(String claName) {
+        return courseRepository.findByClaName(claName);
+    }
+
+    //선생님 이름으로 반 정보 찾기
+    @Override
+    public Course findByTeacherId(int id) {
+        return courseRepository.findByUserId(id);
+    }
+
+    @Override
     public List<String> getTimeWeeksByCouNo(Integer couNo) {
         // First, find the Course by couNo
         Course course = courseRepository.findById(couNo).orElse(null);
@@ -61,4 +72,6 @@ public class CourseServiceImpl  implements CourseService {
                 .map(TimeTable::getTimeWeek)
                 .collect(Collectors.toList());
     }
+
+
 }
