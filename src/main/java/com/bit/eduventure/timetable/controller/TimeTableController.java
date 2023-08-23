@@ -85,11 +85,15 @@ public class TimeTableController {
     public ResponseEntity<?> deleteTimeTable(@RequestBody Map<String, String> request) {
         ResponseDTO<Map<String, String>> responseDTO = new ResponseDTO<Map<String, String>>();
 
+        System.out.println("request"+ request);
         String claName = request.get("claName");
-        String couWeek = request.get("couWeek");
+        String timeWeek = request.get("couWeek");
+
+        System.out.println("claName"+ claName);
+        System.out.println("timeWeek"+ timeWeek);
 
         try {
-            timeTableService.deleteTimetable(claName, couWeek);
+            timeTableService.deleteTimetable(claName, timeWeek);
             Map<String, String> returnMap = new HashMap<String, String>();
 
             returnMap.put("msg", "정상적으로 삭제되었습니다.");
