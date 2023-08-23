@@ -57,6 +57,8 @@ public class ControllerQuizBoard {
 
             Page<QuizBoard> pageBoard = quizBoardService.getBoardList(pageable, searchCondition, searchKeyword);
 
+            //김은석 바보
+
             Page<QuizBoardDTO> pageBoardDTO = pageBoard.map(board ->
                     QuizBoardDTO.builder()
                             .boardNo(board.getBoardNo())
