@@ -1,29 +1,38 @@
 package com.bit.eduventure.attendance.controller;
 
 import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.ES1_User.Service.UserService;
+import com.bit.eduventure.ES1_User.Service.UserServiceImpl;
 import com.bit.eduventure.attendance.entity.Attend;
 import com.bit.eduventure.attendance.service.AttendanceService;
 import com.bit.eduventure.attendance.dto.AttendDTO;
 import com.bit.eduventure.dto.ResponseDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
-@Controller
+@RestController
 @RequestMapping("/attendance")
+@RequiredArgsConstructor
 public class AttendanceController {
 
-    @Autowired
-    private AttendanceService attendanceService;
+
+    private final AttendanceService attendanceService;
+
+    private final UserService userService;
 
     //학생의 수업일 확인
     @GetMapping("/check")
@@ -45,6 +54,7 @@ public class AttendanceController {
             }
 
             responseDTO.setItem(returnMap);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
             System.out.println(returnMap);
             return ResponseEntity.ok().body(responseDTO);
 
@@ -59,7 +69,7 @@ public class AttendanceController {
     public ModelAndView attendMainPage(Attend attend) {
 
         ModelAndView mv = new ModelAndView();
-        mv.addObject("user", attend.getUser());
+        mv.addObject("user", attend.getUserId());
         mv.addObject("attStart", attend.getAttStart());
         mv.addObject("attFinish", attend.getAttFinish());
         mv.addObject("attContent", attend.getAttContent());
@@ -82,17 +92,19 @@ public class AttendanceController {
 
     // 입실 처리
     @PostMapping("/enter")
-    public ResponseEntity<?> registerEnterTime(@RequestBody User user) {
+    public ResponseEntity<?> registerEnterTime(@RequestParam("userId") String userId) {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
-        System.out.println(user);
+        System.out.println(userId);
 
         try {
             LocalDateTime attendTime = LocalDateTime.now(); // 현재 시간으로 입실 시간 설정
 
-            AttendDTO response = attendanceService.registerAttendance(user, attendTime);
+//            LocalDate attendDate = LocalDate.now();
 
+            AttendDTO response = attendanceService.registerAttendance(userId, attendTime);
 
             responseDTO.setItem(response);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
@@ -104,15 +116,17 @@ public class AttendanceController {
 
     // 퇴실 처리
     @PostMapping("/exit")
-    public ResponseEntity<?> registerExitTime(@RequestBody User user, Attend attend) {
+    public ResponseEntity<?> registerExitTime(@RequestParam("userId") String userId) {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
 
         try {
             LocalDateTime exitTime = LocalDateTime.now(); // 현재 시간으로 입실 시간 설정
 
-            AttendDTO response = attendanceService.registerExitTime(user, exitTime);
+
+            AttendDTO response = attendanceService.registerExitTime(userId, exitTime);
 
             responseDTO.setItem(response);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
@@ -124,16 +138,44 @@ public class AttendanceController {
 
     // 특정 사용자의 출석 기록 조회
     @GetMapping("/{userId}")
-    public ResponseEntity<List<AttendDTO>> getAttendanceRecordsByUser(@PathVariable Integer userId) {
+    public ResponseEntity<?> getAttendanceRecordsByUser(@PathVariable String userId) {
+        ResponseDTO<List<AttendDTO>> responseDTO = new ResponseDTO<>();
+        try {
+
+            User user = userService.findByUserId(userId);
+            List<AttendDTO> records = attendanceService.getAttendanceRecordsByUser(user);
+
+            responseDTO.setItem(records);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage(e.getMessage());
+
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+    // 특정 날짜의 특정 사용자 출석 기록 조회
+    @GetMapping("/{userId}/{date}")
+    public ResponseEntity<List<AttendDTO>> getAttendanceRecordsByUserAndDate(@PathVariable String userId,
+                                                                             @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         User user = new User();
-        user.setId(userId);
-        List<AttendDTO> records = attendanceService.getAttendanceRecordsByUser(user);
+        user.setUserId(userId);
+
+        Attend attend = new Attend();
+        attend.setAttDate(date);
+
+        List<AttendDTO> records = attendanceService.getAttendanceRecordsByUserAndDate(user, date);
         return ResponseEntity.ok(records);
     }
 
     // 특정 사용자의 특정 날짜의 출석 기록 수정 (PUT 매핑 예시)
     @PutMapping("/{userId}/{date}")
-    public ResponseEntity<String> updateAttendanceRecord(@PathVariable Integer userId, @PathVariable String date, @RequestBody AttendDTO updatedRecord) {
+    public ResponseEntity<String> updateAttendanceRecord(@PathVariable String userId,
+                                                         @PathVariable String date,
+                                                         @RequestBody AttendDTO updatedRecord) {
         // Implement this with service. This is just a placeholder.
         // You may need to parse the date and find the corresponding record, then update with the provided DTO.
 
@@ -142,9 +184,8 @@ public class AttendanceController {
 
     // 특정 사용자의 특정 날짜의 출석 기록 삭제 (DELETE 매핑 예시)
     @DeleteMapping("/{userId}/{date}")
-    public ResponseEntity<String> deleteAttendanceRecord(@PathVariable Integer userId, @PathVariable String date) {
-        // Implement this with service. This is just a placeholder.
-        // You may need to parse the date and find the corresponding record, then delete it.
+    public ResponseEntity<String>
+    deleteAttendanceRecord(@PathVariable String userId, @PathVariable String date) {
 
         return ResponseEntity.ok("Deleted successfully");
     }

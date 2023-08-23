@@ -65,6 +65,35 @@ public class TimeTableService {
         return dto;
     }
 
+    /* claName을 기반으로 TimeTable 목록 조회 */
+    public List<TimeTableGetResponseDTO> getTimetablesByClaName(String claName) {
+        List<TimeTable> timeTableList = timeTableRepository.findAllByClaName(claName);
+
+        List<TimeTableGetResponseDTO> returnList = new ArrayList<>();
+
+        for (TimeTable timeTable : timeTableList) {
+            Course course = courseRepository.findByClaName(timeTable.getClaName());
+
+            TimeTableGetResponseDTO dto = TimeTableGetResponseDTO.builder()
+                    .claName(course.getClaName())
+                    .couWeek(timeTable.getTimeWeek())
+                    .couTime(timeTable.getTimeClass())
+                    .couClass(timeTable.getTimePlace())
+                    .couColor(timeTable.getTimeColor())
+                    .teacherName(timeTable.getTimeTeacher())
+                    .build();
+            returnList.add(dto);
+        }
+        return returnList;
+    }
+
+    public List<String> getCouTimesByClaName(String claName) {
+        List<TimeTableGetResponseDTO> dtos = getTimetablesByClaName(claName);
+        return dtos.stream()
+                .map(TimeTableGetResponseDTO::getCouTime)
+                .collect(Collectors.toList());
+    }
+
     /* 시간표 전체 조회 */
     public List<TimeTableGetResponseDTO> getAllTimetables() {
         List<TimeTable> timeTableList = timeTableRepository.findAll();
