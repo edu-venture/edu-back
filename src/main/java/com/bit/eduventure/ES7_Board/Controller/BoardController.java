@@ -7,7 +7,6 @@ import com.bit.eduventure.ES7_Board.DTO.BoardDTO;
 import com.bit.eduventure.ES7_Board.DTO.BoardFileDTO;
 import com.bit.eduventure.ES7_Board.Entity.Board;
 import com.bit.eduventure.ES7_Board.Entity.BoardFile;
-import com.bit.eduventure.ES7_Board.Repository.BoardRepository;
 import com.bit.eduventure.ES7_Board.Service.BoardService;
 import com.bit.eduventure.common.FileUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -34,8 +33,7 @@ import java.util.*;
 @RequestMapping("/board")
 public class BoardController {
     private BoardService boardService;
-    @Autowired
-private BoardRepository boardRepository;
+
     @Value("${file.path}")
     String attachPath;
 
@@ -50,6 +48,7 @@ private BoardRepository boardRepository;
                                           @RequestParam(value = "searchCondition", required = false) String searchCondition,
                                           @RequestParam(value = "searchKeyword", required = false) String searchKeyword) {
         ResponseDTO<BoardDTO> responseDTO = new ResponseDTO<>();
+
         try {
             searchCondition = searchCondition == null ? "all" : searchCondition;
             searchKeyword = searchKeyword == null ? "" : searchKeyword;
@@ -87,30 +86,6 @@ private BoardRepository boardRepository;
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
-
-
-
-    @GetMapping("/board-list2")
-    public ResponseEntity<?> getBoardList2() {
-        ResponseDTO<Board> responseDTO = new ResponseDTO<>();
-        try{
-            System.out.println("여기들옴");
-            List<Board> boardList = boardRepository.findAll();
-            System.out.println(boardList);
-            responseDTO.setItems(boardList);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
-        }catch (Exception e){
-            System.out.println(e);
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            responseDTO.setErrorMessage(e.getMessage());
-
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
-
-    }
-
 
     //multipart form 데이터 형식을 받기 위해 consumes 속성 지정
     @PostMapping(value = "/board", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

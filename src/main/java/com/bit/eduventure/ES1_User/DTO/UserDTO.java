@@ -33,8 +33,6 @@ private String userType;
     private String userAddressDetail;
     private String userConsultContent;
     private Integer couNo;
-    private String approval;
-
 
     private String userSpecialNote;
 
@@ -47,7 +45,7 @@ private String userType;
         User user = User.builder()
                 .id(this.id).course(course)
                 .userId(this.userId)
-                .userPw(this.userPw).userBus(this.userBus).approval(this.approval)
+                .userPw(this.userPw).userBus(this.userBus)
 //                .userEmail(this.userEmail)
                 .userType(this.userType).userSpecialNote(this.userSpecialNote).userConsultContent(this.userConsultContent)
                 .userName(this.userName)

@@ -50,10 +50,8 @@ public class SecurityConfiguration {
                     authorizeRequests.requestMatchers("/").permitAll();
                     //css, js, images, upload 같은 정적 리소스들도 권한처리 필수
                     authorizeRequests.requestMatchers("/upload/**").permitAll();
-                    authorizeRequests.requestMatchers("/quiz/**").permitAll();
                     //게시판 기능은 권한을 가지고 있는 사용자만 사용가능
-//                    authorizeRequests.requestMatchers("/board/**").hasAnyRole("ADMIN", "USER");
-                    authorizeRequests.requestMatchers("/board/**").permitAll();
+                    authorizeRequests.requestMatchers("/board/**").hasAnyRole("ADMIN", "USER");
                     //관리자 페이지는 관리자만 사용가능
                     authorizeRequests.requestMatchers("/admin/**").hasRole("ADMIN");
                     //회원가입, 로그인, 아이디중복체크 등 요청은 모든 사용자가 사용가능
@@ -76,6 +74,11 @@ public class SecurityConfiguration {
                     authorizeRequests.requestMatchers("/course/**").permitAll();
                     authorizeRequests.requestMatchers("/sms/**").permitAll();
                     authorizeRequests.requestMatchers("/user/deleteselectusers").permitAll();
+                    authorizeRequests.requestMatchers("/payment/**").permitAll();
+                    authorizeRequests.requestMatchers("/timetable/**").permitAll();
+                    authorizeRequests.requestMatchers("/iamport/**").permitAll();
+                    authorizeRequests.requestMatchers("/attendance/**").permitAll();
+
 
                     //이외의 요청은 인증된 사용자만 사용자만 사용가능
                     authorizeRequests.anyRequest().authenticated();
