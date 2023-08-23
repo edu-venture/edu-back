@@ -154,10 +154,10 @@ public class AttendanceService {
         System.out.println(courseEndTime);
 
         // 퇴실 시간 제한 조건
-        if(exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime.minusMinutes(30)))
-                || exitTime.isAfter(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
-            throw new IllegalArgumentException("퇴실은 수업 종료 30분 전부터 종료 시간까지만 가능합니다.");
-        }
+//        if(exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime.minusMinutes(30)))
+//                || exitTime.isAfter(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
+//            throw new IllegalArgumentException("퇴실은 수업 종료 30분 전부터 종료 시간까지만 가능합니다.");
+//        }
 
 
         if (courseEndTime == null) {
@@ -211,16 +211,16 @@ public class AttendanceService {
                 .collect(Collectors.toList());
     }
 
-//    //특정 사용자 및 특정 달의 출석 기록 조회
-//    public List<AttendDTO> getAttendanceRecordsByUserAndMonth(User user, YearMonth yearMonth) {
-//        LocalDate startDate = yearMonth.atDay(1);
-//        LocalDate endDate = yearMonth.atEndOfMonth();
-//
-//        List<Attend> attendances = attendRepository.findByUserIdAndAttDateBetween(user.getUserId(), startDate, endDate);
-//        return attendances.stream()
-//                .map(Attend::EntityToDTO)
-//                .collect(Collectors.toList());
-//    }
+    //특정 사용자 및 특정 달의 출석 기록 조회
+    public List<AttendDTO> getAttendanceRecordsByUserAndMonth(User user, YearMonth yearMonth) {
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+
+        List<Attend> attendances = attendRepository.findByUserNoAndAttDateBetween(user.getId(), startDate, endDate);
+        return attendances.stream()
+                .map(Attend::EntityToDTO)
+                .collect(Collectors.toList());
+    }
 
 
 
