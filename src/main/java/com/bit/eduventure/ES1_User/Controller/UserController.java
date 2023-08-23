@@ -23,6 +23,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,10 +121,10 @@ public class UserController {
             Page<UserDTO> pageUserDTO = pageUser.map(user ->
                             UserDTO.builder()
                                     .id(user.getId())
-                                    .userId(user.getUserId())
+                                    .userId(user.getUserId()).couNo(user.getCourse().getCouNo())
                                     .userPw(user.getUserPw()).userBus(user.getUserBus())
 //                .userEmail(this.userEmail)
-                                    .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote()).userConsultContent(user.getUserConsultContent())
+                                    .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote()).userConsultContent(user.getUserConsultContent()).approval(user.getApproval())
                                     .userName(user.getUserName())
                                     .userTel(user.getUserTel()).userAddressDetail(user.getUserAddressDetail())
                                     .userRegdate(user.getUserRegdate())
@@ -433,6 +434,29 @@ if(userRepository.existsById(student.getId())){
                 responseDTO.setErrorMessage("login failed");
                 return ResponseEntity.badRequest().body(responseDTO);
             }
+        } catch (Exception e) {
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @GetMapping("/teacher-list")
+    public ResponseEntity<?> getTeacherList() {
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+        List<UserDTO> userDTOList = new ArrayList<>();
+        try {
+            String userType = "teacher";
+            List<User> userList = userService.getTeacherList(userType);
+
+            for (User user : userList) {
+                userDTOList.add(user.EntityToDTO());
+            }
+
+            responseDTO.setItems(userDTOList);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+
+            return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
             responseDTO.setErrorMessage(e.getMessage());
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());

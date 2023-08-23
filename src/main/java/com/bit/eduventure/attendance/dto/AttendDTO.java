@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,17 +18,19 @@ public class AttendDTO {
 
 
     private int id;
-    private User user;
+    private String userId;
     private LocalDateTime attStart;
     private LocalDateTime attFinish;
+    private LocalDate attDate;
     private String attContent;
 
 
     public AttendDTO(Attend attend) {
         this.id = attend.getId();
-        this.user = attend.getUser();
+        this.userId = attend.getUserId();
         this.attStart = attend.getAttStart();
         this.attFinish = attend.getAttFinish();
+        this.attDate = attend.getAttDate();
         this.attContent = attend.getAttContent();
 
     }
@@ -35,7 +38,7 @@ public class AttendDTO {
     public Attend DTOToEntity() {
         Attend attend = Attend.builder()
                 .id(this.id)
-                .user(this.user)
+                .userId(this.userId)
                 .attStart(this.attStart)
                 .attFinish(this.attFinish)
                 .attContent(this.attContent)

@@ -15,10 +15,11 @@ public interface AttendRepository extends JpaRepository<Attend, Integer> {
 
     Optional<Attend> findById(Integer id);
 
-    List<Attend> findByUser(User user);
-//    List<Attend> findByUserAndAttFinishIsNullOrderByAttStartDesc(User user);
+    List<Attend> findAllByUserId(String userId);
 
+    List<Attend> findByUserIdAndAttStartBetween(String userId, LocalDateTime start, LocalDateTime end);
 
-    List<Attend> findByUserAndAttStartBetween(User user, LocalDateTime start, LocalDateTime end);
+    List<Attend> findByUserIdAndAttDate(String userId, LocalDate attDate);
+
 
 }

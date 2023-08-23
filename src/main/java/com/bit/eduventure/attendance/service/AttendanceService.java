@@ -1,16 +1,24 @@
+
 package com.bit.eduventure.attendance.service;
 
 import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.ES1_User.Repository.UserRepository;
+import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
+import com.bit.eduventure.ES3_Course.Service.CourseService;
 import com.bit.eduventure.attendance.dto.AttendDTO;
 import com.bit.eduventure.attendance.entity.Attend;
 import com.bit.eduventure.attendance.repository.AttendRepository;
 
+import com.bit.eduventure.timetable.entity.TimeTable;
+import com.bit.eduventure.timetable.service.TimeTableService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -21,8 +29,10 @@ import java.util.stream.Collectors;
 public class AttendanceService {
 
     private final AttendRepository attendRepository;
-
     private final CourseRepository courseRepository;
+    private final CourseService courseService;
+    private final UserService userService;
+    private final TimeTableService timeTableService;
 
 
     public class DayOfWeekMapping {
@@ -45,77 +55,101 @@ public class AttendanceService {
     }
     // 교시별 시작 시간 매핑
     private static final Map<String, LocalTime> COURSE_START_TIMES = Map.of(
-            "1교시", LocalTime.of(10, 0),
-            "2교시", LocalTime.of(11, 0),
-            "3교시", LocalTime.of(13, 0),
-            "4교시", LocalTime.of(14, 0),
-            "5교시", LocalTime.of(15, 0),
-            "6교시", LocalTime.of(16, 0),
-            "7교시", LocalTime.of(17, 0),
-            "8교시", LocalTime.of(18, 0)
+            "1교시", LocalTime.of(14, 0),
+            "2교시", LocalTime.of(15, 0),
+            "3교시", LocalTime.of(16, 0),
+            "4교시", LocalTime.of(17, 0),
+            "5교시", LocalTime.of(18, 0),
+            "6교시", LocalTime.of(20, 0),
+            "7교시", LocalTime.of(21, 0),
+            "8교시", LocalTime.of(22, 0)
     );
 
-    public AttendDTO registerAttendance(User user, LocalDateTime attendTime) {
+    public AttendDTO registerAttendance(String userId, LocalDateTime attendTime) {
         Attend record = new Attend();
-        record.setUser(user);
+        record.setUserId(userId);
         record.setAttStart(attendTime);
 
-        List<Course> userCourses = courseRepository.findByCouTeacher(user);
-        if (userCourses == null || userCourses.isEmpty()) {
+        User user = userService.findByUserId(userId);
+
+        Course course = user.getCourse();
+
+
+        if (course == null) {
             throw new IllegalArgumentException("User is not registered for any course.");
         }
 
+        List<String> timeTableList = courseService.getTimeWeeksByCouNo(course.getCouNo());
+
         String currentDayOfWeek = DayOfWeekMapping.toKorean(attendTime.getDayOfWeek());
+        System.out.println("currentDayOfWeek: " + currentDayOfWeek);
 
-//        String currentDayOfWeek = attendTime.getDayOfWeek().name();
-        for (Course course : userCourses) {
-            if (course.getCouWeek().equals(currentDayOfWeek)) {
-                String couTime = course.getCouTime();
-                LocalTime courseStart = COURSE_START_TIMES.get(couTime);
-                System.out.println(courseStart);
+        for(String test : timeTableList) {
+            System.out.println("course: " + test);
+        }
 
-                if (courseStart == null) {
-                    throw new IllegalArgumentException("Invalid course time provided.");
-                }
+        if (timeTableList.contains(currentDayOfWeek)) {
+            String couTime = timeTableService.getCouTimesByClaName(course.getClaName()).get(0); //첫번째 시간을 뽑아내겠다.
+            LocalTime courseStart = COURSE_START_TIMES.get(couTime);
+            LocalTime courseEnd = courseStart.plusMinutes(50); // 강의는 50분 간격이라고 했으므로
+            System.out.println(courseStart);
 
-                // 출석 시간 비교
-                if (attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart))) {
-                    record.setAttContent("출석중");
-                } else if (attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart).plusMinutes(10))) {
-                    record.setAttContent("지각");
-                } else {
-                    record.setAttContent("결석");
-                }
+            // 입실 시간 제한 조건
+            if(attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart))
+                    || attendTime.isAfter(LocalDateTime.of(attendTime.toLocalDate(), courseEnd))) {
+                throw new IllegalArgumentException("입실은 수업 시간 내에서만 가능합니다.");
+            }
+
+            if (courseStart == null) {
+                throw new IllegalArgumentException("Invalid course time provided.");
+            }
+
+            // 출석 시간 비교
+            if (attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart))) {
+                record.setAttContent("출석중");
+            } else if (attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart).plusMinutes(10))) {
+                record.setAttContent("1");
+            } else {
+                record.setAttContent("2");
             }
         }
 
         AttendDTO attendDTO = attendRepository.save(record).EntityToDTO();
+
         return attendDTO;
     }
 
-    public AttendDTO registerExitTime(User user, LocalDateTime exitTime) {
-
+    public AttendDTO registerExitTime(String userId, LocalDateTime exitTime) {
+        User user = userService.findByUserId(userId);
         // 1. User와 연결된 Course를 찾는다.
-        List<Course> userCourses = courseRepository.findByCouTeacher(user);
+        Course course = user.getCourse();
 
-        if (userCourses == null || userCourses.isEmpty()) {
+        if (course == null) {
             throw new IllegalArgumentException("User is not registered for any course.");
         }
+
+        List<String> timeTableList = courseService.getTimeWeeksByCouNo(course.getCouNo());
 
         String currentDayOfWeek = DayOfWeekMapping.toKorean(exitTime.getDayOfWeek());
 
         LocalTime courseEndTime = null;
 
-        for (Course course : userCourses) {
-            if (course.getCouWeek().equals(currentDayOfWeek)) {
-                String couTime = course.getCouTime();
-                LocalTime courseStart = COURSE_START_TIMES.get(couTime);
-                courseEndTime = courseStart.plusMinutes(50); // 강의는 50분 간격이라고 했으므로
-            }
+        if (timeTableList.contains(currentDayOfWeek)) {
+            String couTime = timeTableService.getCouTimesByClaName(course.getClaName()).get(timeTableList.size() - 1); //마지막 시간을 뽑아내겠다.
+            LocalTime courseStart = COURSE_START_TIMES.get(couTime);
+            courseEndTime = courseStart.plusMinutes(50); // 강의는 50분 간격이라고 했으므로
+            System.out.println(courseEndTime);
         }
 
         System.out.println(currentDayOfWeek);
         System.out.println(courseEndTime);
+
+        // 퇴실 시간 제한 조건
+        if(exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime.minusMinutes(5)))
+                || exitTime.isAfter(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
+            throw new IllegalArgumentException("퇴실은 수업 종료 5분 전부터 종료 시간까지만 가능합니다.");
+        }
+
 
         if (courseEndTime == null) {
             throw new IllegalArgumentException("Invalid course time or day for the user.");
@@ -124,7 +158,7 @@ public class AttendanceService {
         LocalDateTime startOfDay = exitTime.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusSeconds(1);
 
-        List<Attend> records = attendRepository.findByUserAndAttStartBetween(user, startOfDay, endOfDay);
+        List<Attend> records = attendRepository.findByUserIdAndAttStartBetween(user.getUserId(), startOfDay, endOfDay);
 
 
         if (records.isEmpty()) {
@@ -142,9 +176,9 @@ public class AttendanceService {
 
         // 출석 상태 결정
         if (exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
-            record.setAttContent("출석");
+            record.setAttContent("0");
         } else {
-            record.setAttContent("결석");
+            record.setAttContent("2");
         }
 
         AttendDTO attendDTO = attendRepository.save(record).EntityToDTO();
@@ -153,26 +187,31 @@ public class AttendanceService {
 
 
     public List<AttendDTO> getAttendanceRecordsByUser(User user) {
-        List<Attend> records = attendRepository.findByUser(user);
+        List<Attend> records = attendRepository.findAllByUserId(user.getUserId());
         return records.stream().map(AttendDTO::new).collect(Collectors.toList());
+    }
+
+    public List<AttendDTO> getAttendanceRecordsByUserAndDate(User user, LocalDate date) {
+        List<Attend> attendances = attendRepository.findByUserIdAndAttDate(user.getUserId(), date);
+        return attendances.stream()
+                .map(Attend::EntityToDTO)
+                .collect(Collectors.toList());
     }
 
     public boolean checkIfClassExistsForToday(User user) {
         String currentDayOfWeek = DayOfWeekMapping.toKorean(LocalDateTime.now().getDayOfWeek());
 
+        // 1. User와 연결된 Course를 찾는다.
+        Course course = user.getCourse();
+
         // 사용자에게 할당된 수업 목록을 가져옵니다.
-        List<Course> userCourses = courseRepository.findByCouTeacher(user);
+        List<String> timeTableList = courseService.getTimeWeeksByCouNo(course.getCouNo());
 
-
-        if (userCourses == null || userCourses.isEmpty()) {
-            return false; // 사용자가 등록된 수업이 없는 경우 false 반환
-        }
+        System.out.println("currentDayOfWeek: " + currentDayOfWeek);
 
         // 사용자의 수업 중 현재 요일과 일치하는 수업이 있는지 확인
-        for (Course course : userCourses) {
-            if (course.getCouWeek().equals(currentDayOfWeek)) {
-                return true; // 일치하는 수업이 있으면 true 반환
-            }
+        if (timeTableList.contains(currentDayOfWeek)) {
+            return true; // 일치하는 수업이 있으면 true 반환
         }
 
         return false; // 일치하는 수업이 없으면 false 반환
