@@ -30,9 +30,6 @@ public class TimeTableService {
     /* 시간표 등록 */
     public void  registerTimetable(TimeTableRegistResquestDTO requestDTO) {
 
-        // 선생님 이름으로 사용자 엔터티 조회
-        User teacher = userRepository.findByUserName(requestDTO.getTeacherName())
-                .orElseThrow(() -> new IllegalArgumentException("Teacher not found"));
         int couNo = courseService.findByClaName(requestDTO.getClaName()).getCouNo();
         // TimeTableDTO
         TimeTableDTO tableDTO = TimeTableDTO.builder()
