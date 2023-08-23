@@ -124,7 +124,7 @@ public class UserController {
                                     .userId(user.getUserId()).couNo(user.getCourse().getCouNo())
                                     .userPw(user.getUserPw()).userBus(user.getUserBus())
 //                .userEmail(this.userEmail)
-                                    .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote()).userConsultContent(user.getUserConsultContent())
+                                    .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote()).userConsultContent(user.getUserConsultContent()).approval(user.getApproval())
                                     .userName(user.getUserName())
                                     .userTel(user.getUserTel()).userAddressDetail(user.getUserAddressDetail())
                                     .userRegdate(user.getUserRegdate())
