@@ -9,11 +9,11 @@
 //
 //
 //@Transactional
-//public interface ProductRepository extends JpaRepository<Product, Long> {
+//public interface ProductRepository extends JpaRepository<Product, Integer> {
 //
-//    public Optional<Product> findByProNo(Long proNo);
-//
-//    public List<Product> findByProNoIn(List<Integer> proNos);
-//
-//    List<Product> findByProNameIn(List<String> proNames);
+////    public Optional<Product> findByProNo(int proNo);
+////
+////    public List<Product> findByProNoIn(List<Integer> proNos);
+////
+////    List<Product> findByProNameIn(List<String> proNames);
 //}

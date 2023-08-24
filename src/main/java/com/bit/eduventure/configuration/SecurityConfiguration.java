@@ -74,11 +74,13 @@ public class SecurityConfiguration {
                     authorizeRequests.requestMatchers("/course/**").permitAll();
                     authorizeRequests.requestMatchers("/sms/**").permitAll();
                     authorizeRequests.requestMatchers("/user/deleteselectusers").permitAll();
-                    authorizeRequests.requestMatchers("/payment/**").permitAll();
                     authorizeRequests.requestMatchers("/timetable/**").permitAll();
                     authorizeRequests.requestMatchers("/iamport/**").permitAll();
                     authorizeRequests.requestMatchers("/attendance/**").permitAll();
                     authorizeRequests.requestMatchers("/attendance/admin/**").hasRole("ADMIN");
+
+                    //결제 관련 주소
+                    authorizeRequests.requestMatchers("/payment/**").permitAll();
 
 
                     //이외의 요청은 인증된 사용자만 사용자만 사용가능

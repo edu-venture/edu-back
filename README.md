@@ -4,3 +4,19 @@
 
 이거되는건가? 나는 바보다 ㅎㅎ
 -정우가씀-
+
+진짜바보인가?
+
+
+빠보
+stupid
+
+awefklawejkawegkg
+
+
+
+a
+wegawegawegaweg
+awegawegawegaweg
+
+wefawefawefawef

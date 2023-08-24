@@ -54,8 +54,9 @@ public class User {
     @Builder.Default
     private LocalDateTime userRegdate = LocalDateTime.now();
 
-    @Column(name = "USER_APPROVAL")
+    @Column(name = "USER_APPROVAL", columnDefinition = "VARCHAR(255) DEFAULT 'x'")
     private String approval;
+
 
     @ManyToOne
     //2 Fk로 가져올 컬럼 지정
