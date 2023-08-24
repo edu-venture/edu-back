@@ -94,6 +94,10 @@ public class PaymentService {
         return paymentRepository.findAll();
     }
 
+    public void deletePayment(int payNo) {
+        paymentRepository.deleteById(payNo);
+    }
+
     //년, 월, 일만 추출하기
     public String issDateMonth(String inputDate, String type) {
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
