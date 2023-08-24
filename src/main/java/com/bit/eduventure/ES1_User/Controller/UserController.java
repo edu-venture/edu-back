@@ -97,10 +97,10 @@ public class UserController {
         }
     }
 
-
+//아니 이거 왜 안돼냐
 
     @GetMapping("/user-list")
-    public ResponseEntity<?> getUserList(@PageableDefault(page = 0, size = 10) Pageable pageable,
+    public ResponseEntity<?> getUserList(@PageableDefault(page = 0, size = 1000) Pageable pageable,
                                          @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                          @RequestParam(value = "searchCondition", required = false) String searchCondition,
                                          @RequestParam(value = "searchKeyword", required = false) String searchKeyword) {
