@@ -78,6 +78,7 @@ public class SecurityConfiguration {
                     authorizeRequests.requestMatchers("/timetable/**").permitAll();
                     authorizeRequests.requestMatchers("/iamport/**").permitAll();
                     authorizeRequests.requestMatchers("/attendance/**").permitAll();
+                    authorizeRequests.requestMatchers("/attendance/admin/**").hasRole("ADMIN");
 
 
                     //이외의 요청은 인증된 사용자만 사용자만 사용가능

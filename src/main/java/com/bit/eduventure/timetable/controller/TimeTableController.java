@@ -1,6 +1,6 @@
 package com.bit.eduventure.timetable.controller;
 
-import com.bit.eduventure.payment.dto.ResponseDTO;
+import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.timetable.dto.TimeTableGetResponseDTO;
 import com.bit.eduventure.timetable.dto.TimeTableRegistResquestDTO;
 import com.bit.eduventure.timetable.service.TimeTableService;

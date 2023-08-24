@@ -7,6 +7,7 @@ import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
 import com.bit.eduventure.ES3_Course.Service.CourseService;
+
 import com.bit.eduventure.attendance.dto.AttendDTO;
 import com.bit.eduventure.attendance.entity.Attend;
 import com.bit.eduventure.attendance.repository.AttendRepository;
@@ -14,13 +15,18 @@ import com.bit.eduventure.attendance.repository.AttendRepository;
 import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.repository.TimeTableRepository;
 import com.bit.eduventure.timetable.service.TimeTableService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cglib.core.Local;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -117,6 +123,8 @@ public class AttendanceService {
 
         return attendDTO;
     }
+
+
 
     public AttendDTO registerExitTime(int userId, LocalDateTime exitTime) {
         User user = userService.findById(userId);
@@ -222,6 +230,53 @@ public class AttendanceService {
                 .collect(Collectors.toList());
     }
 
+    // 특정 날짜의 특정 사용자의 기록 수정 한번에 수정.
+//    public void updateAttendanceRecord(String jsonString) {
+//
+//        List<AttendDTO> attendDTOList = attJsonList(jsonString);
+//
+//        for (AttendDTO attendDTO : attendDTOList) {
+////            updatedRecordList.add(attendRepository.findById(id).orElseThrow());
+//            attendRepository.save(attendDTO.DTOToEntity());
+//        }
+////        System.out.println(updatedRecordList);
+//
+//        // 하루에 한번 출석 기록이 있다고 생각하고 작성.
+////        Attend attendToUpdate = attend.get(0); //가장 최신 기록만 취급한다.
+////        attendToUpdate.setAttStart(updatedRecord.getAttStart());
+////        attendToUpdate.setAttFinish(updatedRecord.getAttFinish());
+////        attendToUpdate.setAttContent(updatedRecord.getAttContent());
+////
+////        attendRepository.save(attendToUpdate);
+//    }
+
+    //하나씩 수정
+//    public Attend updateAttendRecord(Attend attend) {
+//
+//        return attendRepository.save(attend);
+//    }
+    public Attend updateAttendRecord(Attend newAttendData) {
+        return attendRepository.findById(newAttendData.getId())
+                .map(existingAttend -> {
+                    Optional.ofNullable(newAttendData.getUserNo()).ifPresent(existingAttend::setUserNo);
+                    Optional.ofNullable(newAttendData.getAttStart()).ifPresent(existingAttend::setAttStart);
+                    Optional.ofNullable(newAttendData.getAttFinish()).ifPresent(existingAttend::setAttFinish);
+                    Optional.ofNullable(newAttendData.getAttDate()).ifPresent(existingAttend::setAttDate);
+                    Optional.ofNullable(newAttendData.getAttContent()).ifPresent(existingAttend::setAttContent);
+                    return attendRepository.save(existingAttend);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Attendance record with the given ID does not exist"));
+    }
+
+
+
+
+    public void deleteAttendList(String attIdList) {
+        for (int id : jsonList(attIdList)) {
+            attendRepository.deleteById(id);
+        }
+    }
+
 
 
     public boolean checkIfClassExistsForToday(User user) {
@@ -242,4 +297,23 @@ public class AttendanceService {
 
         return false; // 일치하는 수업이 없으면 false 반환
     }
+
+    //요청시 attList 형식  보내기.
+    public List<Integer> jsonList(String jsonString) {
+        // JSON 문자열을 JsonObject로 변환
+        JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
+
+
+        // "attList" 키의 값을 JsonArray로 가져옴
+        JsonArray jsonArray = jsonObject.getAsJsonArray("attList");
+
+        // JsonArray를 List<Integer>로 변환
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            list.add(jsonArray.get(i).getAsInt());
+        }
+//        System.out.println("list.toString(): " + list.toString());
+        return list;
+    }
+
 }
