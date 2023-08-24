@@ -33,7 +33,12 @@ private String userType;
     private Integer userJoinId;
     private String userAddressDetail;
     private String userConsultContent;
+
     private CourseDTO courseDTO;
+
+
+
+private String approval;
 
     private String userSpecialNote;
 
@@ -45,7 +50,7 @@ private String userType;
 
         User user = User.builder()
                 .id(this.id).course(course)
-                .userId(this.userId)
+                .userId(this.userId).approval(this.approval)
                 .userPw(this.userPw).userBus(this.userBus)
 //                .userEmail(this.userEmail)
                 .userType(this.userType).userSpecialNote(this.userSpecialNote).userConsultContent(this.userConsultContent)

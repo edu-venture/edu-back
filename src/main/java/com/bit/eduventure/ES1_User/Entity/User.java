@@ -54,6 +54,9 @@ public class User {
     @Builder.Default
     private LocalDateTime userRegdate = LocalDateTime.now();
 
+    @Column(name = "USER_APPROVAL", columnDefinition = "VARCHAR(255) DEFAULT 'x'")
+    private String approval;
+
 
     @ManyToOne
     //2 Fk로 가져올 컬럼 지정
@@ -67,8 +70,12 @@ public class User {
     private String role;
     public UserDTO EntityToDTO() {
         UserDTO userDTO = UserDTO.builder()
+
                 .id(this.id).courseDTO(this.course.EntityToDTO())
                 .userId(this.userId)
+
+                .userId(this.userId).approval(this.approval)
+
                 .userName(this.userName).userAddressDetail(this.userAddressDetail)
 //                .userEmail(this.userEmail)
                 .userTel(this.userTel).userBus(this.userBus).userSpecialNote(this.userSpecialNote).userConsultContent(this.userConsultContent)

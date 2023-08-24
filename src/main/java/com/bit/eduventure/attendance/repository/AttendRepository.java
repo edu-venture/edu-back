@@ -15,11 +15,17 @@ public interface AttendRepository extends JpaRepository<Attend, Integer> {
 
     Optional<Attend> findById(Integer id);
 
-    List<Attend> findAllByUserId(String userId);
+    List<Attend> findAllByUserNo(Integer userId);
 
-    List<Attend> findByUserIdAndAttStartBetween(String userId, LocalDateTime start, LocalDateTime end);
+    List<Attend> findByUserNoAndAttStartBetween(Integer userId, LocalDateTime start, LocalDateTime end);
 
-    List<Attend> findByUserIdAndAttDate(String userId, LocalDate attDate);
+    List<Attend> findByUserNoAndAttDate(Integer userId, LocalDate attDate);
+
+    //특정한 달(month)의 출석 기록 조회
+    List<Attend> findByUserNoAndAttDateBetween(Integer userId, LocalDate startDate, LocalDate endDate);
+
+    Optional<Attend> deleteByUserNoAndAttDate(Integer userId, LocalDate attDate);
+
 
 
 }
