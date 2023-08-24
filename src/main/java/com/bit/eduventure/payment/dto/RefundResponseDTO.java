@@ -1,3 +1,4 @@
+
 package com.bit.eduventure.payment.dto;
 
 import com.bit.eduventure.payment.entity.Payment;
@@ -21,3 +22,4 @@ public class RefundResponseDTO {
         this.cancelDate = payments.get(0).getCancelDate();
     }
 }
+

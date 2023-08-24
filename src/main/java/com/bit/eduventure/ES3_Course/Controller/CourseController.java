@@ -66,7 +66,7 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/course/{teacher}")
+    @GetMapping("/course/{teacherId}")
     public ResponseEntity<?> getCourse(@PathVariable int teacher) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
         try {

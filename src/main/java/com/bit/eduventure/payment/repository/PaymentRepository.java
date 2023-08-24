@@ -1,3 +1,4 @@
+
 package com.bit.eduventure.payment.repository;
 
 import com.bit.eduventure.payment.entity.Payment;
@@ -18,3 +19,4 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     //payTo(학생PK)로 해당하는 모든 결제정보 찾기
     List<Payment> findAllByPayTo(int payTo);
 }
+
