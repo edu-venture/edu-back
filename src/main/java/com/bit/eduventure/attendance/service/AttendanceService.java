@@ -162,10 +162,10 @@ public class AttendanceService {
         System.out.println(courseEndTime);
 
         // 퇴실 시간 제한 조건
-//        if(exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime.minusMinutes(30)))
-//                || exitTime.isAfter(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
-//            throw new IllegalArgumentException("퇴실은 수업 종료 30분 전부터 종료 시간까지만 가능합니다.");
-//        }
+        if(exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime.minusMinutes(10)))
+                || exitTime.isAfter(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
+            throw new IllegalArgumentException("퇴실은 수업 종료 10분 전부터 종료 시간까지만 가능합니다.");
+        }
 
 
         if (courseEndTime == null) {
