@@ -12,15 +12,13 @@ import com.bit.eduventure.attendance.entity.Attend;
 import com.bit.eduventure.attendance.repository.AttendRepository;
 
 import com.bit.eduventure.timetable.entity.TimeTable;
+import com.bit.eduventure.timetable.repository.TimeTableRepository;
 import com.bit.eduventure.timetable.service.TimeTableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,10 +27,9 @@ import java.util.stream.Collectors;
 public class AttendanceService {
 
     private final AttendRepository attendRepository;
-    private final CourseRepository courseRepository;
     private final CourseService courseService;
     private final UserService userService;
-    private final TimeTableService timeTableService;
+    private final TimeTableRepository timeTableRepository;
 
 
     public class DayOfWeekMapping {
@@ -65,32 +62,34 @@ public class AttendanceService {
             "8교시", LocalTime.of(22, 0)
     );
 
-    public AttendDTO registerAttendance(String userId, LocalDateTime attendTime) {
+    public AttendDTO registerAttendance(int userId, LocalDateTime attendTime) {
         Attend record = new Attend();
-        record.setUserId(userId);
+        record.setUserNo(userId);
         record.setAttStart(attendTime);
 
-        User user = userService.findByUserId(userId);
-
-        Course course = user.getCourse();
+        User user = userService.findById(userId);
 
 
-        if (course == null) {
+        if (user.getCourse() == null) {
             throw new IllegalArgumentException("User is not registered for any course.");
         }
 
-        List<String> timeTableList = courseService.getTimeWeeksByCouNo(course.getCouNo());
+        List<TimeTable> timeTableList = timeTableRepository.findAllByCouNo(user.getCourse().getCouNo());
+
+        List<String> returnTimeWeekList = new ArrayList<>();
+
 
         String currentDayOfWeek = DayOfWeekMapping.toKorean(attendTime.getDayOfWeek());
         System.out.println("currentDayOfWeek: " + currentDayOfWeek);
 
-        for(String test : timeTableList) {
-            System.out.println("course: " + test);
+        for(TimeTable test : timeTableList) {
+            returnTimeWeekList.add(test.getTimeWeek());
+            System.out.println("course: " + test.getTimeWeek());
         }
 
-        if (timeTableList.contains(currentDayOfWeek)) {
-            String couTime = timeTableService.getCouTimesByClaName(course.getClaName()).get(0); //첫번째 시간을 뽑아내겠다.
-            LocalTime courseStart = COURSE_START_TIMES.get(couTime);
+        if (returnTimeWeekList.contains(currentDayOfWeek)) {
+            String timeClass = timeTableList.get(0).getTimeClass(); //첫번째 시간을 뽑아내겠다.
+            LocalTime courseStart = COURSE_START_TIMES.get(timeClass);
             LocalTime courseEnd = courseStart.plusMinutes(50); // 강의는 50분 간격이라고 했으므로
             System.out.println(courseStart);
 
@@ -119,8 +118,8 @@ public class AttendanceService {
         return attendDTO;
     }
 
-    public AttendDTO registerExitTime(String userId, LocalDateTime exitTime) {
-        User user = userService.findByUserId(userId);
+    public AttendDTO registerExitTime(int userId, LocalDateTime exitTime) {
+        User user = userService.findById(userId);
         // 1. User와 연결된 Course를 찾는다.
         Course course = user.getCourse();
 
@@ -128,27 +127,37 @@ public class AttendanceService {
             throw new IllegalArgumentException("User is not registered for any course.");
         }
 
-        List<String> timeTableList = courseService.getTimeWeeksByCouNo(course.getCouNo());
+        List<TimeTable> timeTableList = timeTableRepository.findAllByCouNo(user.getCourse().getCouNo());
 
         String currentDayOfWeek = DayOfWeekMapping.toKorean(exitTime.getDayOfWeek());
+        LocalDate currentDate = exitTime.toLocalDate();
+
+
+        List<String> returnTimeWeekList = new ArrayList<>();
+
+        System.out.println("currentDayOfWeek: " + currentDayOfWeek);
+
+        for(TimeTable test : timeTableList) {
+            returnTimeWeekList.add(test.getTimeWeek());
+        }
 
         LocalTime courseEndTime = null;
-
-        if (timeTableList.contains(currentDayOfWeek)) {
-            String couTime = timeTableService.getCouTimesByClaName(course.getClaName()).get(timeTableList.size() - 1); //마지막 시간을 뽑아내겠다.
-            LocalTime courseStart = COURSE_START_TIMES.get(couTime);
+        System.out.println("timeTableList.toString(): " + timeTableList.toString());
+        if (returnTimeWeekList.contains(currentDayOfWeek)) {
+            String timeClass = timeTableList.get(timeTableList.size() - 1).getTimeClass(); //첫번째 시간을 뽑아내겠다.
+            LocalTime courseStart = COURSE_START_TIMES.get(timeClass);
             courseEndTime = courseStart.plusMinutes(50); // 강의는 50분 간격이라고 했으므로
             System.out.println(courseEndTime);
         }
-
+//        System.out.println("timeClass: " + timeClass);
         System.out.println(currentDayOfWeek);
         System.out.println(courseEndTime);
 
         // 퇴실 시간 제한 조건
-        if(exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime.minusMinutes(5)))
-                || exitTime.isAfter(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
-            throw new IllegalArgumentException("퇴실은 수업 종료 5분 전부터 종료 시간까지만 가능합니다.");
-        }
+//        if(exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime.minusMinutes(30)))
+//                || exitTime.isAfter(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
+//            throw new IllegalArgumentException("퇴실은 수업 종료 30분 전부터 종료 시간까지만 가능합니다.");
+//        }
 
 
         if (courseEndTime == null) {
@@ -158,7 +167,7 @@ public class AttendanceService {
         LocalDateTime startOfDay = exitTime.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusSeconds(1);
 
-        List<Attend> records = attendRepository.findByUserIdAndAttStartBetween(user.getUserId(), startOfDay, endOfDay);
+        List<Attend> records = attendRepository.findByUserNoAndAttStartBetween(user.getId(), startOfDay, endOfDay);
 
 
         if (records.isEmpty()) {
@@ -173,6 +182,7 @@ public class AttendanceService {
         }
 
         record.setAttFinish(exitTime);
+        record.setAttDate(currentDate);
 
         // 출석 상태 결정
         if (exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
@@ -186,17 +196,33 @@ public class AttendanceService {
     }
 
 
+
+    //특정 사용자의 출석 기록 조회
     public List<AttendDTO> getAttendanceRecordsByUser(User user) {
-        List<Attend> records = attendRepository.findAllByUserId(user.getUserId());
+        List<Attend> records = attendRepository.findAllByUserNo(user.getId());
         return records.stream().map(AttendDTO::new).collect(Collectors.toList());
     }
 
+    //특정 사용자 및 특정 날짜의 출석 기록 조회
     public List<AttendDTO> getAttendanceRecordsByUserAndDate(User user, LocalDate date) {
-        List<Attend> attendances = attendRepository.findByUserIdAndAttDate(user.getUserId(), date);
+        List<Attend> attendances = attendRepository.findByUserNoAndAttDate(user.getId(), date);
         return attendances.stream()
                 .map(Attend::EntityToDTO)
                 .collect(Collectors.toList());
     }
+
+    //특정 사용자 및 특정 달의 출석 기록 조회
+    public List<AttendDTO> getAttendanceRecordsByUserAndMonth(User user, YearMonth yearMonth) {
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+
+        List<Attend> attendances = attendRepository.findByUserNoAndAttDateBetween(user.getId(), startDate, endDate);
+        return attendances.stream()
+                .map(Attend::EntityToDTO)
+                .collect(Collectors.toList());
+    }
+
+
 
     public boolean checkIfClassExistsForToday(User user) {
         String currentDayOfWeek = DayOfWeekMapping.toKorean(LocalDateTime.now().getDayOfWeek());
