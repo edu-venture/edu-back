@@ -10,9 +10,9 @@ import java.util.List;
 @Data
 public class RefundResponseDTO {
 
-    private int payNo;
-    private LocalDateTime cancelDate;
-    private boolean isCancel;
+    private int payNo;  //결제번호
+    private LocalDateTime cancelDate;   //취소일
+    private boolean isCancel;   //취소여부
 
     public RefundResponseDTO(List<Payment> payments) {
 
