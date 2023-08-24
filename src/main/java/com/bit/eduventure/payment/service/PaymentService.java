@@ -196,25 +196,18 @@ public class PaymentService {
 //        return repository.findByUserNoAndIsPayTrueAndIssDate(userNo, issDate);
 //    }
 //
-//    /* 결제 성공 후 db 업데이트 */
-//    public void updatePayment(int payNo, com.siot.IamportRestClient.response.Payment payment) {
-//
-//        List<Payment> payments = repository.findByPayNo(payNo);
-//        if (payments.size() == 0) {
-//            throw new IllegalArgumentException("Invalid payNo: " + payNo);
-//        }
-//
-//        payments.stream().forEach(p -> {
-//            p.setPayMethod(payment.getPayMethod());
-//            p.setTotalPrice(payment.getAmount().intValue());
-//            p.setImpUid(payment.getImpUid());
-//            p.setPayDate(payment.getPaidAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-//            p.setPay(true);
-//            p.setPayTo(payment.getBuyerName());
-//        });
-//
-//        repository.saveAll(payments);
-//    }
+    /* 결제 성공 후 db 업데이트 */
+    public void updatePayment(int payNo, com.siot.IamportRestClient.response.Payment iamPayment) {
+
+        Payment dbPayment = paymentRepository.findById(payNo).orElseThrow();
+        dbPayment.setPayMethod(iamPayment.getPayMethod());
+        dbPayment.setTotalPrice(iamPayment.getAmount().intValue());
+        dbPayment.setImpUid(iamPayment.getImpUid());
+        dbPayment.setPayDate(iamPayment.getPaidAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        dbPayment.setPay(true);
+
+        paymentRepository.save(dbPayment);
+    }
 //
 //    /* 결제 취소 후 db 업데이트 */
 //    public void refundPayment(int payNo, com.siot.IamportRestClient.response.Payment payment) {
@@ -259,24 +252,7 @@ public class PaymentService {
 //            throw new RuntimeException("Failed to get iamport token", e);
 //        }
 //    }
-//
-//
-//    public void deletePayment(int userNo, LocalDateTime dateTime) {
-//        // 특정 사용자와 날짜에 해당하는 Payment 엔터티 목록 조회
-//        List<Payment> paymentsToDelete = repository.findByUserNoAndIssDate(userNo, dateTime);
-//
-//        // 해당 Payment 엔터티가 존재하는지 검사
-//        if (paymentsToDelete == null || paymentsToDelete.isEmpty()) {
-//            throw new IllegalArgumentException("해당 날짜에 결제 정보가 없습니다.");
-//        }
-//
-//        // 조회된 모든 Payment 엔터티 삭제
-//        repository.deleteAll(paymentsToDelete);
-//    }
-//
-//    public List<Payment> list() {
-//        return repository.findAll();
-//    }
+
 
 
 }
