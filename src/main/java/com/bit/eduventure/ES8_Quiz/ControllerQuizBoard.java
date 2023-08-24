@@ -63,7 +63,7 @@ public class ControllerQuizBoard {
                     QuizBoardDTO.builder()
                             .boardNo(board.getBoardNo())
                             .boardTitle(board.getBoardTitle())
-                            .boardWriter(board.getBoardWriter()).claName(board.getClaName()).option1(board.getOption1()).option2(board.getOption2()).option3(board.getOption3()).option4(board.getOption4()).answer(board.getAnswer())
+                            .boardWriter(board.getBoardWriter()).claName(board.getClaName()).option1(board.getOption1()).option2(board.getOption2()).option3(board.getOption3()).option4(board.getOption4()).answer(board.getAnswer()).grossRightAnswer(board.getGrossRightAnswer()).grossSample(board.getGrossSample())
                             .boardContent(board.getBoardContent())
                             .boardRegdate(board.getBoardRegdate().toString())
                             .boardCnt(board.getBoardCnt())
@@ -120,7 +120,7 @@ public class ControllerQuizBoard {
             //boardRegdate의 값이 null값으로 들어간다.
             QuizBoard quizBoard = QuizBoard.builder()
                     .boardTitle(quizBoardDTO.getBoardTitle()).option1(quizBoardDTO.getOption1()).option2(quizBoardDTO.getOption2()).option3(quizBoardDTO.getOption3()).option4(quizBoardDTO.getOption4()).answer(quizBoardDTO.getAnswer())
-                    .boardContent(quizBoardDTO.getBoardContent()).claName(quizBoardDTO.getClaName())
+                    .boardContent(quizBoardDTO.getBoardContent()).claName(quizBoardDTO.getClaName()).grossRightAnswer(quizBoardDTO.getGrossRightAnswer()).grossSample(quizBoardDTO.getGrossSample())
                     .boardWriter(quizBoardDTO.getBoardWriter())
                     .boardRegdate(LocalDateTime.now())
                     .build();
@@ -316,6 +316,47 @@ public class ControllerQuizBoard {
             responseDTO.setItem(returnMap);
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @PostMapping("/answerwrong")
+    public ResponseEntity<?> gotWrongAnswer(@RequestBody Map<String, Integer> request) {
+        int boardNo = request.get("boardNo"); // Map에서 boardNo 값을 가져옵니다.
+        ResponseDTO<QuizBoardDTO> responseDTO = new ResponseDTO<>();
+        System.out.println("answerwrong에 들어옴");
+        System.out.println(request);
+        try {
+           quizBoardService.plussGrossSample(boardNo);
+           QuizBoard quizBoard = quizBoardService.getBoard(boardNo);
+            QuizBoardDTO returnBoardDTO = quizBoard.EntityToDTO();
+            responseDTO.setItem(returnBoardDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+
+    @PostMapping("/answerright")
+    public ResponseEntity<?> gotRightAnswer(@RequestBody Map<String, Integer> request) {
+        int boardNo = request.get("boardNo"); // Map에서 boardNo 값을 가져옵니다.
+        ResponseDTO<QuizBoardDTO> responseDTO = new ResponseDTO<>();
+        System.out.println("answerwrong에 들어옴");
+        System.out.println(request);
+        try {
+            quizBoardService.plussGrossRightAnswer(boardNo);
+            QuizBoard quizBoard = quizBoardService.getBoard(boardNo);
+            QuizBoardDTO returnBoardDTO = quizBoard.EntityToDTO();
+            responseDTO.setItem(returnBoardDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());

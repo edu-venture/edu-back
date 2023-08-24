@@ -117,5 +117,16 @@ public class QuizBoardServiceImpl implements QuizBoardService {
         }
     }
 
+    @Override
+    public void plussGrossSample(int boardNo) {
+        repositoryQuizBoard.plusGrossSample(boardNo);
+    }
+
+    @Override
+    public void plussGrossRightAnswer(int boardNo) {
+        repositoryQuizBoard.plusGrossSampleAndRightAnswer(boardNo);
+
+    }
+
 
 }

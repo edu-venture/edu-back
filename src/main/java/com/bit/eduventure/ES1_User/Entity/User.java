@@ -54,8 +54,8 @@ public class User {
     @Builder.Default
     private LocalDateTime userRegdate = LocalDateTime.now();
 
-    @Column(name = "USER_APPROVAL", columnDefinition = "VARCHAR(255) DEFAULT 'x'")
-    private String approval;
+    @Column(name = "USER_APPROVAL")
+    private String approval="x";
 
 
     @ManyToOne

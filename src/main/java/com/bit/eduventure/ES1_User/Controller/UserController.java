@@ -257,6 +257,8 @@ if(userRepository.existsById(student.getId())){
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
         UserDTO userDTO = joinDTO.getUserDTO();
         UserDTO parentDTO = joinDTO.getParentDTO();
+        userDTO.setApproval("o");
+        parentDTO.setApproval("o");
         System.out.println(userDTO);
         System.out.println(parentDTO);
         try {
@@ -311,6 +313,7 @@ if(userRepository.existsById(student.getId())){
             user.setUserPw(
                     passwordEncoder.encode(memberDTO.getUserPw())
             );
+            user.setApproval("x");
             user.setRole("ROLE_ADMIN");
             Course course = Course.builder().couNo(1).build();
 
