@@ -24,6 +24,7 @@ import retrofit2.http.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,32 +191,74 @@ public class AttendanceController {
 
     // 특정 달에 해당하는 특정 사용자 출석 기록 조회
     @GetMapping("/attend/month/{yearMonth}")
-    public ResponseEntity<List<AttendDTO>> getAttendanceRecordsByUserAndMonth(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+    public ResponseEntity<?> getAttendanceRecordsByUserAndMonth(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                                               @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
-        User user = new User();
-        user.setId(Integer.valueOf(customUserDetails.getUsername()));
-        List<AttendDTO> records = attendanceService.getAttendanceRecordsByUserAndMonth(user, yearMonth);
-        return ResponseEntity.ok(records);
+        ResponseDTO<List<AttendDTO>> responseDTO = new ResponseDTO<>();
+        int userId = Integer.parseInt(customUserDetails.getUsername());
+
+        try {
+
+            User user = userService.findById(userId);
+            List<AttendDTO> records = attendanceService.getAttendanceRecordsByUserAndMonth(user, yearMonth);
+
+            responseDTO.setItem(records);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+
+        } catch (Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage(e.getMessage());
+
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+    // 출석 기록 수정
+    @PutMapping("/admin/attend")
+    public ResponseEntity<?> updateAttendRecord(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                @RequestBody AttendDTO attendDTO) {
+        ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
+        System.out.println(attendDTO);
+        System.out.println("update 시작");
+
+        try {
+            Attend attend = attendDTO.DTOToEntity();
+            Attend updatedAttend = attendanceService.updateAttendRecord(attend);
+            AttendDTO updateAttendDTO = updatedAttend.EntityToDTO();
+
+            responseDTO.setItem(updateAttendDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+
+        } catch (Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage(e.getMessage());
+
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
     }
 
 
-    // 특정 사용자의 특정 날짜의 출석 기록 수정 (PUT 매핑 예시)
-    @PutMapping("/{userId}/{date}")
-    public ResponseEntity<String> updateAttendanceRecord(@PathVariable String userId,
-                                                         @PathVariable String date,
-                                                         @RequestBody AttendDTO updatedRecord) {
-        // Implement this with service. This is just a placeholder.
-        // You may need to parse the date and find the corresponding record, then update with the provided DTO.
+    @DeleteMapping("/admin/attend")
+    public ResponseEntity<?> deleteAttendanceRecord(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                    @RequestBody String attList) {
+        ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
 
-        return ResponseEntity.ok("Updated successfully");
-    }
+        try{
+            attendanceService.deleteAttendList(attList);
 
-    // 특정 사용자의 특정 날짜의 출석 기록 삭제 (DELETE 매핑 예시)
-    @DeleteMapping("/{userId}/{date}")
-    public ResponseEntity<String>
-    deleteAttendanceRecord(@PathVariable String userId, @PathVariable String date) {
 
-        return ResponseEntity.ok("Deleted successfully");
+            Map<String, Object> returnMap = new HashMap<>();
+            returnMap.put("msg", "Deleted successfully");
+            responseDTO.setItem(returnMap);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage("Error deleting the record");
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
     }
 }
 

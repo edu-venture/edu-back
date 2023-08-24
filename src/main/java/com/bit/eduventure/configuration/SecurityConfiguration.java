@@ -77,6 +77,7 @@ public class SecurityConfiguration {
                     authorizeRequests.requestMatchers("/timetable/**").permitAll();
                     authorizeRequests.requestMatchers("/iamport/**").permitAll();
                     authorizeRequests.requestMatchers("/attendance/**").permitAll();
+                    authorizeRequests.requestMatchers("/attendance/admin/**").hasRole("ADMIN");
 
                     //결제 관련 주소
                     authorizeRequests.requestMatchers("/payment/**").permitAll();
