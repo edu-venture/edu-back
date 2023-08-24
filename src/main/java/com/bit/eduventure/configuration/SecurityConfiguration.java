@@ -72,6 +72,7 @@ public class SecurityConfiguration {
                     authorizeRequests.requestMatchers("/user/**").permitAll();
                     authorizeRequests.requestMatchers("/notice/**").permitAll();
                     authorizeRequests.requestMatchers("/course/**").permitAll();
+                    authorizeRequests.requestMatchers("/quiz/**").permitAll();
                     authorizeRequests.requestMatchers("/sms/**").permitAll();
                     authorizeRequests.requestMatchers("/user/deleteselectusers").permitAll();
                     authorizeRequests.requestMatchers("/timetable/**").permitAll();

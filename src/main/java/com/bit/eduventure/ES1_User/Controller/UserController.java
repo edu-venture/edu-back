@@ -468,6 +468,10 @@ public class UserController {
                     .filter(user -> user.getCourseDTO().getCouNo() == couNo)
                     .collect(Collectors.toList());
 
+
+//            rladmstjrqkqh
+
+
             responseDTO.setItems(userDTOList);
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
