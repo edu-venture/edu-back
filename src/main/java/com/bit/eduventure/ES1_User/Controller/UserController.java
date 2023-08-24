@@ -254,6 +254,8 @@ public class UserController {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
         UserDTO userDTO = joinDTO.getUserDTO();
         UserDTO parentDTO = joinDTO.getParentDTO();
+        userDTO.setApproval("o");
+        parentDTO.setApproval("o");
         System.out.println(userDTO);
         System.out.println(parentDTO);
         try {
@@ -306,6 +308,7 @@ public class UserController {
             user.setUserPw(
                     passwordEncoder.encode(memberDTO.getUserPw())
             );
+            user.setApproval("x");
             user.setRole("ROLE_ADMIN");
             Course course = Course.builder().couNo(1).build();
 
@@ -462,7 +465,7 @@ public class UserController {
             //엔티티 리스트를 dto 리스트로 변환하면서 반 번호에 맞는 유저만 저장
             List<UserDTO> userDTOList = userList.stream()
                     .map(User::EntityToDTO)
-                    .filter(user -> user.getCouNo() == couNo)
+                    .filter(user -> user.getCourseDTO().getCouNo() == couNo)
                     .collect(Collectors.toList());
 
             responseDTO.setItems(userDTOList);

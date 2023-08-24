@@ -25,6 +25,7 @@ public interface QuizBoardService {
     Page<QuizBoard> getBoardList(Pageable pageable, String searchCondition, String searchKeyword);
 
 
+    void plussGrossSample(int boardNo);
 
-
+    void plussGrossRightAnswer(int boardNo);
 }
