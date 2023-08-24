@@ -75,54 +75,56 @@ public class AttendanceService {
 
         User user = userService.findById(userId);
 
-
         if (user.getCourse() == null) {
             throw new IllegalArgumentException("User is not registered for any course.");
         }
 
-        List<TimeTable> timeTableList = timeTableRepository.findAllByCouNo(user.getCourse().getCouNo());
+        // 오늘 날짜의 해당 사용자에 대한 출석 기록 확인
+        LocalDate today = LocalDate.now();
+        List<Attend> existAttendance = attendRepository.findByUserNoAndAttDate(userId, today);
 
-        List<String> returnTimeWeekList = new ArrayList<>();
-
-
-        String currentDayOfWeek = DayOfWeekMapping.toKorean(attendTime.getDayOfWeek());
-        System.out.println("currentDayOfWeek: " + currentDayOfWeek);
-
-        for(TimeTable test : timeTableList) {
-            returnTimeWeekList.add(test.getTimeWeek());
-            System.out.println("course: " + test.getTimeWeek());
+        if(!existAttendance.isEmpty()) {
+            throw new IllegalArgumentException("You've already registered your attendance for today.");
         }
 
-        if (returnTimeWeekList.contains(currentDayOfWeek)) {
-            String timeClass = timeTableList.get(0).getTimeClass(); //첫번째 시간을 뽑아내겠다.
-            LocalTime courseStart = COURSE_START_TIMES.get(timeClass);
-            LocalTime courseEnd = courseStart.plusMinutes(50); // 강의는 50분 간격이라고 했으므로
-            System.out.println(courseStart);
+        List<TimeTable> timeTableList = timeTableRepository.findAllByCouNo(user.getCourse().getCouNo());
 
-            // 입실 시간 제한 조건
-            if(attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart))
-                    || attendTime.isAfter(LocalDateTime.of(attendTime.toLocalDate(), courseEnd))) {
-                throw new IllegalArgumentException("입실은 수업 시간 내에서만 가능합니다.");
-            }
+        String currentDayOfWeek = DayOfWeekMapping.toKorean(attendTime.getDayOfWeek());
 
-            if (courseStart == null) {
-                throw new IllegalArgumentException("Invalid course time provided.");
-            }
+        List<String> timeWeekList = timeTableList.stream()
+                .map(TimeTable::getTimeWeek)
+                .collect(Collectors.toList());
 
-            // 출석 시간 비교
-            if (attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart))) {
-                record.setAttContent("출석중");
-            } else if (attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart).plusMinutes(10))) {
-                record.setAttContent("1");
-            } else {
-                record.setAttContent("2");
-            }
+        if (!timeWeekList.contains(currentDayOfWeek)) {
+            throw new IllegalArgumentException("오늘은 수업시간이 아닙니다.");
+        }
+
+        String timeClass = timeTableList.get(0).getTimeClass(); //가장 첫번째 시간을 잡는다.
+        LocalTime courseStart = COURSE_START_TIMES.get(timeClass);
+        if (courseStart == null) {
+            throw new IllegalArgumentException("Invalid course time provided.");
+        }
+
+        LocalTime courseEnd = courseStart.plusMinutes(50);
+
+        if(attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart))
+                || attendTime.isAfter(LocalDateTime.of(attendTime.toLocalDate(), courseEnd))) {
+            throw new IllegalArgumentException("입실은 수업시간 내에서만 가능합니다.");
+        }
+
+        if (attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart))) {
+            record.setAttContent("출석중");
+        } else if (attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart).plusMinutes(10))) {
+            record.setAttContent("1");
+        } else {
+            record.setAttContent("2");
         }
 
         AttendDTO attendDTO = attendRepository.save(record).EntityToDTO();
 
         return attendDTO;
     }
+
 
 
 

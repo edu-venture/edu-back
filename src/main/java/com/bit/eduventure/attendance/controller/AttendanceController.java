@@ -40,67 +40,13 @@ public class AttendanceController {
 
     private final UserService userService;
 
-    //학생의 수업일 확인
-    @GetMapping("/check")
-    public ResponseEntity<?> checkClassForToday(User user) {
-        ResponseDTO<Map<String, String>> responseDTO = new ResponseDTO<>();
-        try {
-            boolean hasClass = attendanceService.checkIfClassExistsForToday(user);
-
-            Map<String, String> returnMap = new HashMap<>();
-
-            System.out.println(hasClass);
-            System.out.println(user.getUserName());
-            if (hasClass) {
-                returnMap.put("name", user.getUserName());
-                returnMap.put("bool", "T");
-            } else {
-                returnMap.put("name", user.getUserName());
-                returnMap.put("bool", "F");
-            }
-
-            responseDTO.setItem(returnMap);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            System.out.println(returnMap);
-            return ResponseEntity.ok().body(responseDTO);
-
-        } catch (Exception e) {
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            responseDTO.setErrorMessage(e.getMessage());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
-    }
-
-    @GetMapping("/main")
-    public ModelAndView attendMainPage(Attend attend) {
-
-        ModelAndView mv = new ModelAndView();
-        mv.addObject("attStart", attend.getAttStart());
-        mv.addObject("attFinish", attend.getAttFinish());
-        mv.addObject("attContent", attend.getAttContent());
-
-        mv.setViewName("attendance/main.html");
-
-        return mv; // Thymeleaf는 자동으로 resources/templates 디렉토리를 참조합니다.
-    }
-
-    @GetMapping("/studentName")
-    public ResponseEntity<?> getStudentName(@RequestBody User user) {
-        ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
-        // 로직 추가하여 학생 이름 가져오기
-        String studentName = user.getUserName();
-
-        // 데이터를 DTO로 감싸서 반환
-        String response = studentName;
-        return ResponseEntity.ok(response);
-    }
-
     // 입실 처리
     @PostMapping("/enter")
     public ResponseEntity<?> registerEnterTime(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = Integer.parseInt(customUserDetails.getUsername());
         System.out.println(userId);
+
 
         try {
             LocalDateTime attendTime = LocalDateTime.now(); // 현재 시간으로 입실 시간 설정
@@ -127,7 +73,7 @@ public class AttendanceController {
         System.out.println(userId);
 
         try {
-            LocalDateTime exitTime = LocalDateTime.now(); // 현재 시간으로 입실 시간 설정
+            LocalDateTime exitTime = LocalDateTime.now(); // 현재 시간으로 퇴실 시간 설정
 
 
             AttendDTO response = attendanceService.registerExitTime(userId, exitTime);
@@ -237,6 +183,7 @@ public class AttendanceController {
 
             return ResponseEntity.badRequest().body(responseDTO);
         }
+
     }
 
 
