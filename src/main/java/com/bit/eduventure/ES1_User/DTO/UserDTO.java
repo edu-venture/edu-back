@@ -2,6 +2,7 @@ package com.bit.eduventure.ES1_User.DTO;
 
 
 import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import lombok.*;
 
@@ -32,14 +33,14 @@ private String userType;
     private Integer userJoinId;
     private String userAddressDetail;
     private String userConsultContent;
-    private Integer couNo;
+    private CourseDTO courseDTO;
 
     private String userSpecialNote;
 
     private Integer userBus;
 
     public User DTOToEntity() {
-        Course course = Course.builder().couNo(this.couNo).build();
+        Course course = Course.builder().couNo(this.courseDTO.getCouNo()).build();
 
 
         User user = User.builder()

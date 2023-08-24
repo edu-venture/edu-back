@@ -67,7 +67,7 @@ public class User {
     private String role;
     public UserDTO EntityToDTO() {
         UserDTO userDTO = UserDTO.builder()
-                .id(this.id).couNo(this.course.getCouNo())
+                .id(this.id).courseDTO(this.course.EntityToDTO())
                 .userId(this.userId)
                 .userName(this.userName).userAddressDetail(this.userAddressDetail)
 //                .userEmail(this.userEmail)
