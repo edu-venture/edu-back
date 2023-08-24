@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user")
@@ -48,6 +49,7 @@ public class UserController {
 
 
     private final UserDetailsServiceImpl userDetailsServiceImpl;
+
     @DeleteMapping("/user/{id}")
     public ResponseEntity<?> deleteBoard(@PathVariable int id) {
         ResponseDTO<Map<String, String>> responseDTO =
@@ -75,15 +77,13 @@ public class UserController {
                 new ResponseDTO<Map<String, String>>();
         try {
 
-           for(int i=0;i<selectedUserIds.size();i++){
+            for (int i = 0; i < selectedUserIds.size(); i++) {
 
-               System.out.println(selectedUserIds.get(i));
-               userService.deleteUser(selectedUserIds.get(i)          );
+                System.out.println(selectedUserIds.get(i));
+                userService.deleteUser(selectedUserIds.get(i));
 
 
-
-           }
-
+            }
 
 
             Map<String, String> returnMap = new HashMap<String, String>();
@@ -97,7 +97,6 @@ public class UserController {
         }
     }
 
-//아니 이거 왜 안돼냐
 
     @GetMapping("/user-list")
     public ResponseEntity<?> getUserList(@PageableDefault(page = 0, size = 1000) Pageable pageable,
@@ -121,7 +120,7 @@ public class UserController {
             Page<UserDTO> pageUserDTO = pageUser.map(user ->
                             UserDTO.builder()
                                     .id(user.getId())
-                                    .userId(user.getUserId()).couNo(user.getCourse().getCouNo())
+                                    .userId(user.getUserId()).courseDTO(user.getCourse().EntityToDTO())
                                     .userPw(user.getUserPw()).userBus(user.getUserBus())
 //                .userEmail(this.userEmail)
                                     .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote()).userConsultContent(user.getUserConsultContent()).approval(user.getApproval())
@@ -140,7 +139,7 @@ public class UserController {
 
             return ResponseEntity.ok().body(responseDTO);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
             responseDTO.setErrorMessage(e.getMessage());
 
@@ -157,13 +156,13 @@ public class UserController {
 //        System.out.println(userId);
 //        System.out.println(userDTO);
         User userme;
-        if(user.getId()==null){
-         userme = userService.findByUserId(user.getUserId());}
-        else{
-             userme = userService.findById(user.getId());
+        if (user.getId() == null) {
+            userme = userService.findByUserId(user.getUserId());
+        } else {
+            userme = userService.findById(user.getId());
         }
         UserDTO userDTO = userme.EntityToDTO();
-        userDTO.setUserPw(   userDTO.getUserPw());
+        userDTO.setUserPw(userDTO.getUserPw());
         try {
 //            User user = userDTO.DTOToEntity();
 //            userService.findById()
@@ -190,21 +189,19 @@ public class UserController {
     }
 
 
-
-
     @PostMapping("/getstudent")
     public ResponseEntity<?> getstudent(@RequestBody UserDTO student) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
 
         User userme;
 
-if(userRepository.existsById(student.getId())){
-     userme = userService.findById(student.getId());
-}else{
-     userme = new User();
-     userme.setUserTel("엄마없음");
-     userme.setCourse(new Course().builder().couNo(1).build());
-}
+        if (userRepository.existsById(student.getId())) {
+            userme = userService.findById(student.getId());
+        } else {
+            userme = new User();
+            userme.setUserTel("엄마없음");
+            userme.setCourse(new Course().builder().couNo(1).build());
+        }
 
         System.out.println(userme);
         UserDTO userDTO = userme.EntityToDTO();
@@ -299,8 +296,6 @@ if(userRepository.existsById(student.getId())){
     }
 
 
-
-
     @PostMapping("/adminjoin")
     public ResponseEntity<?> adminjoin(@RequestBody UserDTO memberDTO) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
@@ -333,11 +328,6 @@ if(userRepository.existsById(student.getId())){
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
-
-
-
-
-
 
 
     @PutMapping("/update")
@@ -380,7 +370,7 @@ if(userRepository.existsById(student.getId())){
         try {
             User userBulk = userService.findById(userDTO.getId());
 
-            userBulk.setUserPw( passwordEncoder.encode(userDTO.getUserPw()));
+            userBulk.setUserPw(passwordEncoder.encode(userDTO.getUserPw()));
             System.out.println("이것은 유저버크");
             System.out.println(userBulk);
             System.out.println(userBulk);
@@ -402,8 +392,6 @@ if(userRepository.existsById(student.getId())){
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
-
-
 
 
     @PostMapping("/login")
@@ -447,13 +435,12 @@ if(userRepository.existsById(student.getId())){
     @GetMapping("/type-list/{userType}")
     public ResponseEntity<?> getTeacherList(@PathVariable String userType) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
-        List<UserDTO> userDTOList = new ArrayList<>();
         try {
             List<User> userList = userService.getUserTypeList(userType);
 
-            for (User user : userList) {
-                userDTOList.add(user.EntityToDTO());
-            }
+            List<UserDTO> userDTOList = userList.stream()
+                    .map(user -> user.EntityToDTO())
+                    .collect(Collectors.toList());
 
             responseDTO.setItems(userDTOList);
             responseDTO.setStatusCode(HttpStatus.OK.value());
@@ -466,24 +453,29 @@ if(userRepository.existsById(student.getId())){
         }
     }
 
+    //반별 학생 정보 찾기
+    @GetMapping("/{couNo}/user-list")
+    public ResponseEntity<?> getCourseUserList(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                               @PathVariable int couNo) {
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+        try {
+            String userType = "student";
+            List<User> userList = userService.getUserTypeList(userType);
 
+            //엔티티 리스트를 dto 리스트로 변환하면서 반 번호에 맞는 유저만 저장
+            List<UserDTO> userDTOList = userList.stream()
+                    .map(User::EntityToDTO)
+                    .filter(user -> user.getCouNo() == couNo)
+                    .collect(Collectors.toList());
 
+            responseDTO.setItems(userDTOList);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
 }
