@@ -465,7 +465,7 @@ public class UserController {
             //엔티티 리스트를 dto 리스트로 변환하면서 반 번호에 맞는 유저만 저장
             List<UserDTO> userDTOList = userList.stream()
                     .map(User::EntityToDTO)
-                    .filter(user -> user.getCouNo() == couNo)
+                    .filter(user -> user.getCourseDTO().getCouNo() == couNo)
                     .collect(Collectors.toList());
 
             responseDTO.setItems(userDTOList);
