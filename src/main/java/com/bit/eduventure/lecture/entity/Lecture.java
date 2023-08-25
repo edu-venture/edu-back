@@ -19,8 +19,7 @@ public class Lecture {
     private Integer id;
     @Column(name = "LEC_TITLE")
     private String title;
-    @Column(name = "LEC_WRITER") //중요하진 않은데 -> 선생님으로해도? many to one
-    private String write;
+
     @Column(name = "LEC_LIVE_ID")
     private String liveStationId;
 
@@ -32,9 +31,8 @@ public class Lecture {
         LectureDTO dto = LectureDTO.builder()
                 .id(this.id)
                 .title(this.title)
-                .write(this.write)
                 .liveStationId(this.liveStationId)
-                .course(this.course)
+                .courseDTO(this.course.EntityToDTO())
                 .build();
 
         return dto;
