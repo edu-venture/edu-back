@@ -37,8 +37,7 @@ public class ObjectStorageService {
     @Value("${cloud.aws.s3.bucket.name}")
     private String bucket;
 
-    @Value("${cloud.aws.s3.file.bucket.name}")
-    private String fileBucket;
+    private String ncpAddress = "https://kr.object.ncloudstorage.com/";
 
 
     public ResponseEntity<?> getObject(String objectName) {
@@ -88,7 +87,8 @@ public class ObjectStorageService {
         PutObjectRequest putObjectRequest = null;
         //공식 api 사용법
         try {
-            putObjectRequest = new PutObjectRequest(bucket, saveFilename, multipartFile.getInputStream(), objectMetadata);
+            putObjectRequest = new PutObjectRequest(bucket, saveFilename, multipartFile.getInputStream(), objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead);;
             //버킷, 실제리소스파일, 오브젝트메타데이타
 
             s3.putObject(putObjectRequest);
@@ -113,5 +113,15 @@ public class ObjectStorageService {
 
     public List<VodBoard> getVodBoardList() {
         return vodBoardRepository.findAll();
+    }
+
+    public String setObjectSrc(String saveFileName) {
+        StringBuilder storageAddress = new StringBuilder();
+        storageAddress.append(ncpAddress);
+        storageAddress.append(bucket);
+        storageAddress.append("/");
+        storageAddress.append(saveFileName);
+        System.out.println("storageAddress.toString(): " + storageAddress.toString());
+        return storageAddress.toString();
     }
 }

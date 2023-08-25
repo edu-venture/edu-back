@@ -1,6 +1,7 @@
 package com.bit.eduventure.vodBoard.entity;
 
 
+import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.vodBoard.dto.VodBoardDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -52,14 +53,9 @@ public class VodBoard {
     @Column(name = "VOD_ORIGIN_THUMB")
     private String originThumb;
 
-//    @Column(name = "VOD_ORIGIN_NAME")
-//    private String vodOriginName;
-//
-//    @Column(name = "VOD_SAVE_NAME")
-//    private String vodSaveName;
-//
-//    @Column(name = "VOD_FILE_OBJECT")
-//    private String vodFileObject;
+    @ManyToOne
+    @JoinColumn(name = "USER_NO")
+    private User user;  // 유저 정보를 findBy 안쓰고 편하게 쓰기 위해서 작성함.
 
     public VodBoardDTO EntityToDTO() {
         VodBoardDTO vodBoardDTO = VodBoardDTO.builder()
@@ -74,6 +70,7 @@ public class VodBoard {
                 .hits(this.hits)
                 .originPath(this.originPath)
                 .savePath(this.savePath)
+                .userDTO(this.user.EntityToDTO())
                 .build();
         return vodBoardDTO;
     }

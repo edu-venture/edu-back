@@ -27,10 +27,11 @@ public class VodBoardService {
     }
 
     public VodBoard getBoard(int boardNo) {
-        if (vodBoardRepository.findById(boardNo).isEmpty()) {
-            return null;
-        }
-        VodBoard returnBoard = vodBoardRepository.findById(boardNo).get();
+        VodBoard returnBoard = vodBoardRepository.findById(boardNo).orElseThrow();
+//        if (vodBoardRepository.findById(boardNo).isEmpty()) {
+//            return null;
+//        }
+//        VodBoard returnBoard = vodBoardRepository.findById(boardNo).get();
         returnBoard.setHits(returnBoard.getHits()+1); //조회수 증가
         vodBoardRepository.save(returnBoard);
         return returnBoard;
@@ -48,12 +49,13 @@ public class VodBoardService {
 
     //수정 기능
     public VodBoard updateVodBoard(int boardNo, VodBoard updatedVodBoard) {
-        if (vodBoardRepository.existsById(boardNo)) {
-            updatedVodBoard.setId(boardNo);
-            //이게 아닌디
-            return vodBoardRepository.save(updatedVodBoard);
-        }
-        return null; // 수정할 게시물이 없는 경우
+        vodBoardRepository.findById(boardNo).orElseThrow();
+        return vodBoardRepository.save(updatedVodBoard);
+//        if (vodBoardRepository.existsById(boardNo)) {
+//            //이게 아닌디
+//            return vodBoardRepository.save(updatedVodBoard);
+//        }
+//        return null; // 수정할 게시물이 없는 경우
     }
 
     //삭제 기능

@@ -1,6 +1,7 @@
 package com.bit.eduventure.vodBoard.dto;
 
 
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.vodBoard.entity.VodBoard;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,7 @@ public class VodBoardDTO { // 보드 dto에 원래 이름, 저장이름, 오브�
     private String savePath;
     private String originThumb;
     private String saveThumb;
+    private UserDTO userDTO;
 
     public VodBoard DTOTOEntity() {
         VodBoard vodBoard = VodBoard.builder()
@@ -39,6 +41,7 @@ public class VodBoardDTO { // 보드 dto에 원래 이름, 저장이름, 오브�
                 .hits(this.hits)
                 .originPath(this.originPath)
                 .savePath(this.savePath)
+                .user(this.userDTO.DTOToEntity())
                 .build();
         return vodBoard;
     }
