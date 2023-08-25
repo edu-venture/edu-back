@@ -2,11 +2,8 @@ package com.bit.eduventure.timetable.service;
 
 import com.bit.eduventure.ES3_Course.Service.CourseService;
 import com.bit.eduventure.timetable.dto.TimeTableDTO;
-import com.bit.eduventure.timetable.dto.TimeTableGetResponseDTO;
-import com.bit.eduventure.timetable.dto.TimeTableRegistResquestDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
-import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Repository.UserRepository;
 import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.repository.TimeTableRepository;
@@ -28,37 +25,41 @@ public class TimeTableService {
     private final CourseService courseService;
 
     /* 시간표 등록 */
-    public void  registerTimetable(TimeTableRegistResquestDTO requestDTO) {
+    public void  registerTimetable(TimeTableDTO requestDTO) {
 
         int couNo = courseService.findByClaName(requestDTO.getClaName()).getCouNo();
         // TimeTableDTO
         TimeTableDTO tableDTO = TimeTableDTO.builder()
                 .couNo(couNo)
+                .timeNo(requestDTO.getTimeNo())
                 .claName(requestDTO.getClaName())
-                .timeWeek(requestDTO.getCouWeek())
-                .timeClass(requestDTO.getCouTime())
-                .timePlace(requestDTO.getCouClass())
-                .timeColor(requestDTO.getCouColor())
-                .timeTeacher(requestDTO.getTeacherName())
+                .timeWeek(requestDTO.getTimeWeek())
+                .timeClass(requestDTO.getTimeClass())
+                .timePlace(requestDTO.getTimePlace())
+                .timeColor(requestDTO.getTimeColor())
+                .timeTitle(requestDTO.getTimeTitle())
+                .timeTeacher(requestDTO.getTimeTeacher())
                 .build();
 
         // 데이터베이스에 저장
         timeTableRepository.save(tableDTO.DTOTOEntity());
     }
 
-    /* 시간표 조회 - 특정 couNo 별 */
-    public TimeTableGetResponseDTO getTimetable(int timeNo) {
+    /* 시간표 조회 */
+    public TimeTableDTO getTimetable(int timeNo) {
         TimeTable timeTable = timeTableRepository.findById(timeNo).get();
         Course course = courseRepository.findByClaName(timeTable.getClaName());
 
-        TimeTableGetResponseDTO dto = TimeTableGetResponseDTO.builder()
-                .couNo(timeTable.getTimeNo())
+        TimeTableDTO dto = TimeTableDTO.builder()
+                .timeNo(timeTable.getTimeNo())
+                .couNo(course.getCouNo())
                 .claName(course.getClaName())
-                .couWeek(timeTable.getTimeWeek())
-                .couTime(timeTable.getTimeClass())
-                .couClass(timeTable.getTimePlace())
-                .couColor(timeTable.getTimeColor())
-                .teacherName(timeTable.getTimeTeacher())
+                .timeWeek(timeTable.getTimeWeek())
+                .timeClass(timeTable.getTimeClass())
+                .timePlace(timeTable.getTimePlace())
+                .timeColor(timeTable.getTimeColor())
+                .timeTitle(timeTable.getTimeTitle())
+                .timeTeacher(timeTable.getTimeTeacher())
                 .build();
 
         return dto;
@@ -88,23 +89,25 @@ public class TimeTableService {
 
 
     /* 시간표 전체 조회 */
-    public List<TimeTableGetResponseDTO> getAllTimetables() {
+    public List<TimeTableDTO> getAllTimetables() {
 
         List<TimeTable> timeTableList = timeTableRepository.findAll();
-        List<TimeTableGetResponseDTO> returnList = new ArrayList<>();
+        List<TimeTableDTO> returnList = new ArrayList<>();
         System.out.println("시간표 서비스 returnList1==========="+returnList);
 
         for (TimeTable timeTable : timeTableList) {
             Course course = courseRepository.findByClaName(timeTable.getClaName());
 
-            TimeTableGetResponseDTO dto = TimeTableGetResponseDTO.builder()
-                    .couNo(timeTable.getTimeNo())
-                    .claName(timeTable.getClaName())
-                    .couWeek(timeTable.getTimeWeek())
-                    .couTime(timeTable.getTimeClass())
-                    .couClass(timeTable.getTimePlace())
-                    .couColor(timeTable.getTimeColor())
-                    .teacherName(timeTable.getTimeTeacher())
+            TimeTableDTO dto = TimeTableDTO.builder()
+                    .timeNo(timeTable.getTimeNo())
+                    .couNo(course.getCouNo())
+                    .claName(course.getClaName())
+                    .timeWeek(timeTable.getTimeWeek())
+                    .timeClass(timeTable.getTimeClass())
+                    .timePlace(timeTable.getTimePlace())
+                    .timeColor(timeTable.getTimeColor())
+                    .timeTitle(timeTable.getTimeTitle())
+                    .timeTeacher(timeTable.getTimeTeacher())
                     .build();
             returnList.add(dto);
         }
@@ -123,6 +126,34 @@ public class TimeTableService {
         } else {
             throw new IllegalArgumentException("TimeTable not found");
         }
+    }
+
+    /* 학생별 시간표 리스트 */
+    public List<TimeTableDTO> getTimetablesByStudent(int couNo) {
+
+        List<TimeTable> timeTableList = timeTableRepository.findTimeTablesByUserId(couNo);
+        List<TimeTableDTO> returnList = new ArrayList<>();
+        System.out.println("시간표 서비스 returnList1==========="+returnList);
+
+        for (TimeTable timeTable : timeTableList) {
+            Course course = courseRepository.findByClaName(timeTable.getClaName());
+
+            TimeTableDTO dto = TimeTableDTO.builder()
+                    .timeNo(timeTable.getTimeNo())
+                    .couNo(timeTable.getTimeNo())
+                    .claName(course.getClaName())
+                    .timeWeek(timeTable.getTimeWeek())
+                    .timeClass(timeTable.getTimeClass())
+                    .timePlace(timeTable.getTimePlace())
+                    .timeColor(timeTable.getTimeColor())
+                    .timeTitle(timeTable.getTimeTitle())
+                    .timeTeacher(timeTable.getTimeTeacher())
+                    .build();
+            returnList.add(dto);
+        }
+
+        System.out.println("시간표 서비스 returnList2=============="+returnList);
+        return returnList;
     }
 
 }

@@ -1,29 +1,31 @@
 package com.bit.eduventure.timetable.controller;
 
+import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
+import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.dto.ResponseDTO;
-import com.bit.eduventure.timetable.dto.TimeTableGetResponseDTO;
-import com.bit.eduventure.timetable.dto.TimeTableRegistResquestDTO;
+import com.bit.eduventure.timetable.dto.TimeTableDTO;
 import com.bit.eduventure.timetable.service.TimeTableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 @RestController
 @RequestMapping("/timetable")
 @RequiredArgsConstructor
 public class TimeTableController {
 
     private final TimeTableService timeTableService;
+    private final UserService userService;
 
     /* 시간표 등록 */
     @PostMapping("/regist")
     //클라이언트로부터 받은 HTTP POST 요청의 body 부분을 PaymentCreateRequestDTO 타입의 객체로 변환하고, 이를 requestDTO라는 매개변수로 전달
-    public ResponseEntity<?> registTimeTable(@RequestBody TimeTableRegistResquestDTO requestDTO) {
+    public ResponseEntity<?> registTimeTable(@RequestBody TimeTableDTO requestDTO) {
         System.out.println("requestDTO: " + requestDTO);
 
         // 클라이언트에게 전달할 최종 응답 객체 생성
@@ -45,12 +47,12 @@ public class TimeTableController {
     @GetMapping("/{timeNo}/getTimeTable")
     public ResponseEntity<?> getTimeTable(@PathVariable int timeNo) {
 
-        System.out.println(timeNo);
+        System.out.println("timeNo=============="+timeNo);
 
-        ResponseDTO<TimeTableGetResponseDTO> response = new ResponseDTO<>();
+        ResponseDTO<TimeTableDTO> response = new ResponseDTO<>();
 
         try {
-            TimeTableGetResponseDTO res = timeTableService.getTimetable(timeNo);
+            TimeTableDTO res = timeTableService.getTimetable(timeNo);
             response.setItem(res);
             response.setStatusCode(HttpStatus.CREATED.value());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -64,12 +66,12 @@ public class TimeTableController {
     /* 시간표 목록 조회 */
     @GetMapping("/getTimeTable-list")
     public ResponseEntity<?> getAllTimetables() {
-        ResponseDTO<TimeTableGetResponseDTO> response = new ResponseDTO<>();
+        ResponseDTO<TimeTableDTO> response = new ResponseDTO<>();
 
         try {
             System.out.println("시간표 컨트롤러 res111============");
 
-            List<TimeTableGetResponseDTO> res = timeTableService.getAllTimetables();
+            List<TimeTableDTO> res = timeTableService.getAllTimetables();
 
             System.out.println("res============"+res);
             response.setItems(res);
@@ -110,5 +112,26 @@ public class TimeTableController {
         }
     }
 
+    /* 학생별 시간표 리스트 보기 */
+    @GetMapping("/student/list")
+    public ResponseEntity<?> getPaymentList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        ResponseDTO<TimeTableDTO> response = new ResponseDTO<>();
+
+        try {
+
+            int userNo = Integer.parseInt(customUserDetails.getUsername());
+
+            List<TimeTableDTO> res = timeTableService.getTimetablesByStudent(userNo);
+
+            response.setItems(res);
+            response.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            response.setErrorMessage(e.getMessage());
+            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 
 }
