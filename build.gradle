@@ -25,10 +25,6 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    //테스트용도
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.2.1'
-
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.515'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
@@ -62,7 +58,6 @@ dependencies {
     implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
     //ListUtils
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-
 }
 
 tasks.named('test') {

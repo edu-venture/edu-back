@@ -1,97 +1,153 @@
-//package com.bit.eduventure.payment.service;
-//
-//import com.bit.eduventure.payment.dto.PaymentCreateRequestDTO;
-//import com.bit.eduventure.payment.dto.PaymentCreateResponseDTO;
-//import com.bit.eduventure.payment.entity.Payment;
-//import com.bit.eduventure.payment.entity.Product;
-//import com.bit.eduventure.payment.repository.PaymentRepository;
-//import com.bit.eduventure.ES1_User.Entity.User;
-//import com.bit.eduventure.ES1_User.Repository.UserRepository;
-//import com.siot.IamportRestClient.IamportClient;
-//import com.siot.IamportRestClient.exception.IamportResponseException;
-//import com.siot.IamportRestClient.response.AccessToken;
-//import com.siot.IamportRestClient.response.IamportResponse;
-//import jakarta.annotation.PostConstruct;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.http.*;
-//import org.springframework.stereotype.Service;
-//import org.springframework.web.client.RestTemplate;
-//
-//import java.io.IOException;
-//import java.time.LocalDate;
-//import java.time.LocalDateTime;
-//import java.time.ZoneId;
-//import java.time.format.DateTimeFormatter;
-//import java.util.ArrayList;
-//import java.util.HashMap;
-//import java.util.List;
-//import java.util.Map;
-//
-//
-//@Service
-//@RequiredArgsConstructor
-//public class PaymentService {
-//
-//    @Value("${iamport.api-key}")
-//    private String apiKey;
-//    @Value("${iamport.api-secret}")
-//    private String apiSecret;
-//    private IamportClient api;
-//
-//    @PostConstruct
-//    public void init() {
-//        api = new IamportClient(apiKey, apiSecret);
-//    }
-//
-//    private final PaymentRepository repository;
-//    private final ProductService productService;
-//    private final UserRepository userRepository;
-//
-//    /* 납부서 등록 - 납부서와 제품 리스트를 생성하고, 총 가격 계산 */
-//    public PaymentCreateResponseDTO registerPayment(PaymentCreateRequestDTO requestDTO) {
-//        List<Payment> payments = new ArrayList<>();
-//
-//        // 1. userEmail을 기반으로 User 엔터티 찾기
-//        User user = userRepository.findByUserId(requestDTO.getUserId())
-//                .orElseThrow(() -> new RuntimeException("User not found by email: " + requestDTO.getUserId()));
-//
-//        // 2. 찾은 User 엔터티에서 userNo를 가져와 PaymentCreateRequestDTO의 userNo에 할당.
-//        requestDTO.setUserNo(user.getId());
-//        requestDTO.setPayTo(user.getUserName());
-//
-//        System.out.println("서비스======================="+user.getId());
-//
-//        int payNo = Math.toIntExact(repository.findMaxPayNo());
-//
-//        // 여기서 proNames를 사용하여 제품 정보를 조회합니다.
-//        List<Product> products = productService.findProductsByProNames(requestDTO.getProNames());
-//
-//        for (Product product : products) {
-//            Payment payment = requestDTO.toEntity();
-//            payment.setPayNo(payNo);
-//            payment.setProduct(product);  // 조회한 제품 정보 할당
-//            payment.setPayFrom(requestDTO.getPayFrom());
-//            payments.add(payment);
-//        }
-//
-//        repository.saveAll(payments);
-//
-//        int totalPrice = products.stream().mapToInt(p -> p.getProPrice()).sum();
-//
-//        PaymentCreateResponseDTO res = new PaymentCreateResponseDTO(payments.get(0));
-//        res.setProducts(products);
-//        res.setTotalPrice(totalPrice);
-//
-//        return res;
-//    }
-//
-//
-//    /* 납부서 조회 - 특정 userNo, 월별 */
-//    public List<Payment> getPayment(int userNo, LocalDateTime issDate) {   //  1, 2023-08
-//
-//        return repository.findByUserNoAndIssDate(userNo, issDate);
-//    }
+package com.bit.eduventure.payment.service;
+
+import com.bit.eduventure.payment.dto.PaymentRequestDTO;
+import com.bit.eduventure.payment.entity.Payment;
+import com.bit.eduventure.payment.entity.Receipt;
+import com.bit.eduventure.payment.repository.PaymentRepository;
+import com.bit.eduventure.payment.repository.ReceiptRepository;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.siot.IamportRestClient.IamportClient;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+
+@Service
+@RequiredArgsConstructor
+public class PaymentService {
+
+    @Value("${iamport.api-key}")
+    private String apiKey;
+    @Value("${iamport.api-secret}")
+    private String apiSecret;
+    private IamportClient api;
+
+    @PostConstruct
+    public void init() {
+        api = new IamportClient(apiKey, apiSecret);
+    }
+
+    private final PaymentRepository paymentRepository;
+    private final ReceiptService receiptService;
+
+    // 납부서 등록
+    public Payment createPayment(PaymentRequestDTO requestDTO) {
+
+        //디비에 저장할 형태 만들기
+        Payment payment = Payment.builder()
+                .userNo(requestDTO.getUserNo())
+                .totalPrice(0)
+                .payFrom("에듀벤처")
+                .payTo(requestDTO.getPayTo())
+                .createDate(LocalDateTime.now())
+                .issDate(stringToLocalDateTime(requestDTO.getIssDate()))
+                .isPay(false)
+                .build();
+
+        //영수증에 저장할 결제PK
+        int payNo = savePayment(payment).getPayNo();
+
+        Map<String, Integer> productList = jsonTOProductMap(requestDTO.getProductList());
+
+        //상품과 가격 디비에 저장하면서 총합 구하기
+        int totalPrice = productList.entrySet().stream()
+                .map(entry -> {
+                    Receipt receipt = Receipt.builder()
+                            .paymentId(payNo)
+                            .productName(entry.getKey())
+                            .productPrice(entry.getValue())
+                            .build();
+                    receiptService.saveReceipt(receipt);
+                    return entry.getValue();
+                })
+                .mapToInt(Integer::intValue)
+                .sum();
+
+        //상품의 총합을 구해서
+        payment.setTotalPrice(totalPrice);
+
+        //디비에 다시 저장
+        return savePayment(payment);
+    }
+
+    //학생 개별 납부서 조회
+    public Payment getPayment(int userNo, int month) {
+        return paymentRepository.findByPayToAndIssDateMonth(userNo, month).get(0);
+    }
+
+    //학생 납부서 전체 조회
+    public List<Payment> getPaymentList(int userNo) {
+        return paymentRepository.findAllByPayTo(userNo);
+    }
+
+    //납부서 전체 조회
+    public List<Payment> getPaymentList() {
+        return paymentRepository.findAll();
+    }
+
+    //년, 월, 일만 추출하기
+    public String issDateMonth(String inputDate, String type) {
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+        LocalDateTime dateTime = LocalDateTime.parse(inputDate, inputFormatter);
+
+        String result = "";
+
+        if ("year".equals(type)) {
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy");
+            result = dateTime.format(outputFormatter);
+        } else if ("month".equals(type)) {
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM");
+            result = dateTime.format(outputFormatter);
+        } else if ("day".equals(type)) {
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM");
+            result = dateTime.format(outputFormatter);
+        }
+
+        return result;
+    }
+
+    //결제일 (문자열) -> LocalDateTime로 변환
+    public LocalDateTime stringToLocalDateTime(String inputDate) {
+        Instant instant = Instant.parse(inputDate);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+        String formattedDate = localDateTime.toString();
+
+        LocalDateTime returnData = LocalDateTime.parse(formattedDate, formatter);
+
+        System.out.println("localDateTime: " + returnData);
+        return returnData;
+    }
+
+    //페이먼트 저장
+    public Payment savePayment(Payment payment) {
+        return paymentRepository.save(payment);
+    }
+
+    //상품 정보와 가격 추출
+    public Map<String, Integer> jsonTOProductMap(String productList) {
+        Map<String, Integer> returnMap = new HashMap<>();
+
+        JsonArray jsonArray = JsonParser.parseString(productList).getAsJsonArray();
+
+        for (JsonElement jsonElement : jsonArray) {
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            String detail = jsonObject.get("detail").getAsString();
+            int price = jsonObject.get("price").getAsInt();
+
+            returnMap.put(detail, price);
+        }
+        return returnMap;
+    }
 //
 //    /* 납부서 수정 */
 //    public PaymentCreateResponseDTO modifyPayment(List<Payment> existingPayments, PaymentCreateRequestDTO requestDTO) {
@@ -217,4 +273,6 @@
 //    public List<Payment> list() {
 //        return repository.findAll();
 //    }
-//}
+
+
+}

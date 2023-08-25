@@ -15,7 +15,7 @@ public class CourseDTO {
 
     private Integer couNo;
     private String claName;
-    private String userId;
+    private int userId;
 
     public Course DTOToEntity(){
         Course course = Course.builder()

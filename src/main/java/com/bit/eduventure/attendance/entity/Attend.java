@@ -26,9 +26,6 @@ public class Attend {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "USER_ID")
-    private String userId;
-
     @Column(name = "ATT_START")
     private LocalDateTime attStart;
 
@@ -41,10 +38,13 @@ public class Attend {
     @Column(name = "ATT_CONTENT")
     private String attContent;
 
+    @Column(name = "USER_NO")
+    private int userNo;
+
     public AttendDTO EntityToDTO() {
         AttendDTO attendDTO = AttendDTO.builder()
                 .id(this.id)
-                .userId(this.userId)
+                .userNo(this.userNo)
                 .attStart(this.attStart)
                 .attFinish(this.attFinish)
                 .attDate(this.attDate)

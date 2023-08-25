@@ -1,26 +1,19 @@
 
-package com.bit.eduventure.payment.entity;
+package com.bit.eduventure.payment.dto;
 
-import com.bit.eduventure.payment.dto.PaymentDTO;
-import jakarta.persistence.*;
+import com.bit.eduventure.payment.entity.Payment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-@Entity
-//@Table: 테이블 이름등을 지정
-@Table(name="T_PAYMENT")
+
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-//@IdClass(PaymentId.class)
-public class Payment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class PaymentDTO {
     private int payNo;  //결제 PK
     private int userNo; //결제를 작성한 유저 PK
     private String payMethod;   //결제 방식
@@ -35,10 +28,8 @@ public class Payment {
     private boolean isCancel;   //취소를 했는 지 안 했는지
     private String impUid;  //실제로 결제를 할경우 아임포트 아이디 값
 
-
-
-    public PaymentDTO EntityTODTO() {
-        PaymentDTO paymentDTO = PaymentDTO.builder()
+    public Payment DTOTOEntity() {
+        Payment payment = Payment.builder()
                 .payNo(this.payNo)
                 .userNo(this.userNo)
                 .payMethod(this.payMethod)
@@ -53,8 +44,7 @@ public class Payment {
                 .isCancel(this.isCancel)
                 .impUid(this.impUid)
                 .build();
-        return paymentDTO;
+        return payment;
     }
-
-
 }
+

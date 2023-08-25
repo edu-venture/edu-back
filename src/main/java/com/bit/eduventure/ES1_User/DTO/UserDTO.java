@@ -2,7 +2,9 @@ package com.bit.eduventure.ES1_User.DTO;
 
 
 import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
+import jakarta.persistence.Column;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -32,22 +34,27 @@ private String userType;
     private Integer userJoinId;
     private String userAddressDetail;
     private String userConsultContent;
-    private Integer couNo;
+
+    private CourseDTO courseDTO;
+
+
+
+private String approval;
 
     private String userSpecialNote;
 
     private Integer userBus;
-
+    private Integer userScore;
     public User DTOToEntity() {
-        Course course = Course.builder().couNo(this.couNo).build();
+        Course course = Course.builder().couNo(this.courseDTO.getCouNo()).build();
 
 
         User user = User.builder()
                 .id(this.id).course(course)
-                .userId(this.userId)
+                .userId(this.userId).approval(this.approval)
                 .userPw(this.userPw).userBus(this.userBus)
 //                .userEmail(this.userEmail)
-                .userType(this.userType).userSpecialNote(this.userSpecialNote).userConsultContent(this.userConsultContent)
+                .userType(this.userType).userSpecialNote(this.userSpecialNote).userConsultContent(this.userConsultContent).userScore(this.userScore)
                 .userName(this.userName)
                 .userTel(this.userTel).userAddressDetail(this.userAddressDetail)
                 .userRegdate(LocalDateTime.now())

@@ -23,7 +23,7 @@ public class Course {
     private String claName;     //반 이름
 
     @Column(name = "COU_TEACHER")
-    private String userId;      //담당 선생님 유저 아이디
+    private int userId;      //담당 선생님 유저 아이디
 
     public CourseDTO EntityToDTO(){
         CourseDTO courseDTO = CourseDTO.builder()

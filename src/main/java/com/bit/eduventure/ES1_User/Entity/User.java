@@ -45,6 +45,15 @@ public class User {
     private Integer userBus;
     @Column(name = "USER_JOIN_ID") //
     private Integer userJoinId;
+
+    @Column(name = "USER_SCORE")
+    @ColumnDefault("0")
+
+    private Integer userScore;
+
+
+
+
     @Column(name = "USER_TYPE")
     private String userType;
     @Column(name = "USER_CONSULTCONTENT")
@@ -53,6 +62,9 @@ public class User {
     private String userSpecialNote;
     @Builder.Default
     private LocalDateTime userRegdate = LocalDateTime.now();
+
+    @Column(name = "USER_APPROVAL")
+    private String approval="x";
 
 
     @ManyToOne
@@ -67,8 +79,12 @@ public class User {
     private String role;
     public UserDTO EntityToDTO() {
         UserDTO userDTO = UserDTO.builder()
-                .id(this.id).couNo(this.course.getCouNo())
+
+                .id(this.id).courseDTO(this.course.EntityToDTO())
                 .userId(this.userId)
+
+                .userId(this.userId).approval(this.approval).userScore(this.userScore)
+
                 .userName(this.userName).userAddressDetail(this.userAddressDetail)
 //                .userEmail(this.userEmail)
                 .userTel(this.userTel).userBus(this.userBus).userSpecialNote(this.userSpecialNote).userConsultContent(this.userConsultContent)

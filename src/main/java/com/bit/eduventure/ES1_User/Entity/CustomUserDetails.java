@@ -1,9 +1,6 @@
 package com.bit.eduventure.ES1_User.Entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -17,6 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class CustomUserDetails implements UserDetails, OAuth2User {
     private User user;
 
@@ -48,7 +46,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     //아이디 제공 메소드
     @Override
     public String getUsername() {
-        return this.user.getUserId();
+        return this.user.getId().toString();
     }
 
     //계정 만료 여부
