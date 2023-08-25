@@ -36,7 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             //request에서 token꺼내오기
             //token 값이 있으면 토큰값이 담기고 토큰 값이 없으면 null이 담긴다.
             String token = parseBearerToken(request);
-
+            System.out.println(token);
+            System.out.println("여기는 토큰필터의 토큰이다");
             //토큰 검사 및 시큐리티 등록
             if (token != null && !token.equalsIgnoreCase("null")) {
                 //유효성 검사 및 username가져오기
@@ -69,6 +70,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                    }
         */
         String bearerToken = request.getHeader("Authorization");
+        System.out.println("------------------------------>bearertoken");
+        System.out.println(bearerToken);
 
         if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             //실제 token의 값만 리턴

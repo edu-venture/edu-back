@@ -21,7 +21,7 @@ public class User {
     @GeneratedValue(
             strategy = GenerationType.IDENTITY
     )
-    @Column(name = "USER_NO")
+    @Column(name = "USER_NO") //
     private Integer id;
     @Column(unique = true)
     private String userId;
@@ -43,8 +43,17 @@ public class User {
     private String userAddressDetail;
     @Column(name = "USER_BUS")
     private Integer userBus;
-    @Column(name = "USER_JOIN_ID")
+    @Column(name = "USER_JOIN_ID") //
     private Integer userJoinId;
+
+    @Column(name = "USER_SCORE")
+    @ColumnDefault("0")
+
+    private Integer userScore;
+
+
+
+
     @Column(name = "USER_TYPE")
     private String userType;
     @Column(name = "USER_CONSULTCONTENT")
@@ -54,8 +63,8 @@ public class User {
     @Builder.Default
     private LocalDateTime userRegdate = LocalDateTime.now();
 
-    @Column(name = "USER_APPROVAL", columnDefinition = "VARCHAR(255) DEFAULT 'x'")
-    private String approval;
+    @Column(name = "USER_APPROVAL")
+    private String approval="x";
 
 
     @ManyToOne
@@ -70,8 +79,12 @@ public class User {
     private String role;
     public UserDTO EntityToDTO() {
         UserDTO userDTO = UserDTO.builder()
-                .id(this.id).couNo(this.course.getCouNo())
-                .userId(this.userId).approval(this.approval)
+
+                .id(this.id).courseDTO(this.course.EntityToDTO())
+                .userId(this.userId)
+
+                .userId(this.userId).approval(this.approval).userScore(this.userScore)
+
                 .userName(this.userName).userAddressDetail(this.userAddressDetail)
 //                .userEmail(this.userEmail)
                 .userTel(this.userTel).userBus(this.userBus).userSpecialNote(this.userSpecialNote).userConsultContent(this.userConsultContent)

@@ -119,8 +119,8 @@ public class UserController {
             System.out.println("이게 페이지유저");
             Page<UserDTO> pageUserDTO = pageUser.map(user ->
                             UserDTO.builder()
-                                    .id(user.getId())
-                                    .userId(user.getUserId()).couNo(user.getCourse().getCouNo())
+                                    .id(user.getId()).userScore(user.getUserScore())
+                                    .userId(user.getUserId()).courseDTO(user.getCourse().EntityToDTO())
                                     .userPw(user.getUserPw()).userBus(user.getUserBus())
 //                .userEmail(this.userEmail)
                                     .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote()).userConsultContent(user.getUserConsultContent()).approval(user.getApproval())
@@ -151,10 +151,6 @@ public class UserController {
     @PostMapping("/getuser")
     public ResponseEntity<?> getuser(@RequestBody UserDTO user) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
-//        System.out.println(userDTO);
-//        System.out.println(id);
-//        System.out.println(userId);
-//        System.out.println(userDTO);
         User userme;
         if (user.getId() == null) {
             userme = userService.findByUserId(user.getUserId());
@@ -164,18 +160,7 @@ public class UserController {
         UserDTO userDTO = userme.EntityToDTO();
         userDTO.setUserPw(userDTO.getUserPw());
         try {
-//            User user = userDTO.DTOToEntity();
-//            userService.findById()
-//
-//            user.setUserPw(
-//                    passwordEncoder.encode(userDTO.getUserPw())
-//            );
-//            user.setRole("ROLE_USER");
-//
-//            //회원가입처리(화면에서 보내준 내용을 디비에 저장)
-//            User joinUser = userService.join(user);
-//            joinUser.setUserPw("");
-//
+
             responseDTO.setItem(userDTO);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
@@ -184,8 +169,32 @@ public class UserController {
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
             return ResponseEntity.badRequest().body(responseDTO);
         }
-        //JPA로 저장하기 위해 DTO를 Entity로 변환
-        //화면에서 사용자가 입력한 내용을 가지고 있는 Entity
+
+    }
+
+    @PostMapping("/getuserbytoken")
+    public ResponseEntity<?> getuserbytoken(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        System.out.println(customUserDetails);
+        System.out.println("토큰으로  사람 불러오는거 들어옴");
+        System.out.println(customUserDetails.getUser().getUserId());
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+        User userme;
+
+            userme = userService.findByUserId(customUserDetails.getUser().getUserId());
+
+        UserDTO userDTO = userme.EntityToDTO();
+        userDTO.setUserPw(userDTO.getUserPw());
+        try {
+
+            responseDTO.setItem(userDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
     }
 
 
@@ -254,6 +263,8 @@ public class UserController {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
         UserDTO userDTO = joinDTO.getUserDTO();
         UserDTO parentDTO = joinDTO.getParentDTO();
+        userDTO.setApproval("o");
+        parentDTO.setApproval("o");
         System.out.println(userDTO);
         System.out.println(parentDTO);
         try {
@@ -306,6 +317,7 @@ public class UserController {
             user.setUserPw(
                     passwordEncoder.encode(memberDTO.getUserPw())
             );
+            user.setApproval("x");
             user.setRole("ROLE_ADMIN");
             Course course = Course.builder().couNo(1).build();
 
@@ -462,8 +474,12 @@ public class UserController {
             //엔티티 리스트를 dto 리스트로 변환하면서 반 번호에 맞는 유저만 저장
             List<UserDTO> userDTOList = userList.stream()
                     .map(User::EntityToDTO)
-                    .filter(user -> user.getCouNo() == couNo)
+                    .filter(user -> user.getCourseDTO().getCouNo() == couNo)
                     .collect(Collectors.toList());
+
+
+//            rladmstjrqkqh
+
 
             responseDTO.setItems(userDTOList);
             responseDTO.setStatusCode(HttpStatus.OK.value());

@@ -55,6 +55,11 @@ public class QuizBoard {
     private String option3;
     private String option4;
     private String answer;
+    @Column(name = "gross_sample")
+    private int grossSample;
+
+    @Column(name = "gross_right_answer")
+    private int grossRightAnswer;
 
     //기본값 설정
     private LocalDateTime boardRegdate = LocalDateTime.now();
@@ -64,7 +69,7 @@ public class QuizBoard {
     //unique: UK로 지정
     @Column(name="BOARD_CNT", nullable = false)
     private int boardCnt = 0;
-
+//hmmm
     //@Transient: 테이블의 컬럼으로는 생성되지 않고 객체에서만 사용가능한 멤버변수
     @Transient
     private String searchCondition;
@@ -73,7 +78,7 @@ public class QuizBoard {
 
 
     public QuizBoardDTO EntityToDTO(){
-        return QuizBoardDTO.builder().boardNo(this.boardNo).claName(this.claName).option1(this.option1).option2(this.option2).option3(this.option3).option4(this.option4).answer(this.answer).  boardTitle(this.boardTitle).boardWriter(this.boardWriter).boardContent(this.getBoardContent()).boardRegdate(this.getBoardRegdate().toString()).boardCnt(this.getBoardCnt())    .build();
+        return QuizBoardDTO.builder().boardNo(this.boardNo).claName(this.claName).option1(this.option1).option2(this.option2).option3(this.option3).option4(this.option4).answer(this.answer). grossSample(this.grossSample).grossRightAnswer(this.grossRightAnswer). boardTitle(this.boardTitle).boardWriter(this.boardWriter).boardContent(this.getBoardContent()).boardRegdate(this.getBoardRegdate().toString()).boardCnt(this.getBoardCnt())    .build();
     }
 
 }

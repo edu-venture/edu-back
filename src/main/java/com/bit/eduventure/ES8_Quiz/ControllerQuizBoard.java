@@ -1,7 +1,10 @@
 package com.bit.eduventure.ES8_Quiz;
 
 import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
+import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES7_Board.DTO.BoardDTO;
 import com.bit.eduventure.ES7_Board.DTO.BoardFileDTO;
 import com.bit.eduventure.ES7_Board.Entity.Board;
@@ -10,8 +13,10 @@ import com.bit.eduventure.ES7_Board.Repository.BoardRepository;
 import com.bit.eduventure.ES7_Board.Service.BoardService;
 import com.bit.eduventure.common.FileUtil;
 import com.bit.eduventure.common.FileUtils;
+import com.bit.eduventure.common.FileUtilsForObjectStorage;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -28,20 +33,25 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/quiz")
 public class ControllerQuizBoard {
+private final FileUtilsForObjectStorage fileUtilsForObjectStorage;
 
     private QuizBoardService quizBoardService;
     @Autowired
-    private RepositoryQuizBoard repositoryQuizBoard;
-    @Value("${file.path}")
-    String attachPath;
+    private UserService userService;
+//    @Autowired
+//    private RepositoryQuizBoard repositoryQuizBoard;
+//    @Value("${file.path}")
+//    String attachPath;
 
     @Autowired
-    public ControllerQuizBoard(QuizBoardService quizBoardService) {
+    public ControllerQuizBoard(QuizBoardService quizBoardService, UserService userService, FileUtilsForObjectStorage fileUtilsForObjectStorage) {
         this.quizBoardService = quizBoardService;
+        this.fileUtilsForObjectStorage = fileUtilsForObjectStorage;
+        this.userService = userService;
     }
 
     @GetMapping("/board-list")
@@ -63,7 +73,7 @@ public class ControllerQuizBoard {
                     QuizBoardDTO.builder()
                             .boardNo(board.getBoardNo())
                             .boardTitle(board.getBoardTitle())
-                            .boardWriter(board.getBoardWriter()).claName(board.getClaName()).option1(board.getOption1()).option2(board.getOption2()).option3(board.getOption3()).option4(board.getOption4()).answer(board.getAnswer())
+                            .boardWriter(board.getBoardWriter()).claName(board.getClaName()).option1(board.getOption1()).option2(board.getOption2()).option3(board.getOption3()).option4(board.getOption4()).answer(board.getAnswer()).grossRightAnswer(board.getGrossRightAnswer()).grossSample(board.getGrossSample())
                             .boardContent(board.getBoardContent())
                             .boardRegdate(board.getBoardRegdate().toString())
                             .boardCnt(board.getBoardCnt())
@@ -105,11 +115,7 @@ public class ControllerQuizBoard {
 //                request.getSession().getServletContext().getRealPath("/")
 //                + "/upload/";
 
-        File directory = new File(attachPath);
 
-        if(!directory.exists()) {
-            directory.mkdir();
-        }
 
         List<QuizBoardFile> uploadFileList = new ArrayList<QuizBoardFile>();
 
@@ -120,7 +126,7 @@ public class ControllerQuizBoard {
             //boardRegdate의 값이 null값으로 들어간다.
             QuizBoard quizBoard = QuizBoard.builder()
                     .boardTitle(quizBoardDTO.getBoardTitle()).option1(quizBoardDTO.getOption1()).option2(quizBoardDTO.getOption2()).option3(quizBoardDTO.getOption3()).option4(quizBoardDTO.getOption4()).answer(quizBoardDTO.getAnswer())
-                    .boardContent(quizBoardDTO.getBoardContent()).claName(quizBoardDTO.getClaName())
+                    .boardContent(quizBoardDTO.getBoardContent()).claName(quizBoardDTO.getClaName()).grossRightAnswer(quizBoardDTO.getGrossRightAnswer()).grossSample(quizBoardDTO.getGrossSample())
                     .boardWriter(quizBoardDTO.getBoardWriter())
                     .boardRegdate(LocalDateTime.now())
                     .build();
@@ -135,7 +141,7 @@ public class ControllerQuizBoard {
                     if(!multipartFile.isEmpty()) {
                         QuizBoardFile quizBoardFile = new QuizBoardFile();
 
-                        quizBoardFile = FileUtil.parseFileInfo(multipartFile, attachPath);
+                        quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(multipartFile, "quiz/");
 
                         quizBoardFile.setQuizBoard(quizBoard);
 
@@ -179,13 +185,15 @@ public class ControllerQuizBoard {
                     new TypeReference<List<QuizBoardFileDTO>>() {
                     });
         }
-
+        System.out.println("여기까지 온건가 182");
 
         //DB에서 수정, 삭제, 추가 될 파일 정보를 담는 리스트
         List<QuizBoardFile> uFileList = new ArrayList<QuizBoardFile>();
 
         try {
+            System.out.println("트라이도 못들어왔따고?");
             QuizBoard quizBoard = quizBoardDTO.DTOToEntity();
+            System.out.println("여기까지왓나 189");
             if(originFiles != null) {
                 //파일 처리
                 for (int i = 0; i < originFiles.size(); i++) {
@@ -198,8 +206,8 @@ public class ControllerQuizBoard {
 
                                 MultipartFile file = changeFileList[j];
 
-                                quizBoardFile = FileUtil.parseFileInfo(file, attachPath);
-
+                                quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(file, "quiz/");
+                                System.out.println("여긴가");
                                 quizBoardFile.setQuizBoard(quizBoard);
                                 quizBoardFile.setBoardFileNo(originFiles.get(i).getBoardFileNo());
                                 quizBoardFile.setBoardFileStatus("U");
@@ -216,13 +224,14 @@ public class ControllerQuizBoard {
                         boardFile.setBoardFileStatus("D");
 
                         //실제 파일 삭제
-                        File dFile = new File(attachPath + originFiles.get(i).getBoardFileName());
-                        dFile.delete();
+
 
                         uFileList.add(boardFile);
                     }
                 }
             }
+            System.out.println("여기까지 온건가 226");
+
             //추가된 파일 처리
             if(uploadFiles != null && uploadFiles.length > 0) {
                 for(int i = 0; i < uploadFiles.length; i++) {
@@ -232,7 +241,7 @@ public class ControllerQuizBoard {
                             !file.getOriginalFilename().equals("")) {
                         QuizBoardFile quizBoardFile = new QuizBoardFile();
 
-                        quizBoardFile = FileUtil.parseFileInfo(file, attachPath);
+                        quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(file, "quiz/");
 
                         quizBoardFile.setQuizBoard(quizBoard);
                         quizBoardFile.setBoardFileStatus("I");
@@ -241,7 +250,7 @@ public class ControllerQuizBoard {
                     }
                 }
             }
-
+            System.out.println("업데이트하기 일보직전");
             quizBoardService.updateBoard(quizBoard, uFileList);
 
             Map<String, Object> returnMap = new HashMap<>();
@@ -267,6 +276,7 @@ public class ControllerQuizBoard {
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            System.out.println("애러가났다.");
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
             responseDTO.setErrorMessage(e.getMessage());
             return ResponseEntity.badRequest().body(responseDTO);
@@ -322,6 +332,74 @@ public class ControllerQuizBoard {
             responseDTO.setErrorMessage(e.getMessage());
             return ResponseEntity.badRequest().body(responseDTO);
         }
+    }
+
+    @PostMapping("/answerwrong")
+    public ResponseEntity<?> gotWrongAnswer(@RequestBody Map<String, Integer> request) {
+        int boardNo = request.get("boardNo"); // Map에서 boardNo 값을 가져옵니다.
+        ResponseDTO<QuizBoardDTO> responseDTO = new ResponseDTO<>();
+        System.out.println("answerwrong에 들어옴");
+        System.out.println(request);
+        try {
+           quizBoardService.plussGrossSample(boardNo);
+           QuizBoard quizBoard = quizBoardService.getBoard(boardNo);
+            QuizBoardDTO returnBoardDTO = quizBoard.EntityToDTO();
+            responseDTO.setItem(returnBoardDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+
+    @PostMapping("/answerright")
+    public ResponseEntity<?> gotRightAnswer(@RequestBody Map<String, Integer> request) {
+        int boardNo = request.get("boardNo"); // Map에서 boardNo 값을 가져옵니다.
+        ResponseDTO<QuizBoardDTO> responseDTO = new ResponseDTO<>();
+        System.out.println("answerwrong에 들어옴");
+        System.out.println(request);
+        try {
+            quizBoardService.plussGrossRightAnswer(boardNo);
+            QuizBoard quizBoard = quizBoardService.getBoard(boardNo);
+            QuizBoardDTO returnBoardDTO = quizBoard.EntityToDTO();
+            responseDTO.setItem(returnBoardDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @PostMapping("/increaseuserscore")
+    public ResponseEntity<?> increasescore(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        System.out.println(customUserDetails);
+        System.out.println("토큰으로  사람 불러오는거 들어옴");
+        System.out.println(customUserDetails.getUser().getUserId());
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+        User userme;
+
+        userme = userService.findByUserId(customUserDetails.getUser().getUserId());
+
+userService.increaseuserscore(customUserDetails.getUser().getId());
+
+        UserDTO userDTO = userme.EntityToDTO();
+        userDTO.setUserPw(userDTO.getUserPw());
+        try {
+
+            responseDTO.setItem(userDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
     }
 
 

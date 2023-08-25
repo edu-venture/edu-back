@@ -47,7 +47,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests((authorizeRequests) -> {
                     //'/'요청은 모든 사용자가 이용가능
                     authorizeRequests.requestMatchers("/").permitAll();
-                    authorizeRequests.requestMatchers("/").permitAll();
+                    authorizeRequests.requestMatchers("/vod/**").permitAll();
                     //css, js, images, upload 같은 정적 리소스들도 권한처리 필수
                     authorizeRequests.requestMatchers("/upload/**").permitAll();
                     //게시판 기능은 권한을 가지고 있는 사용자만 사용가능
@@ -72,6 +72,7 @@ public class SecurityConfiguration {
                     authorizeRequests.requestMatchers("/user/**").permitAll();
                     authorizeRequests.requestMatchers("/notice/**").permitAll();
                     authorizeRequests.requestMatchers("/course/**").permitAll();
+                    authorizeRequests.requestMatchers("/quiz/**");
                     authorizeRequests.requestMatchers("/sms/**").permitAll();
                     authorizeRequests.requestMatchers("/user/deleteselectusers").permitAll();
                     authorizeRequests.requestMatchers("/timetable/**").permitAll();
