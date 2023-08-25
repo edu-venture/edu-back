@@ -91,7 +91,7 @@ public class CourseController {
         try {
         int userNo = Integer.parseInt(customUserDetails.getUsername());
         User user = userService.findById(userNo);
-        courseService.createCourse(user);
+            courseService.createCourse(user);
             responseDTO.setItem("반 생성 완료");
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);

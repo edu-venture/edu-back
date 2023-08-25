@@ -58,6 +58,7 @@ public class CourseServiceImpl  implements CourseService {
     @Override
     public void createCourse(User user) {
         Course course = Course.builder()
+                .user(user)
                 .claName("강호현반")
                 .build();
         courseRepository.save(course);
