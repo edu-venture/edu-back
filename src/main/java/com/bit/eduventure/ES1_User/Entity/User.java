@@ -80,7 +80,8 @@ public class User {
     public UserDTO EntityToDTO() {
         UserDTO userDTO = UserDTO.builder()
 
-                .id(this.id).courseDTO(this.course.EntityToDTO())
+                .id(this.id)
+                .courseDTO(this.course.EntityToDTO())
                 .userId(this.userId)
 
                 .userId(this.userId).approval(this.approval).userScore(this.userScore)

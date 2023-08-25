@@ -1,6 +1,7 @@
 package com.bit.eduventure.ES3_Course.Service;
 
 
+import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
 import com.bit.eduventure.timetable.entity.TimeTable;
@@ -55,6 +56,14 @@ public class CourseServiceImpl  implements CourseService {
     }
 
     @Override
+    public void createCourse(User user) {
+        Course course = Course.builder()
+                .claName("강호현반")
+                .build();
+        courseRepository.save(course);
+    }
+
+    @Override
     public List<String> getTimeWeeksByCouNo(Integer couNo) {
         // First, find the Course by couNo
         Course course = courseRepository.findById(couNo).orElse(null);
@@ -72,6 +81,7 @@ public class CourseServiceImpl  implements CourseService {
                 .map(TimeTable::getTimeWeek)
                 .collect(Collectors.toList());
     }
+
 
 
 }
