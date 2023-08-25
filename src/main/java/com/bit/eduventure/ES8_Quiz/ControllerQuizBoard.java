@@ -16,6 +16,7 @@ import com.bit.eduventure.common.FileUtils;
 import com.bit.eduventure.common.FileUtilsForObjectStorage;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletOutputStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,14 +43,16 @@ private final FileUtilsForObjectStorage fileUtilsForObjectStorage;
     private QuizBoardService quizBoardService;
     @Autowired
     private UserService userService;
+    private QuizUserHistoryService quizUserHistoryService;
 //    @Autowired
 //    private RepositoryQuizBoard repositoryQuizBoard;
 //    @Value("${file.path}")
 //    String attachPath;
 
     @Autowired
-    public ControllerQuizBoard(QuizBoardService quizBoardService, UserService userService, FileUtilsForObjectStorage fileUtilsForObjectStorage) {
+    public ControllerQuizBoard(QuizBoardService quizBoardService, UserService userService, FileUtilsForObjectStorage fileUtilsForObjectStorage, QuizUserHistoryService quizUserHistoryService) {
         this.quizBoardService = quizBoardService;
+        this.quizUserHistoryService = quizUserHistoryService;
         this.fileUtilsForObjectStorage = fileUtilsForObjectStorage;
         this.userService = userService;
     }
@@ -401,6 +404,49 @@ userService.increaseuserscore(customUserDetails.getUser().getId());
         }
 
     }
+
+
+    @PostMapping("/registerquizhistory")
+    public ResponseEntity<?> registerUserQuizHistory(@RequestBody QuizUserHistoryDTO quizUserHistoryDTO) {
+        System.out.println(quizUserHistoryDTO);
+        System.out.println(quizUserHistoryDTO);
+        ResponseDTO<QuizUserHistoryDTO> responseDTO = new ResponseDTO<>();
+        QuizUserHistory quizUserHistory = quizUserHistoryDTO.DTOToEntity();
+        QuizUserHistory quizUserHistory1 =  quizUserHistoryService.register(quizUserHistory);
+        try {
+
+            responseDTO.setItem(quizUserHistory1.EntityToDTO());
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @PostMapping("/getallquizhistory")
+    public ResponseEntity<?> getallquizhistory(@RequestBody QuizUserHistoryDTO quizUserHistoryDTO) {
+        System.out.println("겟올퀴즈 히스토리 들오옴");
+        System.out.println(quizUserHistoryDTO);
+        ResponseDTO<QuizUserHistoryDTO> responseDTO = new ResponseDTO<>();
+
+        QuizUserHistory quizUserHistory = quizUserHistoryDTO.DTOToEntity();
+        QuizUserHistory quizUserHistory1 =  quizUserHistoryService.findIfExist(quizUserHistory);
+        System.out.println(quizUserHistory1);
+        try {
+
+            responseDTO.setItem(quizUserHistory1.EntityToDTO());
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+
 
 
 
