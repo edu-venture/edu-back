@@ -91,16 +91,18 @@ public class AttendanceService {
 
         String currentDayOfWeek = DayOfWeekMapping.toKorean(attendTime.getDayOfWeek());
 
-        List<String> timeWeekList = timeTableList.stream()
-                .map(TimeTable::getTimeWeek)
-                .collect(Collectors.toList());
+        Optional<TimeTable> firstTimeTableOfDay = timeTableList.stream()
+                .filter(timeTable -> timeTable.getTimeWeek().equals(currentDayOfWeek)) // 해당 요일에 해당하는 항목만 필터링
+                .sorted(Comparator.comparing(TimeTable::getTimeClass)) // timeClass를 기준으로 정렬
+                .findFirst(); // 첫 번째 항목 가져오기
 
-        if (!timeWeekList.contains(currentDayOfWeek)) {
+        if (!firstTimeTableOfDay.isPresent()) {
             throw new IllegalArgumentException("오늘은 수업시간이 아닙니다.");
         }
 
-        String timeClass = timeTableList.get(0).getTimeClass(); //가장 첫번째 시간을 잡는다.
+        String timeClass = firstTimeTableOfDay.get().getTimeClass();
         LocalTime courseStart = COURSE_START_TIMES.get(timeClass);
+        System.out.println(timeClass);
         if (courseStart == null) {
             throw new IllegalArgumentException("Invalid course time provided.");
         }
@@ -165,8 +167,8 @@ public class AttendanceService {
 
         // 퇴실 시간 제한 조건
         if(exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime.minusMinutes(10)))
-                || exitTime.isAfter(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
-            throw new IllegalArgumentException("퇴실은 수업 종료 10분 전부터 종료 시간까지만 가능합니다.");
+                || exitTime.isAfter(LocalDateTime.of(exitTime.toLocalDate(), LocalTime.of(23, 59, 59)))) {
+            throw new IllegalArgumentException("퇴실은 수업 종료 10분 전부터 당일까지만 가능합니다.");
         }
 
 
@@ -179,20 +181,25 @@ public class AttendanceService {
 
         List<Attend> records = attendRepository.findByUserNoAndAttStartBetween(user.getId(), startOfDay, endOfDay);
 
-
-        if (records.isEmpty()) {
-            throw new IllegalArgumentException("금일 입실 기록이 없습니다.");
-        }
-
         //첫번째 기록 가져오기
         Attend record = records.get(0);
+        System.out.println(record);
 
-        if (record == null) {
+        if (records.isEmpty()) {
             throw new IllegalArgumentException("이 날짜에 해당하는 입실 기록이 없습니다.");
         }
 
         record.setAttFinish(exitTime);
         record.setAttDate(currentDate);
+
+        // 현재의 출석 상태를 확인
+        String currentStatus = record.getAttContent();
+
+        // attContent가 "출석중"이 아니면, 상태를 변경하지 않는다.
+        if (!"출석중".equals(currentStatus)) {
+            AttendDTO attendDTO = attendRepository.save(record).EntityToDTO();
+            return attendDTO;
+        }
 
         // 출석 상태 결정
         if (exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
@@ -203,6 +210,8 @@ public class AttendanceService {
 
         AttendDTO attendDTO = attendRepository.save(record).EntityToDTO();
         return attendDTO;
+
+
     }
 
 
