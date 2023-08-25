@@ -2,6 +2,7 @@ package com.bit.eduventure.livestation.service;
 
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.livestation.dto.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,9 +59,8 @@ public class LiveStationService {
         }
     }
 
-    public ResponseEntity<?> createChannel(String name) {
+    public String createChannel(String name) throws JsonProcessingException, URISyntaxException {
         ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
-        try {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(liveStationUrl);
             String url = urlBuilder.toString();
@@ -110,22 +111,8 @@ public class LiveStationService {
 
             ResponseEntity<LiveStationResponseDTO> response = restTemplate.exchange(new URI(url), HttpMethod.POST, body, LiveStationResponseDTO.class);
 
-            //보내줄 데이터 가공
-            LiveStationInfoDTO dto = LiveStationInfoDTO.builder()
-                    .channelId(response.getBody().getContent().getChannelId())
-                    .channelName(name)
-                    .build();
 
-            responseDTO.setItem(dto);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+            return response.getBody().getContent().getChannelId();  // channelId 반환
     }
 
     public ResponseEntity<?> getChannelInfo(String channelID) {
