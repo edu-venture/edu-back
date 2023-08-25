@@ -1,5 +1,6 @@
 package com.bit.eduventure.ES3_Course.Entity;
 
+import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,14 +23,15 @@ public class Course {
     @Column(name = "COU_NAME")
     private String claName;     //반 이름
 
-    @Column(name = "COU_TEACHER")
-    private int userId;      //담당 선생님 유저 아이디
+    @ManyToOne
+    @JoinColumn(name = "USER_NO")
+    private User user;  //담당 선생님 유저 아이디
 
     public CourseDTO EntityToDTO(){
         CourseDTO courseDTO = CourseDTO.builder()
                 .couNo(this.couNo)
                 .claName(this.claName)
-                .userId(this.userId)
+                .userDTO(this.user.EntityToDTO())
                 .build();
         return courseDTO;
 
