@@ -56,10 +56,10 @@ public class QuizBoard {
     private String option4;
     private String answer;
     @Column(name = "gross_sample")
-    private int grossSample=0;
+    private int grossSample;
 
     @Column(name = "gross_right_answer")
-    private int grossRightAnswer=0;
+    private int grossRightAnswer;
 
     //기본값 설정
     private LocalDateTime boardRegdate = LocalDateTime.now();
