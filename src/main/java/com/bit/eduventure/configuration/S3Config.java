@@ -26,12 +26,27 @@ public class S3Config {
     @Value("${ncp.endPoint}")
     private String endPoint;
 
+    @Value("${cloud.ncp.access.key}") // application.properties에서 aws.accessKey 설정
+    private String cloudAccessKey;
+
+    @Value("${cloud.ncp.secret.key}") // application.properties에서 aws.secretKey 설정
+    private String cloudSecretKey;
+
+    @Value("${cloud.aws.region.static}") // application.properties에서 aws.s3.region 설정
+    private String cloudRegion;
+
+    @Value("${cloud.aws.s3.endpoint}") // application.properties에서 aws.s3.endpointUrl 설정
+    private String cloudEndPoint;
+
+    @Value("${cloud.aws.s3.bucket.name}")
+    private String bucket;
+
     @Bean
     public AmazonS3 amazonS3Client() {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(cloudAccessKey, cloudSecretKey);
         return AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, region))
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(cloudEndPoint, cloudRegion))
                 .build();
     }
 }

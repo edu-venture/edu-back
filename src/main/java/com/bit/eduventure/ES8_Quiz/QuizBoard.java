@@ -56,10 +56,10 @@ public class QuizBoard {
     private String option4;
     private String answer;
     @Column(name = "gross_sample")
-    private int grossSample=0;
+    private int grossSample;
 
     @Column(name = "gross_right_answer")
-    private int grossRightAnswer=0;
+    private int grossRightAnswer;
 
     //기본값 설정
     private LocalDateTime boardRegdate = LocalDateTime.now();
@@ -69,7 +69,7 @@ public class QuizBoard {
     //unique: UK로 지정
     @Column(name="BOARD_CNT", nullable = false)
     private int boardCnt = 0;
-
+//hmmm
     //@Transient: 테이블의 컬럼으로는 생성되지 않고 객체에서만 사용가능한 멤버변수
     @Transient
     private String searchCondition;
