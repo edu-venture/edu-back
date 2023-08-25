@@ -1,6 +1,5 @@
 package com.bit.eduventure.payment.dto;
 
-import com.bit.eduventure.payment.entity.Receipt;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
