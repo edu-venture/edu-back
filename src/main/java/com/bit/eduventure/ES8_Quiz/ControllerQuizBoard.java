@@ -179,13 +179,15 @@ public class ControllerQuizBoard {
                     new TypeReference<List<QuizBoardFileDTO>>() {
                     });
         }
-
+        System.out.println("여기까지 온건가 182");
 
         //DB에서 수정, 삭제, 추가 될 파일 정보를 담는 리스트
         List<QuizBoardFile> uFileList = new ArrayList<QuizBoardFile>();
 
         try {
+            System.out.println("트라이도 못들어왔따고?");
             QuizBoard quizBoard = quizBoardDTO.DTOToEntity();
+            System.out.println("여기까지왓나 189");
             if(originFiles != null) {
                 //파일 처리
                 for (int i = 0; i < originFiles.size(); i++) {
@@ -199,7 +201,7 @@ public class ControllerQuizBoard {
                                 MultipartFile file = changeFileList[j];
 
                                 quizBoardFile = FileUtil.parseFileInfo(file, attachPath);
-
+                                System.out.println("여긴가");
                                 quizBoardFile.setQuizBoard(quizBoard);
                                 quizBoardFile.setBoardFileNo(originFiles.get(i).getBoardFileNo());
                                 quizBoardFile.setBoardFileStatus("U");
@@ -223,6 +225,8 @@ public class ControllerQuizBoard {
                     }
                 }
             }
+            System.out.println("여기까지 온건가 226");
+
             //추가된 파일 처리
             if(uploadFiles != null && uploadFiles.length > 0) {
                 for(int i = 0; i < uploadFiles.length; i++) {
@@ -241,7 +245,7 @@ public class ControllerQuizBoard {
                     }
                 }
             }
-
+            System.out.println("업데이트하기 일보직전");
             quizBoardService.updateBoard(quizBoard, uFileList);
 
             Map<String, Object> returnMap = new HashMap<>();
@@ -267,6 +271,7 @@ public class ControllerQuizBoard {
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            System.out.println("애러가났다.");
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
             responseDTO.setErrorMessage(e.getMessage());
             return ResponseEntity.badRequest().body(responseDTO);
