@@ -4,21 +4,18 @@ import com.bit.eduventure.payment.dto.PaymentRequestDTO;
 import com.bit.eduventure.payment.entity.Payment;
 import com.bit.eduventure.payment.entity.Receipt;
 import com.bit.eduventure.payment.repository.PaymentRepository;
-import com.bit.eduventure.payment.repository.ReceiptRepository;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.siot.IamportRestClient.IamportClient;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Type;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -41,14 +38,15 @@ public class PaymentService {
 
     // 납부서 등록
     public Payment createPayment(PaymentRequestDTO requestDTO) {
-
+        LocalDateTime now = LocalDateTime.now();
         //디비에 저장할 형태 만들기
         Payment payment = Payment.builder()
                 .userNo(requestDTO.getUserNo())
+                .payMethod("card")
                 .totalPrice(0)
                 .payFrom("에듀벤처")
                 .payTo(requestDTO.getPayTo())
-                .createDate(LocalDateTime.now())
+                .createDate(now)
                 .issDate(stringToLocalDateTime(requestDTO.getIssDate()))
                 .isPay(false)
                 .build();
@@ -59,15 +57,13 @@ public class PaymentService {
         Map<String, Integer> productList = jsonTOProductMap(requestDTO.getProductList());
 
         //상품과 가격 디비에 저장하면서 총합 구하기
-        int totalPrice = productList.entrySet().stream()
-                .map(entry -> {
+        int totalPrice = productList.values().stream()
+                .peek(price -> {
                     Receipt receipt = Receipt.builder()
                             .paymentId(payNo)
-                            .productName(entry.getKey())
-                            .productPrice(entry.getValue())
+                            .productPrice(price)
                             .build();
                     receiptService.saveReceipt(receipt);
-                    return entry.getValue();
                 })
                 .mapToInt(Integer::intValue)
                 .sum();
@@ -94,12 +90,13 @@ public class PaymentService {
         return paymentRepository.findAll();
     }
 
-    public void deletePayment(int payNo) {
-        paymentRepository.deleteById(payNo);
+    public void deletePaymentList(List<Integer> payNoList) {
+        payNoList.parallelStream()
+                .forEach(payNo -> paymentRepository.deleteById(payNo));
     }
 
     //년, 월, 일만 추출하기
-    public String issDateMonth(String inputDate, String type) {
+    public String getIssDate(String inputDate, String type) {
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
         LocalDateTime dateTime = LocalDateTime.parse(inputDate, inputFormatter);
 
@@ -139,18 +136,21 @@ public class PaymentService {
 
     //상품 정보와 가격 추출
     public Map<String, Integer> jsonTOProductMap(String productList) {
-        Map<String, Integer> returnMap = new HashMap<>();
+        Type type = new TypeToken<Map<String, Integer>>(){}.getType();
+        return new Gson().fromJson(productList, type);
+    }
 
-        JsonArray jsonArray = JsonParser.parseString(productList).getAsJsonArray();
+    // 결제 성공 후 uid db 업데이트
+    public void updatePayment(int payNo, com.siot.IamportRestClient.response.Payment iamPayment) {
+        Payment dbPayment = paymentRepository.findById(payNo).orElseThrow();
 
-        for (JsonElement jsonElement : jsonArray) {
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            String detail = jsonObject.get("detail").getAsString();
-            int price = jsonObject.get("price").getAsInt();
+        dbPayment.setPayMethod(iamPayment.getPayMethod());
+        dbPayment.setTotalPrice(iamPayment.getAmount().intValue());
+        dbPayment.setImpUid(iamPayment.getImpUid());
+        dbPayment.setPayDate(iamPayment.getPaidAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        dbPayment.setPay(true);
 
-            returnMap.put(detail, price);
-        }
-        return returnMap;
+        paymentRepository.save(dbPayment);
     }
 //
 //    /* 납부서 수정 */
@@ -189,25 +189,6 @@ public class PaymentService {
 //    }
 //
 //
-//    /* 납부서 삭제 */
-//
-//    /* 영수증 조회 - 특정 userNo, 월별*/
-//    public List<Payment> getReceipt(int userNo, LocalDateTime issDate) {
-//        return repository.findByUserNoAndIsPayTrueAndIssDate(userNo, issDate);
-//    }
-//
-    /* 결제 성공 후 db 업데이트 */
-    public void updatePayment(int payNo, com.siot.IamportRestClient.response.Payment iamPayment) {
-
-        Payment dbPayment = paymentRepository.findById(payNo).orElseThrow();
-        dbPayment.setPayMethod(iamPayment.getPayMethod());
-        dbPayment.setTotalPrice(iamPayment.getAmount().intValue());
-        dbPayment.setImpUid(iamPayment.getImpUid());
-        dbPayment.setPayDate(iamPayment.getPaidAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-        dbPayment.setPay(true);
-
-        paymentRepository.save(dbPayment);
-    }
 //
 //    /* 결제 취소 후 db 업데이트 */
 //    public void refundPayment(int payNo, com.siot.IamportRestClient.response.Payment payment) {

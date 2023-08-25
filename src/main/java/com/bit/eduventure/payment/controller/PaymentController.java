@@ -97,9 +97,9 @@ public class PaymentController {
                     .payFrom(paymentDTO.getPayFrom())
                     .totalPrice(paymentDTO.getTotalPrice())
                     .userName(userService.findById(paymentDTO.getPayTo()).getUserName())
-                    .issDay(paymentService.issDateMonth(paymentDTO.getIssDate().toString(), issDateArray[2]))
-                    .issMonth(paymentService.issDateMonth(paymentDTO.getIssDate().toString(), issDateArray[1]))
-                    .issYear(paymentService.issDateMonth(paymentDTO.getIssDate().toString(), issDateArray[0]))
+                    .issDay(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[2]))
+                    .issMonth(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[1]))
+                    .issYear(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[0]))
                     .productList(receiptDTOList)
                     .isPay(paymentDTO.isPay())
                     .build();
@@ -146,9 +146,9 @@ public class PaymentController {
                         .userName(user.getUserName())
                         .couNo(user.getCourse().getCouNo())
                         .claName(user.getCourse().getClaName())
-                        .issDay(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[2]))
-                        .issMonth(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[1]))
-                        .issYear(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[0]))
+                        .issDay(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[2]))
+                        .issMonth(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[1]))
+                        .issYear(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[0]))
                         .totalPrice(payment.getTotalPrice())
                         .parentTel(parentUser.getUserTel())
                         .payMethod(payment.getPayMethod())
@@ -197,9 +197,9 @@ public class PaymentController {
                         .userName(user.getUserName())
                         .couNo(user.getCourse().getCouNo())
                         .claName(user.getCourse().getClaName())
-                        .issDay(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[2]))
-                        .issMonth(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[1]))
-                        .issYear(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[0]))
+                        .issDay(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[2]))
+                        .issMonth(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[1]))
+                        .issYear(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[0]))
                         .totalPrice(payment.getTotalPrice())
                         .parentTel(parentUser.getUserTel())
                         .payMethod(payment.getPayMethod())
@@ -223,12 +223,11 @@ public class PaymentController {
     }
 
     //납부서 삭제
-    @DeleteMapping("/admin/bill/{payNo}")
-    public ResponseEntity<?> deletePayment(@PathVariable int payNo) {
+    @DeleteMapping("/admin/bill")
+    public ResponseEntity<?> deletePayment(@RequestBody List<Integer> payNoList) {
         ResponseDTO<String> response = new ResponseDTO<>();
         try {
-
-            paymentService.deletePayment(payNo);
+            paymentService.deletePaymentList(payNoList);
 
             response.setItem("납부서 삭제 성공");
             response.setStatusCode(HttpStatus.OK.value());
