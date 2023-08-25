@@ -22,4 +22,3 @@ public class RefundResponseDTO {
         this.cancelDate = payments.get(0).getCancelDate();
     }
 }
-
