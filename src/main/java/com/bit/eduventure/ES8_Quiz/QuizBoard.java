@@ -69,7 +69,7 @@ public class QuizBoard {
     //unique: UK로 지정
     @Column(name="BOARD_CNT", nullable = false)
     private int boardCnt = 0;
-
+//hmmm
     //@Transient: 테이블의 컬럼으로는 생성되지 않고 객체에서만 사용가능한 멤버변수
     @Transient
     private String searchCondition;
