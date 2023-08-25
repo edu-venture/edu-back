@@ -1,7 +1,10 @@
 package com.bit.eduventure.ES8_Quiz;
 
 import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
+import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES7_Board.DTO.BoardDTO;
 import com.bit.eduventure.ES7_Board.DTO.BoardFileDTO;
 import com.bit.eduventure.ES7_Board.Entity.Board;
@@ -35,13 +38,16 @@ public class ControllerQuizBoard {
 
     private QuizBoardService quizBoardService;
     @Autowired
+    private UserService userService;
+    @Autowired
     private RepositoryQuizBoard repositoryQuizBoard;
     @Value("${file.path}")
     String attachPath;
 
     @Autowired
-    public ControllerQuizBoard(QuizBoardService quizBoardService) {
+    public ControllerQuizBoard(QuizBoardService quizBoardService, UserService userService) {
         this.quizBoardService = quizBoardService;
+        this.userService = userService;
     }
 
     @GetMapping("/board-list")
@@ -368,6 +374,33 @@ public class ControllerQuizBoard {
             responseDTO.setErrorMessage(e.getMessage());
             return ResponseEntity.badRequest().body(responseDTO);
         }
+    }
+
+    @PostMapping("/increaseuserscore")
+    public ResponseEntity<?> increasescore(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        System.out.println(customUserDetails);
+        System.out.println("토큰으로  사람 불러오는거 들어옴");
+        System.out.println(customUserDetails.getUser().getUserId());
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+        User userme;
+
+        userme = userService.findByUserId(customUserDetails.getUser().getUserId());
+
+userService.increaseuserscore(customUserDetails.getUser().getId());
+
+        UserDTO userDTO = userme.EntityToDTO();
+        userDTO.setUserPw(userDTO.getUserPw());
+        try {
+
+            responseDTO.setItem(userDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
     }
 
 

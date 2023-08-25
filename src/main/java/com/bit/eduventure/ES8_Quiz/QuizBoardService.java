@@ -28,4 +28,5 @@ public interface QuizBoardService {
     void plussGrossSample(int boardNo);
 
     void plussGrossRightAnswer(int boardNo);
+
 }

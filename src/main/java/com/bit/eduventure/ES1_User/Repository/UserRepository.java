@@ -52,6 +52,20 @@ public interface UserRepository extends JpaRepository<User,Integer> {
 
     //권한에 맞는 유저 리스트 가져오기
     List<User> findAllByUserType(String userType);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.userScore = u.userScore + 1 WHERE u.id = ?1")
+    void increaseuserscore(Integer id);
+
+
+//    @Modifying
+//    @Query("UPDATE User u SET u.userScore = u.userScore + 1 WHERE u.id = :userId")
+//    void increaseUserScore(@Param("userId") Integer id);
+//이렇게도 할 수 있음
+
+
+
 //    @Query( value = "select * from t_user where user_name=:userId", nativeQuery = true)
 //
 //    Optional<User>  findByUserId(  @Param("userId") String userId);
