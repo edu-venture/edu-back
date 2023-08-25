@@ -45,6 +45,15 @@ public class User {
     private Integer userBus;
     @Column(name = "USER_JOIN_ID")
     private Integer userJoinId;
+
+    @Column(name = "USER_SCORE")
+    @ColumnDefault("0")
+
+    private Integer userScore;
+
+
+
+
     @Column(name = "USER_TYPE")
     private String userType;
     @Column(name = "USER_CONSULTCONTENT")
@@ -74,7 +83,7 @@ public class User {
                 .id(this.id).courseDTO(this.course.EntityToDTO())
                 .userId(this.userId)
 
-                .userId(this.userId).approval(this.approval)
+                .userId(this.userId).approval(this.approval).userScore(this.userScore)
 
                 .userName(this.userName).userAddressDetail(this.userAddressDetail)
 //                .userEmail(this.userEmail)
