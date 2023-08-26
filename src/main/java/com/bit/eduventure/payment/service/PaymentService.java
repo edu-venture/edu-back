@@ -96,7 +96,11 @@ public class PaymentService {
 
     //납부서 전체 조회
     public List<Payment> getPaymentList() {
-        return paymentRepository.findAll();
+        List<Payment> paymentList = paymentRepository.findAll();
+        if (!paymentList.isEmpty()) {
+            return paymentList;
+        }
+        throw new NoSuchElementException("납부서가 없습니다.");
     }
 
     //여러 개의 납부서 일괄 삭제
@@ -119,33 +123,28 @@ public class PaymentService {
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
         LocalDateTime dateTime = LocalDateTime.parse(inputDate, inputFormatter);
 
-        String result = "";
-
+        DateTimeFormatter outputFormatter = null;
         if ("year".equals(type)) {
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy");
-            result = dateTime.format(outputFormatter);
+            outputFormatter = DateTimeFormatter.ofPattern("yyyy");
         } else if ("month".equals(type)) {
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM");
-            result = dateTime.format(outputFormatter);
+            outputFormatter = DateTimeFormatter.ofPattern("MM");
         } else if ("day".equals(type)) {
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM");
-            result = dateTime.format(outputFormatter);
+            outputFormatter = DateTimeFormatter.ofPattern("dd");
         }
 
-        return result;
+        if (outputFormatter != null) {
+            return dateTime.format(outputFormatter);
+        }
+        return "";
     }
+
 
     //결제일 (문자열) -> LocalDateTime로 변환
     public LocalDateTime stringToLocalDateTime(String inputDate) {
-        Instant instant = Instant.parse(inputDate);
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-        String formattedDate = localDateTime.toString();
+        LocalDateTime localDateTime = LocalDateTime.parse(inputDate, formatter);
 
-        LocalDateTime returnData = LocalDateTime.parse(formattedDate, formatter);
-
-        System.out.println("localDateTime: " + returnData);
-        return returnData;
+        return localDateTime;
     }
 
     //페이먼트 저장
