@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class S3Config {
+public class S3Configuration {
 
     @Value("${cloud.ncp.access.key}") // application.properties에서 aws.accessKey 설정
     private String cloudAccessKey;

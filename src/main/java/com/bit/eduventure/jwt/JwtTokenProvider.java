@@ -62,20 +62,4 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

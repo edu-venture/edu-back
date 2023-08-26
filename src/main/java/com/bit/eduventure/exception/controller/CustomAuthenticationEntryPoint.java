@@ -10,13 +10,13 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
 
-public class CustomAuthenticationEntryPoint extends AuthenticationEntryPoint {
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
-        String exception = (String)request.getAttribute("exception");
-
+        String exception = request.getAttribute("exception").toString();
+        System.out.println("exception: " + exception);
         if(exception == null) {
             setResponse(response, ErrorCode.UNKNOWN_ERROR);
         }
@@ -32,8 +32,12 @@ public class CustomAuthenticationEntryPoint extends AuthenticationEntryPoint {
         else if(exception.equals(ErrorCode.UNSUPPORTED_TOKEN.getCode())) {
             setResponse(response, ErrorCode.UNSUPPORTED_TOKEN);
         }
+        //헤더에 토큰이 없는 경우
+        else if (exception.equals(ErrorCode.NULL_TOKEN.getCode())) {
+            setResponse(response, ErrorCode.NULL_TOKEN);
+        }
         else {
-            setResponse(response, ErrorCode.ACCESS_DENIED);
+            setResponse(response, ErrorCode.EXCEPTION);
         }
     }
 
