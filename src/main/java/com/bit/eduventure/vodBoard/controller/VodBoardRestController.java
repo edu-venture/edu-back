@@ -92,7 +92,7 @@ public class VodBoardRestController {
     }
 
     //강의 목록(제목, 강사, 영상 다 포함됨)
-    @GetMapping("/list")
+    @GetMapping("/board-list")
     public ResponseEntity<?> getList() { // ResponseEntity<?> 스프링에서 제공하는 응답 객체
         //ResponseEntity 바디에 담아줄 객체(ResponseDTO) 선언
         //선언하면서 제네릭에 VodBoardFile 형태로 선언
@@ -155,7 +155,7 @@ public class VodBoardRestController {
         }
     }
 
-    @PutMapping("/update/{boardNo}") // 수정 기능
+    @PutMapping("/board/{boardNo}") // 수정 기능
     public ResponseEntity<?> updateVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                             @PathVariable int boardNo,
                                             @RequestPart(value = "boardDTO", required = false) VodBoardDTO updatedBoardDTO,
@@ -232,7 +232,7 @@ public class VodBoardRestController {
         }
     }
 
-    @DeleteMapping("/delete/{boardNo}") //삭제 기능
+    @DeleteMapping("/board/{boardNo}") //삭제 기능
     public ResponseEntity<?> deleteVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                             @PathVariable int boardNo) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
