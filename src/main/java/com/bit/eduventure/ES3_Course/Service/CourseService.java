@@ -2,6 +2,7 @@ package com.bit.eduventure.ES3_Course.Service;
 
 
 import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 
 import java.util.List;
@@ -22,5 +23,5 @@ public interface CourseService {
 
     Course findByTeacherId(int id);
 
-    void createCourse(User user);
+    void createCourse(CourseDTO courseDTO);
 }
