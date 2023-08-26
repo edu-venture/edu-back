@@ -3,6 +3,8 @@ package com.bit.eduventure.ES3_Course.Controller;
 
 import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
+import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
@@ -23,6 +25,7 @@ import java.util.NoSuchElementException;
 public class CourseController {
 
     private final CourseService courseService;
+    private final UserService userService;
 
     @PostMapping("/getcourse")
     public ResponseEntity<?> getcourse(@RequestBody CourseDTO courseDTO) {
@@ -73,6 +76,23 @@ public class CourseController {
             CourseDTO courseDTO = courseService.findByTeacherId(teacher).EntityToDTO();
 
             responseDTO.setItem(courseDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @PostMapping("/course")
+    public ResponseEntity<?> creatCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        try {
+        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        User user = userService.findById(userNo);
+            courseService.createCourse(user);
+            responseDTO.setItem("반 생성 완료");
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
