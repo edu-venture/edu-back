@@ -30,7 +30,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ObjectStorageService {
-//    private final VodBoardFileRepository vodBoardFileRepository;
     private final VodBoardRepository vodBoardRepository;
 
     private final AmazonS3 s3;

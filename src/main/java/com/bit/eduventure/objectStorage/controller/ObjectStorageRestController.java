@@ -24,9 +24,9 @@ public class ObjectStorageRestController {
 //        return storageService.deleteObject(objectName);
 //    }
 
-    @PostMapping(value = "/uploadFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
-        String uploadedFileName = storageService.uploadFile(file);
-        return ResponseEntity.ok("File uploaded successfully. S3 key: " + uploadedFileName);
-    }
+//    @PostMapping(value = "/uploadFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
+//        String uploadedFileName = storageService.uploadFile(file);
+//        return ResponseEntity.ok("File uploaded successfully. S3 key: " + uploadedFileName);
+//    }
 }

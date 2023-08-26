@@ -59,7 +59,6 @@ public class PaymentController {
         responseDTO.setItems(returnList); // 응답 DTO 설정
         responseDTO.setStatusCode(HttpStatus.OK.value()); // 상태 코드 설정
 
-        System.out.println("responseDTO: " + responseDTO);
         return ResponseEntity.ok().body(responseDTO);
     }
 
@@ -195,19 +194,12 @@ public class PaymentController {
     @DeleteMapping("/admin/bill")
     public ResponseEntity<?> deletePayment(@RequestBody List<Integer> payNoList) {
         ResponseDTO<String> response = new ResponseDTO<>();
-        try {
-            paymentService.deletePaymentList(payNoList);
+        paymentService.deletePaymentList(payNoList);
 
-            response.setItem("납부서 삭제 성공");
-            response.setStatusCode(HttpStatus.OK.value());
+        response.setItem("납부서 삭제 성공");
+        response.setStatusCode(HttpStatus.OK.value());
 
-            return ResponseEntity.ok().body(response);
-
-        } catch (Exception e) {
-            response.setErrorMessage(e.getMessage());
-            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
-        }
+        return ResponseEntity.ok().body(response);
     }
 //
 //    /* 납부서 수정 */
