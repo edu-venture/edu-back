@@ -73,7 +73,7 @@ public class VodBoardRestController {
         }
 
         VodBoard board = boardDTO.DTOTOEntity();
-        board.setUser(userService.findById(userNo));
+        board.setUser(user);
 
         vodBoardService.insertBoard(board, uploadFileList);
 
