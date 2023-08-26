@@ -35,9 +35,11 @@ public class LectureController {
                                            @RequestBody LectureDTO lectureDTO) {
         ResponseDTO<LectureDTO> responseDTO = new ResponseDTO<>();
         try {
+            System.out.println(lectureDTO);
             int userNo = Integer.parseInt(customUserDetails.getUsername());
             User user = userService.findById(userNo);
 
+            lectureDTO.setCourseDTO(user.EntityToDTO().getCourseDTO());
             String title = lectureDTO.getTitle();
 
             Course course = user.getCourse();

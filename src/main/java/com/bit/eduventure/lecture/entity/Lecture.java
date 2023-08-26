@@ -3,14 +3,14 @@ package com.bit.eduventure.lecture.entity;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
+@Getter
+@Setter
 @Table(name = "T_LECTURE")
 public class Lecture {
     @Id
