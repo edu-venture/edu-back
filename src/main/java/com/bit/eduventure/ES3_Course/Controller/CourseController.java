@@ -2,6 +2,7 @@ package com.bit.eduventure.ES3_Course.Controller;
 
 
 import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
@@ -48,11 +49,8 @@ public class CourseController {
     }
 
     @GetMapping("/course-list")
-    public ResponseEntity<?> getCourseList(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
-    ) {
+    public ResponseEntity<?> getCourseList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
-        System.out.println("겟 코스리스트 도착완료 트라이 직전");
         try {
             List<Course> courseList = courseService.getCourseList();
             List<CourseDTO> courseDTOList = new ArrayList<>();
@@ -86,12 +84,16 @@ public class CourseController {
     }
 
     @PostMapping("/course")
-    public ResponseEntity<?> creatCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public ResponseEntity<?> creatCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                         @RequestBody CourseDTO courseDTO){
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
         try {
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
-        User user = userService.findById(userNo);
-            courseService.createCourse(user);
+            int userNo = Integer.parseInt(customUserDetails.getUsername());
+            UserDTO userDTO = userService.findById(userNo).EntityToDTO();
+            courseDTO.setUserDTO(userDTO);
+
+            courseService.createCourse(courseDTO);
+
             responseDTO.setItem("반 생성 완료");
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);

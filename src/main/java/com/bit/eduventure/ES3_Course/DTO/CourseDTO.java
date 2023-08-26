@@ -25,8 +25,6 @@ public class CourseDTO {
                 .user(this.userDTO.DTOToEntity())
                 .build();
         return course;
-
-
     }
 
 
