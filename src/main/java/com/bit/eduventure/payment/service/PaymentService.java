@@ -105,7 +105,7 @@ public class PaymentService {
 
     //여러 개의 납부서 일괄 삭제
     public void deletePaymentList(List<Integer> payNoList) {
-        payNoList.parallelStream()
+        payNoList.stream()
                 .forEach(payNo -> {
                     receiptService.deleteReceipt(payNo);
                     paymentRepository.deleteById(payNo);
