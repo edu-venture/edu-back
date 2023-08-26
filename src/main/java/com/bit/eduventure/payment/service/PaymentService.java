@@ -160,7 +160,8 @@ public class PaymentService {
 
     // 결제 성공 후 uid db 업데이트
     public void updatePayment(int payNo, com.siot.IamportRestClient.response.Payment iamPayment) {
-        Payment dbPayment = paymentRepository.findById(payNo).orElseThrow();
+        Payment dbPayment = paymentRepository.findById(payNo)
+                .orElseThrow(() -> new NoSuchElementException());
 
         dbPayment.setPayMethod(iamPayment.getPayMethod());
         dbPayment.setTotalPrice(iamPayment.getAmount().intValue());
