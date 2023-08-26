@@ -44,8 +44,6 @@ public class ImportApiController {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -62,10 +60,10 @@ public class ImportApiController {
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
             return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
+        } catch (IamportResponseException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

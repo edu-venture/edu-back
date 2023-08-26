@@ -52,6 +52,12 @@ public class ExceptionController {
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    protected ResponseEntity<String> dataFormatExceptionHandler(RuntimeException e) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.RUN_TIME);
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
     private ResponseEntity<String> setResponse(ErrorResponse errorResponse, HttpStatus status) {
         String responseJson = createResponseJson(errorResponse);
         HttpHeaders headers = new HttpHeaders();
