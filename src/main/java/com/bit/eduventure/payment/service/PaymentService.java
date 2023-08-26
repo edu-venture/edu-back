@@ -77,12 +77,21 @@ public class PaymentService {
 
     //학생 개별 납부서 조회
     public Payment getPayment(int userNo, int month) {
-        return paymentRepository.findByPayToAndIssDateMonth(userNo, month).get(0);
+        int year = LocalDateTime.now().getYear();
+        List<Payment> payments = paymentRepository.findByPayToAndYearMonth(userNo, year, month);
+        if (!payments.isEmpty()) {
+            return payments.get(0);
+        }
+        throw new NoSuchElementException("해당 월에 납부서가 없습니다.");
     }
 
     //학생 납부서 전체 조회
     public List<Payment> getPaymentList(int userNo) {
-        return paymentRepository.findAllByPayTo(userNo);
+        List<Payment> paymentList = paymentRepository.findAllByPayTo(userNo);
+        if (!paymentList.isEmpty()) {
+            return paymentList;
+        }
+        throw new NoSuchElementException("해당 유저의 납부서가 없습니다.");
     }
 
     //납부서 전체 조회
@@ -90,9 +99,19 @@ public class PaymentService {
         return paymentRepository.findAll();
     }
 
+    //여러 개의 납부서 일괄 삭제
     public void deletePaymentList(List<Integer> payNoList) {
         payNoList.parallelStream()
-                .forEach(payNo -> paymentRepository.deleteById(payNo));
+                .forEach(payNo -> {
+                    receiptService.deleteReceipt(payNo);
+                    paymentRepository.deleteById(payNo);
+                });
+    }
+
+    //한 개의 납부서 일괄 삭제
+    public void deletePayment(int payNo) {
+        receiptService.deleteReceipt(payNo);
+        paymentRepository.deleteById(payNo);
     }
 
     //년, 월, 일만 추출하기
