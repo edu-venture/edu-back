@@ -1,4 +1,4 @@
-package com.bit.eduventure.chatbot;
+package com.bit.eduventure.chatbot.controller;
 
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.json.simple.JSONArray;
