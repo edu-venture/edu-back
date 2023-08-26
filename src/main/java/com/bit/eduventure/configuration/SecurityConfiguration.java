@@ -1,5 +1,6 @@
 package com.bit.eduventure.configuration;
 
+import com.bit.eduventure.exception.controller.CustomAuthenticationEntryPoint;
 import com.bit.eduventure.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -43,6 +44,11 @@ public class SecurityConfiguration {
                             SessionCreationPolicy.STATELESS
                     );
                 })
+                //jwt token exception
+                .exceptionHandling((exceptionHandling) ->
+                        exceptionHandling
+                                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                )
                 //요청 주소에 대한 권한 설정
                 .authorizeHttpRequests((authorizeRequests) -> {
                     //'/'요청은 모든 사용자가 이용가능
@@ -90,13 +96,6 @@ public class SecurityConfiguration {
                 .addFilterAfter(jwtAuthenticationFilter, CorsFilter.class)
                 .build();
     }
-
-
-
-
-
-
-
 
 
 }
