@@ -32,76 +32,51 @@ public class CourseController {
     public ResponseEntity<?> getcourse(@RequestBody CourseDTO courseDTO) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
 
-        try {
-            Course course = courseService.findByCouNo(courseDTO.getCouNo())
-                    .orElseThrow(() -> new NoSuchElementException("Course not found"));
-            CourseDTO courseDTOtosend = course.EntityToDTO();
-            responseDTO.setItem(courseDTOtosend);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
-
-
+        Course course = courseService.findByCouNo(courseDTO.getCouNo())
+                .orElseThrow(() -> new NoSuchElementException("Course not found"));
+        CourseDTO courseDTOtosend = course.EntityToDTO();
+        responseDTO.setItem(courseDTOtosend);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     @GetMapping("/course-list")
     public ResponseEntity<?> getCourseList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
-        try {
-            List<Course> courseList = courseService.getCourseList();
-            List<CourseDTO> courseDTOList = new ArrayList<>();
-            for(Course course : courseList) {
-                courseDTOList.add(course.EntityToDTO());
-            }
-            responseDTO.setItems(courseDTOList);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch(Exception e) {
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            responseDTO.setErrorMessage(e.getMessage());
-            return ResponseEntity.badRequest().body(responseDTO);
+
+        List<Course> courseList = courseService.getCourseList();
+        List<CourseDTO> courseDTOList = new ArrayList<>();
+        for(Course course : courseList) {
+            courseDTOList.add(course.EntityToDTO());
         }
+        responseDTO.setItems(courseDTOList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     @GetMapping("/course/{teacherId}")
     public ResponseEntity<?> getCourse(@PathVariable int teacher) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
-        try {
-            CourseDTO courseDTO = courseService.findByTeacherId(teacher).EntityToDTO();
+        CourseDTO courseDTO = courseService.findByTeacherId(teacher).EntityToDTO();
 
-            responseDTO.setItem(courseDTO);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            responseDTO.setErrorMessage(e.getMessage());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        responseDTO.setItem(courseDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     @PostMapping("/course")
     public ResponseEntity<?> creatCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                          @RequestBody CourseDTO courseDTO){
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
-        try {
-            int userNo = Integer.parseInt(customUserDetails.getUsername());
-            UserDTO userDTO = userService.findById(userNo).EntityToDTO();
-            courseDTO.setUserDTO(userDTO);
+        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        UserDTO userDTO = userService.findById(userNo).EntityToDTO();
+        courseDTO.setUserDTO(userDTO);
 
-            courseService.createCourse(courseDTO);
+        courseService.createCourse(courseDTO);
 
-            responseDTO.setItem("반 생성 완료");
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            responseDTO.setErrorMessage(e.getMessage());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        responseDTO.setItem("반 생성 완료");
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
     }
 
 

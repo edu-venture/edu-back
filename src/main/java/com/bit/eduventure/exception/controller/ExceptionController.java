@@ -1,6 +1,7 @@
 package com.bit.eduventure.exception.controller;
 
 
+import com.bit.eduventure.exception.errorCode.CustomException;
 import com.bit.eduventure.exception.errorCode.ErrorCode;
 import com.bit.eduventure.exception.response.ErrorResponse;
 import com.google.gson.Gson;
@@ -16,24 +17,60 @@ import java.util.zip.DataFormatException;
 
 @RestControllerAdvice
 public class ExceptionController {
-    @ExceptionHandler({
-            Exception.class,
-            NoSuchElementException.class,
-            NullPointerException.class,
-            ClassCastException.class,
-            StackOverflowError.class,
-            DataFormatException.class,
-            RuntimeException.class
-    })
-    protected ResponseEntity<String> exceptionHandler(Exception e) {
-        ErrorResponse response = new ErrorResponse(ErrorCode.EXCEPTION);
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<String> noSuchElementExceptionHandler(CustomException e) {
+        ErrorResponse response = new ErrorResponse(e.getMessage());
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> noSuchElementExceptionHandler(NoSuchElementException e) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.NO_SUCH_ELEMENT);
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<String> nullPointerExceptionHandler(NullPointerException e) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.NULL_POINT);
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ClassCastException.class)
+    public ResponseEntity<String> classCastExceptionHandler(ClassCastException e) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.CLASS_CAST);
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(StackOverflowError.class)
+    public ResponseEntity<String> stackOverFlowErrorHandler(StackOverflowError e) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.STACK_OVER_FLOW);
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataFormatException.class)
+    public ResponseEntity<String> dataFormatExceptionHandler(DataFormatException e) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.DATA_FORMAT);
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> runtimeExceptionHandler(RuntimeException e) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.RUN_TIME);
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+
     private ResponseEntity<String> setResponse(ErrorResponse errorResponse, HttpStatus status) {
-        String responseJson = new Gson().toJson(errorResponse);
+        String responseJson = createResponseJson(errorResponse);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(responseJson, headers, status);
     }
+
+    private String createResponseJson(ErrorResponse errorResponse) {
+        return new Gson().toJson(errorResponse);
+    }
 }
+
