@@ -67,7 +67,7 @@ public class VodBoardService {
         vodBoardRepository.save(board);
         vodBoardRepository.flush();
         if (fileList != null) {
-            fileList.forEach(boardFile -> {
+            fileList.stream().forEach(boardFile -> {
                 boardFile.setVodBoardNo(board.getId());
                 vodBoardFileRepository.save(boardFile);
             });

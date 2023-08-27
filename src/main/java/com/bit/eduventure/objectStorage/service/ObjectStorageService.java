@@ -1,12 +1,9 @@
 package com.bit.eduventure.objectStorage.service;
 
-import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 
-//import com.example.finalexamplespring.vodBoard.entity.VodBoardFile;
-//import com.example.finalexamplespring.vodBoard.repository.VodBoardFileRepository;
 import com.bit.eduventure.vodBoard.entity.VodBoard;
 
 import com.bit.eduventure.vodBoard.repository.VodBoardRepository;
@@ -16,16 +13,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
