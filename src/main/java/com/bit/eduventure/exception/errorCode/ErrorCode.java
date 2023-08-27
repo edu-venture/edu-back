@@ -19,6 +19,7 @@ public enum ErrorCode {
     DATA_FORMAT(2004, "입력한 데이터 형식이 잘못 되었습니다. 아마 프론트 문제 확률 높음"),
     RUN_TIME(2005, "런타임 오류입니다. 서버 콘솔창을 확인해보세요."),
     MAKE_SIGNATURE(3000, "NCP API 요청 시 생성할 SIGNATURE 오류입니다."),
+    OBJECT_STORAGE(3001, "Object Storage 오류 입니다."),
     URL_SYNTAX(3001, "서버 내부 API 요청시 오류 입니다."),
     EXCEPTION(9999, "예외입니다. 백엔드에서 세부화하든 프론트 문제든 난 몰라");
 
