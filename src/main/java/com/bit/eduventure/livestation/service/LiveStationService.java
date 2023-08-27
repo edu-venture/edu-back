@@ -1,6 +1,7 @@
 package com.bit.eduventure.livestation.service;
 
 import com.bit.eduventure.dto.ResponseDTO;
+import com.bit.eduventure.exception.errorCode.MakeSignatureException;
 import com.bit.eduventure.livestation.dto.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,7 +56,7 @@ public class LiveStationService {
 
             return encodeBase64String;
         } catch (Exception e) {
-            return e.getMessage();
+            throw new MakeSignatureException();
         }
     }
 

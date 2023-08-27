@@ -17,9 +17,8 @@ public enum ErrorCode {
     CLASS_CAST(2002, "데이터 타입이 틀립니다."),
     STACK_OVER_FLOW(2003, "스택 오버 플로우. 백엔드 문제일 확률 높음"),
     DATA_FORMAT(2004, "입력한 데이터 형식이 잘못 되었습니다. 아마 프론트 문제 확률 높음"),
-    RUN_TIME(2005, "런타임 오류입니다. 서버 콘솔 창을 확인해보세"),
-
-
+    RUN_TIME(2005, "런타임 오류입니다. 서버 콘솔창을 확인해보세요."),
+    MAKE_SIGNATURE(3000, "NCP API 요청 시 생성할 SIGNATURE 오류입니다."),
     EXCEPTION(9999, "예외입니다. 백엔드에서 세부화하든 프론트 문제든 난 몰라");
 
     private int code;

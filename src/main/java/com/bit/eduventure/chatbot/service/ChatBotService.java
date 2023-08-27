@@ -1,5 +1,6 @@
 package com.bit.eduventure.chatbot.service;
 
+import com.bit.eduventure.exception.errorCode.MakeSignatureException;
 import org.apache.commons.codec.binary.Base64;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -90,7 +91,7 @@ public class ChatBotService {
             byte[] rawHmac = mac.doFinal(message.getBytes(UTF8));
             return Base64.encodeBase64String(rawHmac);
         } catch (Exception e) {
-            throw new RuntimeException("Chat Bot Signature 만들기 실패");
+            throw new MakeSignatureException();
         }
     }
 
