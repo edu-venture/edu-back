@@ -1,7 +1,6 @@
 package com.bit.eduventure.ES3_Course.Service;
 
 
-import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,13 +34,9 @@ public class CourseServiceImpl  implements CourseService {
     }
 
     @Override
-    public Optional<Course> findById(int noticeNo) {
-        return courseRepository.findById(noticeNo);
-    }
-
-    @Override
-    public Optional<Course> findByCouNo(Integer couNo) {
-        return courseRepository.findByCouNo(couNo);
+    public Course getCourse(int id) {
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("찾을 수 없는 반 번호입니다."));
     }
 
     @Override
@@ -52,8 +46,8 @@ public class CourseServiceImpl  implements CourseService {
 
     //선생님 이름으로 반 정보 찾기
     @Override
-    public Course findByTeacherId(int id) {
-        return courseRepository.findByUserId(id);
+    public Course findByTeacherId(int teacherId) {
+        return courseRepository.findByUserId(teacherId);
     }
 
     @Override
@@ -66,7 +60,7 @@ public class CourseServiceImpl  implements CourseService {
     }
 
     @Override
-    public List<String> getTimeWeeksByCouNo(Integer couNo) {
+    public List<String> getTimeWeeksByCouNo(int couNo) {
         // First, find the Course by couNo
         Course course = courseRepository.findById(couNo).orElse(null);
 

@@ -13,15 +13,13 @@ public interface CourseService {
 
     List<Course> getCourseList();
 
-    Optional<Course> findById(int couNo);
+    Course getCourse(int id);
 
-    Optional<Course> findByCouNo(Integer couNo);
-
-    List<String> getTimeWeeksByCouNo(Integer couNo);
+    List<String> getTimeWeeksByCouNo(int couNo);
 
     Course findByClaName(String claName);
 
-    Course findByTeacherId(int id);
+    Course findByTeacherId(int teacherId);
 
     void createCourse(CourseDTO courseDTO);
 }

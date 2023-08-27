@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/course")
@@ -32,8 +33,8 @@ public class CourseController {
     public ResponseEntity<?> getcourse(@RequestBody CourseDTO courseDTO) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
 
-        Course course = courseService.findByCouNo(courseDTO.getCouNo())
-                .orElseThrow(() -> new NoSuchElementException("Course not found"));
+        Course course = courseService.findById(courseDTO.getCouNo());
+
         CourseDTO courseDTOtosend = course.EntityToDTO();
         responseDTO.setItem(courseDTOtosend);
         responseDTO.setStatusCode(HttpStatus.OK.value());
@@ -45,19 +46,20 @@ public class CourseController {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
 
         List<Course> courseList = courseService.getCourseList();
-        List<CourseDTO> courseDTOList = new ArrayList<>();
-        for(Course course : courseList) {
-            courseDTOList.add(course.EntityToDTO());
-        }
+
+        List<CourseDTO> courseDTOList =  courseList.stream()
+                .map(Course::EntityToDTO)
+                .collect(Collectors.toList());
+
         responseDTO.setItems(courseDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
     }
 
     @GetMapping("/course/{teacherId}")
-    public ResponseEntity<?> getCourse(@PathVariable int teacher) {
+    public ResponseEntity<?> getCourse(@PathVariable int teacherId) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
-        CourseDTO courseDTO = courseService.findByTeacherId(teacher).EntityToDTO();
+        CourseDTO courseDTO = courseService.findByTeacherId(teacherId).EntityToDTO();
 
         responseDTO.setItem(courseDTO);
         responseDTO.setStatusCode(HttpStatus.OK.value());
