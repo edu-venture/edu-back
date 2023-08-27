@@ -6,6 +6,8 @@ import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
 import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.repository.TimeTableRepository;
+import com.bit.eduventure.timetable.service.TimeTableService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,18 +16,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CourseServiceImpl  implements CourseService {
 
     private final CourseRepository courseRepository;
 
-    private final TimeTableRepository timeTableRepository;
-
-    @Autowired
-    public CourseServiceImpl(CourseRepository courseRepository,
-                             TimeTableRepository timeTableRepository){
-        this.courseRepository = courseRepository;
-        this.timeTableRepository = timeTableRepository;
-    }
+    private final TimeTableService timeTableService;
 
 
     @Override
@@ -70,7 +66,7 @@ public class CourseServiceImpl  implements CourseService {
         }
 
         // Using the claName from the found Course, find all matching timetables
-        List<TimeTable> timetables = timeTableRepository.findAllByClaName(course.getClaName());
+        List<TimeTable> timetables = timeTableService.getTimeTableListForClaName(course.getClaName());
 
         // Extract timeWeek from each timetable and collect to a list
         return timetables.stream()
