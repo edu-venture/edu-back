@@ -17,4 +17,9 @@ public class ErrorResponse {
         this.code = errorCode.getCode();
         this.message = errorCode.getMessage();
     }
+
+    public ErrorResponse(String message) {
+        this.code = 0000;
+        this.message = message;
+    }
 }

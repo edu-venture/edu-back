@@ -59,8 +59,9 @@ public class LiveStationService {
         }
     }
 
-    public String createChannel(String name) throws JsonProcessingException, URISyntaxException {
-        ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
+    public String createChannel(String name) {
+        try {
+            ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(liveStationUrl);
             String url = urlBuilder.toString();
@@ -113,11 +114,16 @@ public class LiveStationService {
 
 
             return response.getBody().getContent().getChannelId();  // channelId 반환
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ResponseEntity<?> getChannelInfo(String channelID) {
-        ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
         try {
+            ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(liveStationUrl);
             urlBuilder.append("/");
@@ -158,12 +164,10 @@ public class LiveStationService {
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
             return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-            return ResponseEntity.badRequest().body(responseDTO);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
+
     }
 
     public ResponseEntity<?> getServiceURL(String channelID) {
@@ -214,12 +218,10 @@ public class LiveStationService {
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
             return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-            return ResponseEntity.badRequest().body(responseDTO);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
+
     }
 
     public ResponseEntity<?> deleteChannel(String channelID) {
@@ -261,11 +263,8 @@ public class LiveStationService {
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
             return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-            return ResponseEntity.badRequest().body(responseDTO);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -76,7 +76,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             request.setAttribute(REQUEST_NAME, ErrorCode.EXCEPTION.getCode());
         }
-        filterChain.doFilter(request, response);
     }
 
     private String parseBearerToken(HttpServletRequest request) {
