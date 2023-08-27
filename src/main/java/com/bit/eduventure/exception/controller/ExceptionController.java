@@ -18,12 +18,6 @@ import java.util.zip.DataFormatException;
 @RestControllerAdvice
 public class ExceptionController {
 
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<String> noSuchElementExceptionHandler(CustomException e) {
-        ErrorResponse response = new ErrorResponse(e.getMessage());
-        return setResponse(response, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<String> noSuchElementExceptionHandler(NoSuchElementException e) {
         ErrorResponse response = new ErrorResponse(ErrorCode.NO_SUCH_ELEMENT);
@@ -56,7 +50,13 @@ public class ExceptionController {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> runtimeExceptionHandler(RuntimeException e) {
-        ErrorResponse response = new ErrorResponse(ErrorCode.RUN_TIME);
+        ErrorResponse response = new ErrorResponse(e.getMessage());
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> illegalStateExceptionHandler(IllegalStateException e) {
+        ErrorResponse response = new ErrorResponse(e.getMessage());
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 

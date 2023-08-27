@@ -40,7 +40,7 @@ public class LectureController {
         User user = userService.findById(userNo);
 
         if (!user.getUserType().equals("teacher")) {
-            throw new CustomException("선생님이 아닙니다.");
+            throw new RuntimeException("선생님이 아닙니다.");
         }
 
         lectureDTO.setCourseDTO(user.EntityToDTO().getCourseDTO());
