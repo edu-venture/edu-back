@@ -4,10 +4,8 @@ package com.bit.eduventure.lecture.controller;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
-import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.dto.ResponseDTO;
-import com.bit.eduventure.exception.errorCode.CustomException;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import com.bit.eduventure.lecture.service.LectureService;
 import com.bit.eduventure.livestation.service.LiveStationService;
@@ -40,7 +38,7 @@ public class LectureController {
         User user = userService.findById(userNo);
 
         if (!user.getUserType().equals("teacher")) {
-            throw new CustomException("선생님이 아닙니다.");
+            throw new RuntimeException("선생님이 아닙니다.");
         }
 
         lectureDTO.setCourseDTO(user.EntityToDTO().getCourseDTO());
@@ -53,7 +51,8 @@ public class LectureController {
         String channelId = liveStationService.createChannel(title);
 
         lectureDTO.setLiveStationId(channelId);
-        lectureDTO = lectureService.createLecture(lectureDTO);
+
+        lectureDTO = lectureService.createLecture(lectureDTO).EntityTODTO();
 
         responseDTO.setItem(lectureDTO);
         responseDTO.setStatusCode(HttpStatus.OK.value());

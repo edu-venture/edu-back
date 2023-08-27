@@ -1,8 +1,7 @@
 package com.bit.eduventure.exception.controller;
 
-
-import com.bit.eduventure.exception.errorCode.CustomException;
 import com.bit.eduventure.exception.errorCode.ErrorCode;
+import com.bit.eduventure.exception.errorCode.MakeSignatureException;
 import com.bit.eduventure.exception.response.ErrorResponse;
 import com.google.gson.Gson;
 import org.springframework.http.HttpHeaders;
@@ -17,12 +16,6 @@ import java.util.zip.DataFormatException;
 
 @RestControllerAdvice
 public class ExceptionController {
-
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<String> noSuchElementExceptionHandler(CustomException e) {
-        ErrorResponse response = new ErrorResponse(e.getMessage());
-        return setResponse(response, HttpStatus.BAD_REQUEST);
-    }
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<String> noSuchElementExceptionHandler(NoSuchElementException e) {
@@ -56,7 +49,25 @@ public class ExceptionController {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> runtimeExceptionHandler(RuntimeException e) {
-        ErrorResponse response = new ErrorResponse(ErrorCode.RUN_TIME);
+        ErrorResponse response = new ErrorResponse(e.getMessage());
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> illegalStateExceptionHandler(IllegalStateException e) {
+        ErrorResponse response = new ErrorResponse(e.getMessage());
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MakeSignatureException.class)
+    public ResponseEntity<String> makeSignatureExceptionHandler(MakeSignatureException e) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.MAKE_SIGNATURE);
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> exceptionHandler(Exception e) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.EXCEPTION);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 

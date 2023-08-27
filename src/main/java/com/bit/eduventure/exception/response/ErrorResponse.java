@@ -19,7 +19,6 @@ public class ErrorResponse {
     }
 
     public ErrorResponse(String message) {
-        this.code = 0000;
         this.message = message;
     }
 }

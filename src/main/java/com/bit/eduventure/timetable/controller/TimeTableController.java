@@ -29,16 +29,10 @@ public class TimeTableController {
         // 클라이언트에게 전달할 최종 응답 객체 생성
         ResponseDTO<String> response = new ResponseDTO<>();
 
-        try {
-            timeTableService.registerTimetable(requestDTO);  // 서비스 메서드 호출
-            response.setItem("저장이 완료되었습니다."); // 응답 DTO 설정
-            response.setStatusCode(HttpStatus.CREATED.value()); // 상태 코드 설정
-            return ResponseEntity.status(HttpStatus.CREATED).body(response); // 성공적인 응답 반환
-        } catch (Exception e) {
-            response.setErrorMessage(e.getMessage()); // 에러 메시지 설정
-            response.setStatusCode(HttpStatus.BAD_REQUEST.value()); // 상태 코드 설정
-            return ResponseEntity.badRequest().body(response); // 에러 발생시 응답 반환
-        }
+        timeTableService.registerTimetable(requestDTO);  // 서비스 메서드 호출
+        response.setItem("저장이 완료되었습니다."); // 응답 DTO 설정
+        response.setStatusCode(HttpStatus.CREATED.value()); // 상태 코드 설정
+        return ResponseEntity.status(HttpStatus.CREATED).body(response); // 성공적인 응답 반환
     }
 
     /* 시간표 조회 */
@@ -49,16 +43,10 @@ public class TimeTableController {
 
         ResponseDTO<TimeTableGetResponseDTO> response = new ResponseDTO<>();
 
-        try {
-            TimeTableGetResponseDTO res = timeTableService.getTimetable(timeNo);
-            response.setItem(res);
-            response.setStatusCode(HttpStatus.CREATED.value());
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            response.setErrorMessage(e.getMessage());
-            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
-        }
+        TimeTableGetResponseDTO res = timeTableService.getTimetable(timeNo);
+        response.setItem(res);
+        response.setStatusCode(HttpStatus.CREATED.value());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /* 시간표 목록 조회 */
@@ -66,20 +54,14 @@ public class TimeTableController {
     public ResponseEntity<?> getAllTimetables() {
         ResponseDTO<TimeTableGetResponseDTO> response = new ResponseDTO<>();
 
-        try {
-            System.out.println("시간표 컨트롤러 res111============");
+        System.out.println("시간표 컨트롤러 res111============");
 
-            List<TimeTableGetResponseDTO> res = timeTableService.getAllTimetables();
+        List<TimeTableGetResponseDTO> res = timeTableService.getAllTimetables();
 
-            System.out.println("res============"+res);
-            response.setItems(res);
-            response.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            response.setErrorMessage(e.getMessage());
-            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
-        }
+        System.out.println("res============"+res);
+        response.setItems(res);
+        response.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(response);
     }
 
     /* 시간표 삭제 */
@@ -94,20 +76,14 @@ public class TimeTableController {
         System.out.println("claName"+ claName);
         System.out.println("timeWeek"+ timeWeek);
 
-        try {
-            timeTableService.deleteTimetable(claName, timeWeek);
-            Map<String, String> returnMap = new HashMap<String, String>();
+        timeTableService.deleteTimetable(claName, timeWeek);
+        Map<String, String> returnMap = new HashMap<String, String>();
 
-            returnMap.put("msg", "정상적으로 삭제되었습니다.");
+        returnMap.put("msg", "정상적으로 삭제되었습니다.");
 
-            responseDTO.setItem(returnMap);
+        responseDTO.setItem(returnMap);
 
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            responseDTO.setErrorMessage(e.getMessage());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        return ResponseEntity.ok().body(responseDTO);
     }
 
 

@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TimeTableService {
 
-    private final CourseRepository courseRepository;
-    private final UserRepository userRepository;
     private final TimeTableRepository timeTableRepository;
     private final CourseService courseService;
 
@@ -49,7 +47,7 @@ public class TimeTableService {
     /* 시간표 조회 - 특정 couNo 별 */
     public TimeTableGetResponseDTO getTimetable(int timeNo) {
         TimeTable timeTable = timeTableRepository.findById(timeNo).get();
-        Course course = courseRepository.findByClaName(timeTable.getClaName());
+        Course course = courseService.findByClaName(timeTable.getClaName());
 
         TimeTableGetResponseDTO dto = TimeTableGetResponseDTO.builder()
                 .couNo(timeTable.getTimeNo())
@@ -95,7 +93,6 @@ public class TimeTableService {
         System.out.println("시간표 서비스 returnList1==========="+returnList);
 
         for (TimeTable timeTable : timeTableList) {
-            Course course = courseRepository.findByClaName(timeTable.getClaName());
 
             TimeTableGetResponseDTO dto = TimeTableGetResponseDTO.builder()
                     .couNo(timeTable.getTimeNo())
@@ -123,6 +120,10 @@ public class TimeTableService {
         } else {
             throw new IllegalArgumentException("TimeTable not found");
         }
+    }
+
+    public List<TimeTable> getTimeTableListForClaName(String claName) {
+        return timeTableRepository.findAllByClaName(claName);
     }
 
 }

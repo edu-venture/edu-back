@@ -1,5 +1,6 @@
 package com.bit.eduventure.chatbot.service;
 
+import com.bit.eduventure.exception.errorCode.MakeSignatureException;
 import org.apache.commons.codec.binary.Base64;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -73,10 +74,10 @@ public class ChatBotService {
                     return (String) data.get("description");
                 }
             } else {
-                return "error";
+                throw new RuntimeException("Chat Bot API 호출 실패");
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("callChatBotAPI 내 오류");
         }
     }
 
@@ -90,7 +91,7 @@ public class ChatBotService {
             byte[] rawHmac = mac.doFinal(message.getBytes(UTF8));
             return Base64.encodeBase64String(rawHmac);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new MakeSignatureException();
         }
     }
 
@@ -117,7 +118,7 @@ public class ChatBotService {
 
             return obj.toString();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Chat Bot getReqMessage 실패");
         }
     }
 }
