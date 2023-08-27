@@ -6,13 +6,26 @@ import com.bit.eduventure.lecture.repository.LectureRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class LectureService {
     private final LectureRepository lectureRepository;
 
-    public LectureDTO createLecture(LectureDTO lectureDTO) {
+    public Lecture createLecture(LectureDTO lectureDTO) {
         Lecture lecture = lectureDTO.DTOTOEntity();
-        return lectureRepository.save(lecture).EntityTODTO();
+        return lectureRepository.save(lecture);
     }
+
+    public Lecture getLecture(int id) {
+        return lectureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Lecture를 못 찾았습니다."));
+    }
+
+    public List<Lecture> getAllLecture() {
+        return lectureRepository.findAll();
+    }
+
+
 }

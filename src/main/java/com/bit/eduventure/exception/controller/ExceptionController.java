@@ -1,7 +1,5 @@
 package com.bit.eduventure.exception.controller;
 
-
-import com.bit.eduventure.exception.errorCode.CustomException;
 import com.bit.eduventure.exception.errorCode.ErrorCode;
 import com.bit.eduventure.exception.response.ErrorResponse;
 import com.google.gson.Gson;
@@ -57,6 +55,12 @@ public class ExceptionController {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<String> illegalStateExceptionHandler(IllegalStateException e) {
         ErrorResponse response = new ErrorResponse(e.getMessage());
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> exceptionHandler(Exception e) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.EXCEPTION);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
