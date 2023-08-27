@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 @Service
@@ -20,7 +21,7 @@ public class LectureService {
 
     public Lecture getLecture(int id) {
         return lectureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Lecture를 못 찾았습니다."));
+                .orElseThrow(() -> new NoSuchElementException());
     }
 
     public List<Lecture> getAllLecture() {

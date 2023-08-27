@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +33,7 @@ public class CourseServiceImpl  implements CourseService {
     @Override
     public Course getCourse(int id) {
         return courseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("찾을 수 없는 반 번호입니다."));
+                .orElseThrow(() -> new NoSuchElementException());
     }
 
     @Override

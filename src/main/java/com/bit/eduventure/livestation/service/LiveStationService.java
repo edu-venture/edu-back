@@ -19,6 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -116,9 +117,9 @@ public class LiveStationService {
 
             return response.getBody().getContent().getChannelId();  // channelId 반환
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -166,7 +167,7 @@ public class LiveStationService {
 
             return ResponseEntity.ok().body(responseDTO);
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
 
     }
@@ -204,23 +205,20 @@ public class LiveStationService {
             System.out.println(response);
             //보내줄 데이터 가공
 
-            List<LiveStationUrlDTO> dtoList = new ArrayList<>();
-
-            for (ContentDTO contentDTO : response.getBody().getContents()) {
-                LiveStationUrlDTO dto = LiveStationUrlDTO.builder()
-                        .channelId(channelID)
-                        .name(contentDTO.getName())
-                        .url(contentDTO.getUrl())
-                        .build();
-                dtoList.add(dto);
-            }
+            List<LiveStationUrlDTO> dtoList = response.getBody().getContents().stream()
+                    .map(contentDTO -> LiveStationUrlDTO.builder()
+                            .channelId(channelID)
+                            .name(contentDTO.getName())
+                            .url(contentDTO.getUrl())
+                            .build())
+                    .collect(Collectors.toList());
 
             responseDTO.setItems(dtoList);
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
             return ResponseEntity.ok().body(responseDTO);
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
 
     }
@@ -265,7 +263,7 @@ public class LiveStationService {
 
             return ResponseEntity.ok().body(responseDTO);
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
