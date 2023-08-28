@@ -24,29 +24,29 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                          AuthenticationException authException) throws IOException {
         try {
             String exception = request.getAttribute("exception").toString();
-            if (exception == null) {
+            //토큰이 없을 경우
+            if (exception.equals(ErrorCode.UNKNOWN_ERROR.getCode())) {
                 setResponse(response, ErrorCode.UNKNOWN_ERROR);
             }
-            //잘못된 타입의 토큰인 경우
-            else if (exception.equals(ErrorCode.WRONG_TYPE_TOKEN.getCode())) {
-                setResponse(response, ErrorCode.WRONG_TYPE_TOKEN);
+            //변조 에러
+            else if (exception.equals(ErrorCode.MALFORMED_JWT.getCode())) {
+                setResponse(response, ErrorCode.MALFORMED_JWT);
             }
             //토큰 만료된 경우
             else if (exception.equals(ErrorCode.EXPIRED_TOKEN.getCode())) {
                 setResponse(response, ErrorCode.EXPIRED_TOKEN);
             }
+            //권한이 없는 경우
+            else if (exception.equals(ErrorCode.ACCESS_DENIED.getCode())) {
+                setResponse(response, ErrorCode.ACCESS_DENIED);
+            }
             //지원되지 않는 토큰인 경우
             else if (exception.equals(ErrorCode.UNSUPPORTED_TOKEN.getCode())) {
                 setResponse(response, ErrorCode.UNSUPPORTED_TOKEN);
             }
-            //헤더에 토큰이 없는 경우
-            else if (exception.equals(ErrorCode.NULL_TOKEN.getCode())) {
-                setResponse(response, ErrorCode.NULL_TOKEN);
-            } else {
-                setResponse(response, ErrorCode.EXCEPTION);
-            }
+
         } catch (Exception e) {
-            setResponse(response, ErrorCode.NULL_POINT);
+            setResponse(response, ErrorCode.EXCEPTION);
         }
     }
 
