@@ -92,6 +92,7 @@ public class TimeTableController {
                 }
             }
 
+
             response.setItems(timeTableDTOList);
             response.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(response);
