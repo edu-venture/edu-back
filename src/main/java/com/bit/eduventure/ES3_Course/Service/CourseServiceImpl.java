@@ -5,10 +5,8 @@ import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
 import com.bit.eduventure.timetable.entity.TimeTable;
-import com.bit.eduventure.timetable.repository.TimeTableRepository;
 import com.bit.eduventure.timetable.service.TimeTableService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
