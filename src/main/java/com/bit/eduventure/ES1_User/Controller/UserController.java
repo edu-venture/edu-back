@@ -374,8 +374,10 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpSession session) {
         System.out.println(userDTO);
+        System.out.println("로그인하러 들어왔다.");
         ResponseDTO<UserDTO> responseDTO =
                 new ResponseDTO<>();
+
 
         System.out.println("로그인 트라이 안으로 들어옴");
         //메시지를 담을 맵 선언
@@ -399,6 +401,7 @@ public class UserController {
             return ResponseEntity.ok().body(responseDTO);
         } else {
             throw new RuntimeException("login failed");
+
         }
     }
 

@@ -76,6 +76,8 @@ public class AttendanceService {
         User user = userService.findById(userId);
 
         if (user.getCourse() == null) {
+            System.out.println("User is not registered for any course.");
+
             throw new IllegalArgumentException("User is not registered for any course.");
         }
 
@@ -84,6 +86,8 @@ public class AttendanceService {
         List<Attend> existAttendance = attendRepository.findByUserNoAndAttDate(userId, today);
 
         if(!existAttendance.isEmpty()) {
+            System.out.println("You've already registered your attendance for today.");
+
             throw new IllegalArgumentException("You've already registered your attendance for today.");
         }
 
@@ -95,8 +99,11 @@ public class AttendanceService {
                 .filter(timeTable -> timeTable.getTimeWeek().equals(currentDayOfWeek)) // 해당 요일에 해당하는 항목만 필터링
                 .sorted(Comparator.comparing(TimeTable::getTimeClass)) // timeClass를 기준으로 정렬
                 .findFirst(); // 첫 번째 항목 가져오기
-
+        System.out.println(!firstTimeTableOfDay.isPresent());
+        System.out.println("여기 불린 불린");
         if (!firstTimeTableOfDay.isPresent()) {
+            System.out.println(!firstTimeTableOfDay.isPresent());
+            System.out.println("  오늘은 수업시간이 아님  ");
             throw new IllegalArgumentException("오늘은 수업시간이 아닙니다.");
         }
 
@@ -104,6 +111,8 @@ public class AttendanceService {
         LocalTime courseStart = COURSE_START_TIMES.get(timeClass);
         System.out.println(timeClass);
         if (courseStart == null) {
+            System.out.println("    invalid course time provided ");
+
             throw new IllegalArgumentException("Invalid course time provided.");
         }
 
@@ -111,6 +120,8 @@ public class AttendanceService {
 
         if(attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart))
                 || attendTime.isAfter(LocalDateTime.of(attendTime.toLocalDate(), courseEnd))) {
+            System.out.println("  입실은 수업시간 내에서만 가능  ");
+
             throw new IllegalArgumentException("입실은 수업시간 내에서만 가능합니다.");
         }
 
@@ -121,9 +132,13 @@ public class AttendanceService {
         } else {
             record.setAttContent("2");
         }
+        System.out.println(record);
+
+        System.out.println("서비스의 레코드이다.");
 
         AttendDTO attendDTO = attendRepository.save(record).EntityToDTO();
-
+        System.out.println(attendDTO);
+        System.out.println("세이브 후에 들어온건가 어텐드디티오");
         return attendDTO;
     }
 
@@ -186,6 +201,8 @@ public class AttendanceService {
         System.out.println(record);
 
         if (records.isEmpty()) {
+            System.out.println(" 이날짜에 해당하는 입실 기록이 없음   ");
+
             throw new IllegalArgumentException("이 날짜에 해당하는 입실 기록이 없습니다.");
         }
 

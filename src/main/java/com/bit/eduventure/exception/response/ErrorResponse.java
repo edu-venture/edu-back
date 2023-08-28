@@ -3,7 +3,9 @@ package com.bit.eduventure.exception.response;
 import com.google.gson.annotations.SerializedName;
 import com.bit.eduventure.exception.errorCode.ErrorCode;
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 
 @Getter
 public class ErrorResponse {
