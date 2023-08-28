@@ -418,7 +418,7 @@ public class UserController {
             //아이디가 존재하면 해당 아이디에 대한 유저정보가 담김
             //아이디가 존재하지 않으면 null이 담김
             User user = userService.login(userDTO.getUserId(), userDTO.getUserPw());
-            System.out.println("유저서비스 로그인 성공");
+            System.out.println("유저서비스함 로그인 성공");
             if (user != null) {
                 String token = jwtTokenProvider.create(user);
                 user.setUserPw("");
