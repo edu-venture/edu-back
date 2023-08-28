@@ -216,18 +216,12 @@ public class UserController {
         UserDTO userDTO = userme.EntityToDTO();
 
 
-        try {
+
 
             responseDTO.setItem(userDTO);
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
             return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
-
 
     }
 
@@ -237,25 +231,18 @@ public class UserController {
         ResponseDTO<Map<String, String>> responseDTO =
                 new ResponseDTO<>();
 
-        try {
-
-            User user = userService.idCheck(userDTO.getUserId());
-            Map<String, String> returnMap = new HashMap<>();
-            if (user == null) {
-                returnMap.put("idCheckMsg", "idOk");
-            } else {
-                returnMap.put("idCheckMsg", "idFail");
-            }
-
-            responseDTO.setItem(returnMap);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
+        User user = userService.idCheck(userDTO.getUserId());
+        Map<String, String> returnMap = new HashMap<>();
+        if (user == null) {
+            returnMap.put("idCheckMsg", "idOk");
+        } else {
+            returnMap.put("idCheckMsg", "idFail");
         }
+
+        responseDTO.setItem(returnMap);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     @PostMapping("/join")
@@ -267,37 +254,33 @@ public class UserController {
         parentDTO.setApproval("o");
         System.out.println(userDTO);
         System.out.println(parentDTO);
-        try {
-            User parent = parentDTO.DTOToEntity();
-            User user = userDTO.DTOToEntity();
-            System.out.println("트라이로는 들어왔음");
-            user.setUserPw(
-                    passwordEncoder.encode(userDTO.getUserPw())
-            );
-            parent.setUserPw(passwordEncoder.encode(parentDTO.getUserPw()));
-            user.setRole("ROLE_USER");
-            parent.setRole("ROLE_USER");
-            System.out.println(user);
-            System.out.println(parent);
-            //회원가입처리(화면에서 보내준 내용을 디비에 저장)
-            User joinUser = userService.join(user);
-            parent.setUserJoinId(joinUser.getId());
-            User joinParent = userService.join(parent);
-            joinUser.setUserJoinId(joinParent.getId());
-            joinUser = userService.joinforgivingjoinidforparent(joinUser);
-            joinUser.setUserPw("");
-            joinParent.setUserPw("");
-            UserDTO joinUserDTO = joinUser.EntityToDTO();
-            UserDTO joinParentDTO = joinParent.EntityToDTO();
-            responseDTO.setItem(joinParentDTO);
-            responseDTO.setItem(joinUserDTO);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+
+        User parent = parentDTO.DTOToEntity();
+        User user = userDTO.DTOToEntity();
+        System.out.println("트라이로는 들어왔음");
+        user.setUserPw(
+                passwordEncoder.encode(userDTO.getUserPw())
+        );
+        parent.setUserPw(passwordEncoder.encode(parentDTO.getUserPw()));
+        user.setRole("ROLE_USER");
+        parent.setRole("ROLE_USER");
+        System.out.println(user);
+        System.out.println(parent);
+        //회원가입처리(화면에서 보내준 내용을 디비에 저장)
+        User joinUser = userService.join(user);
+        parent.setUserJoinId(joinUser.getId());
+        User joinParent = userService.join(parent);
+        joinUser.setUserJoinId(joinParent.getId());
+        joinUser = userService.joinforgivingjoinidforparent(joinUser);
+        joinUser.setUserPw("");
+        joinParent.setUserPw("");
+        UserDTO joinUserDTO = joinUser.EntityToDTO();
+        UserDTO joinParentDTO = joinParent.EntityToDTO();
+        responseDTO.setItem(joinParentDTO);
+        responseDTO.setItem(joinUserDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
+
 
         //JPA로 저장하기 위해 DTO를 Entity로 변환
         //화면에서 사용자가 입력한 내용을 가지고 있는 Entity
@@ -311,31 +294,26 @@ public class UserController {
         System.out.println("admin가입에 들어왔다.");
         System.out.println(memberDTO);
 
-        try {
-            User user = memberDTO.DTOToEntity();
-            System.out.println("트라이로는 들어왔음");
-            user.setUserPw(
-                    passwordEncoder.encode(memberDTO.getUserPw())
-            );
-            user.setApproval("x");
-            user.setRole("ROLE_ADMIN");
-            Course course = Course.builder().couNo(1).build();
 
-            user.setCourse(course);
-            System.out.println(user);
-            //회원가입처리(화면에서 보내준 내용을 디비에 저장)
-            System.out.println("admin가입 서비스넣기 일보직전");
-            User joinUser = userService.join(user);
-            joinUser.setUserPw("");
-            UserDTO joinUserDTO = joinUser.EntityToDTO();
-            responseDTO.setItem(joinUserDTO);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        User user = memberDTO.DTOToEntity();
+        System.out.println("트라이로는 들어왔음");
+        user.setUserPw(
+                passwordEncoder.encode(memberDTO.getUserPw())
+        );
+        user.setApproval("x");
+        user.setRole("ROLE_ADMIN");
+        Course course = Course.builder().couNo(1).build();
+
+        user.setCourse(course);
+        System.out.println(user);
+        //회원가입처리(화면에서 보내준 내용을 디비에 저장)
+        System.out.println("admin가입 서비스넣기 일보직전");
+        User joinUser = userService.join(user);
+        joinUser.setUserPw("");
+        UserDTO joinUserDTO = joinUser.EntityToDTO();
+        responseDTO.setItem(joinUserDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
     }
 
 
@@ -344,31 +322,26 @@ public class UserController {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
         System.out.println(userDTO);
         System.out.println("업데이트에 들어왔음");
-        try {
-            User user = userDTO.DTOToEntity();
-            System.out.println(user);
+
+        User user = userDTO.DTOToEntity();
+        System.out.println(user);
 //            user.setUserPw(
 //                    passwordEncoder.encode(userDTO.getUserPw())
 //            );
-            User userBulk = userService.findById(userDTO.getId());
-            System.out.println(userBulk);
-            System.out.println("위에꺼가 userBulk");
-            user.setUserPw(userBulk.getUserPw());
-            user.setRole("ROLE_USER");
-            User joinUser = userService.update(user);
-            System.out.println(joinUser);
-            System.out.println("위에꺼가 JOinuser");
-            System.out.println("parent가입도 됨");
-            joinUser.setUserPw("");
-            UserDTO joinUserDTO = joinUser.EntityToDTO();
-            responseDTO.setItem(joinUserDTO);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        User userBulk = userService.findById(userDTO.getId());
+        System.out.println(userBulk);
+        System.out.println("위에꺼가 userBulk");
+        user.setUserPw(userBulk.getUserPw());
+        user.setRole("ROLE_USER");
+        User joinUser = userService.update(user);
+        System.out.println(joinUser);
+        System.out.println("위에꺼가 JOinuser");
+        System.out.println("parent가입도 됨");
+        joinUser.setUserPw("");
+        UserDTO joinUserDTO = joinUser.EntityToDTO();
+        responseDTO.setItem(joinUserDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
     }
 
 
@@ -376,30 +349,25 @@ public class UserController {
     public ResponseEntity<?> updatepassword(@RequestBody UserDTO userDTO) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
         System.out.println(userDTO);
-        try {
-            User userBulk = userService.findById(userDTO.getId());
 
-            userBulk.setUserPw(passwordEncoder.encode(userDTO.getUserPw()));
-            System.out.println("이것은 유저버크");
-            System.out.println(userBulk);
-            System.out.println(userBulk);
-            System.out.println(userBulk);
-            System.out.println(userBulk);
+        User userBulk = userService.findById(userDTO.getId());
+
+        userBulk.setUserPw(passwordEncoder.encode(userDTO.getUserPw()));
+        System.out.println("이것은 유저버크");
+        System.out.println(userBulk);
+        System.out.println(userBulk);
+        System.out.println(userBulk);
+        System.out.println(userBulk);
 //            user.setUserPw(
 //                    passwordEncoder.encode(userDTO.getUserPw())
 //            );
-            User joinUser = userService.update(userBulk);
-            System.out.println("parent가입도 됨");
-            joinUser.setUserPw("");
-            UserDTO joinUserDTO = joinUser.EntityToDTO();
-            responseDTO.setItem(joinUserDTO);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        User joinUser = userService.update(userBulk);
+        System.out.println("parent가입도 됨");
+        joinUser.setUserPw("");
+        UserDTO joinUserDTO = joinUser.EntityToDTO();
+        responseDTO.setItem(joinUserDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
     }
 
 
@@ -410,57 +378,47 @@ public class UserController {
         ResponseDTO<UserDTO> responseDTO =
                 new ResponseDTO<>();
 
-        try {
-            System.out.println("로그인 트라이 안으로 들어옴");
-            //메시지를 담을 맵 선언
-            Map<String, String> returnMap = new HashMap<>();
 
-            //아이디가 존재하면 해당 아이디에 대한 유저정보가 담김
-            //아이디가 존재하지 않으면 null이 담김
-            User user = userService.login(userDTO.getUserId(), userDTO.getUserPw());
-            System.out.println("유저서비스함 로그인 성공");
-            if (user != null) {
-                String token = jwtTokenProvider.create(user);
-                user.setUserPw("");
-                System.out.println("유저서비스 로그인 성공후 jwtTokenProvider");
+        System.out.println("로그인 트라이 안으로 들어옴");
+        //메시지를 담을 맵 선언
+        Map<String, String> returnMap = new HashMap<>();
 
-                UserDTO loginUserDTO = user.EntityToDTO();
-                loginUserDTO.setToken(token);
+        //아이디가 존재하면 해당 아이디에 대한 유저정보가 담김
+        //아이디가 존재하지 않으면 null이 담김
+        User user = userService.login(userDTO.getUserId(), userDTO.getUserPw());
+        System.out.println("유저서비스 로그인 성공");
+        if (user != null) {
+            String token = jwtTokenProvider.create(user);
+            user.setUserPw("");
+            System.out.println("유저서비스 로그인 성공후 jwtTokenProvider");
 
-                responseDTO.setItem(loginUserDTO);
-                responseDTO.setStatusCode(HttpStatus.OK.value());
+            UserDTO loginUserDTO = user.EntityToDTO();
+            loginUserDTO.setToken(token);
 
-                return ResponseEntity.ok().body(responseDTO);
-            } else {
-                responseDTO.setErrorMessage("login failed");
-                return ResponseEntity.badRequest().body(responseDTO);
-            }
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
+            responseDTO.setItem(loginUserDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+
+            return ResponseEntity.ok().body(responseDTO);
+        } else {
+            throw new RuntimeException("login failed");
+
         }
     }
 
     @GetMapping("/type-list/{userType}")
     public ResponseEntity<?> getTeacherList(@PathVariable String userType) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
-        try {
-            List<User> userList = userService.getUserTypeList(userType);
 
-            List<UserDTO> userDTOList = userList.stream()
-                    .map(user -> user.EntityToDTO())
-                    .collect(Collectors.toList());
+        List<User> userList = userService.getUserTypeList(userType);
 
-            responseDTO.setItems(userDTOList);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
+        List<UserDTO> userDTOList = userList.stream()
+                .map(user -> user.EntityToDTO())
+                .collect(Collectors.toList());
 
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        responseDTO.setItems(userDTOList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     //반별 학생 정보 찾기
@@ -468,28 +426,19 @@ public class UserController {
     public ResponseEntity<?> getCourseUserList(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                @PathVariable int couNo) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
-        try {
-            String userType = "student";
-            List<User> userList = userService.getUserTypeList(userType);
 
-            //엔티티 리스트를 dto 리스트로 변환하면서 반 번호에 맞는 유저만 저장
-            List<UserDTO> userDTOList = userList.stream()
-                    .map(User::EntityToDTO)
-                    .filter(user -> user.getCourseDTO().getCouNo() == couNo)
-                    .collect(Collectors.toList());
+        String userType = "student";
+        List<User> userList = userService.getUserTypeList(userType);
 
+        //엔티티 리스트를 dto 리스트로 변환하면서 반 번호에 맞는 유저만 저장
+        List<UserDTO> userDTOList = userList.stream()
+                .map(User::EntityToDTO)
+                .filter(user -> user.getCourseDTO().getCouNo() == couNo)
+                .collect(Collectors.toList());
 
-//            rladmstjrqkqh
+        responseDTO.setItems(userDTOList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
 
-
-            responseDTO.setItems(userDTOList);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        return ResponseEntity.ok().body(responseDTO);
     }
 }
