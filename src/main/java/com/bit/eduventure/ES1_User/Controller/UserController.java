@@ -374,6 +374,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpSession session) {
         System.out.println(userDTO);
+        System.out.println("로그인하러 들어왔다.");
         ResponseDTO<UserDTO> responseDTO =
                 new ResponseDTO<>();
 
