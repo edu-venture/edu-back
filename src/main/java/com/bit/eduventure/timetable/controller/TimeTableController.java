@@ -1,9 +1,11 @@
 package com.bit.eduventure.timetable.controller;
 
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.timetable.dto.TimeTableDTO;
+import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.service.TimeTableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -78,18 +80,19 @@ public class TimeTableController {
         ResponseDTO<TimeTableDTO> response = new ResponseDTO<>();
 
             int userNo = Integer.parseInt(customUserDetails.getUsername());
+            UserDTO userDTO = userService.findById(userNo).EntityToDTO();
 
-            List<TimeTableDTO> res = timeTableService.getTimetablesByStudent(userNo);
+            List<TimeTableDTO> timeTableDTOList= timeTableService.getTimetableByStudent(userDTO.getCourseDTO().getCouNo());
 
             // timeWeek의 첫 글자만 잘라서 저장.
-            for (TimeTableDTO dto : res) {
+            for (TimeTableDTO dto : timeTableDTOList) {
                 String timeWeek = dto.getTimeWeek();
                 if (timeWeek != null && !timeWeek.isEmpty()) {
                     dto.setTimeWeek(timeWeek.substring(0, 1));
                 }
             }
 
-            response.setItems(res);
+            response.setItems(timeTableDTOList);
             response.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(response);
     }
