@@ -216,6 +216,7 @@ public class UserController {
         UserDTO userDTO = userme.EntityToDTO();
 
 
+        try {
 
         responseDTO.setItem(userDTO);
         responseDTO.setStatusCode(HttpStatus.OK.value());

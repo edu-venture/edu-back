@@ -14,7 +14,7 @@ public class TimeTableDTO {
     private Integer timeNo;
     private String timeTitle;
     private String timePlace;
-    private String timeClass;
+    private String timeClass; //교시
     private String timeColor;
     private String timeWeek;
     private String timeTeacher;
