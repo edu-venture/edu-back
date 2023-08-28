@@ -19,54 +19,79 @@ public class ExceptionController {
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<String> noSuchElementExceptionHandler(NoSuchElementException e) {
+        System.out.println("에러났음 : "+  e);
         ErrorResponse response = new ErrorResponse(ErrorCode.NO_SUCH_ELEMENT);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<String> nullPointerExceptionHandler(NullPointerException e) {
+        System.out.println("에러났음 : "+  e);
+
         ErrorResponse response = new ErrorResponse(ErrorCode.NULL_POINT);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ClassCastException.class)
     public ResponseEntity<String> classCastExceptionHandler(ClassCastException e) {
+        System.out.println("에러났음 : "+  e);
+
         ErrorResponse response = new ErrorResponse(ErrorCode.CLASS_CAST);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(StackOverflowError.class)
     public ResponseEntity<String> stackOverFlowErrorHandler(StackOverflowError e) {
+        System.out.println("에러났음 : "+  e);
+
         ErrorResponse response = new ErrorResponse(ErrorCode.STACK_OVER_FLOW);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DataFormatException.class)
     public ResponseEntity<String> dataFormatExceptionHandler(DataFormatException e) {
+        System.out.println("에러났음 : "+  e);
+
         ErrorResponse response = new ErrorResponse(ErrorCode.DATA_FORMAT);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> runtimeExceptionHandler(RuntimeException e) {
+        System.out.println("에러났음 : "+  e);
+
         ErrorResponse response = new ErrorResponse(e.getMessage());
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<String> illegalStateExceptionHandler(IllegalStateException e) {
+        System.out.println("에러났음 : "+  e);
+
+        ErrorResponse response = new ErrorResponse(e.getMessage());
+        return setResponse(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> illegalArgumentExceptionHandler(IllegalArgumentException e) {
+        System.out.println("에러났음 : "+  e);
+
         ErrorResponse response = new ErrorResponse(e.getMessage());
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MakeSignatureException.class)
     public ResponseEntity<String> makeSignatureExceptionHandler(MakeSignatureException e) {
+        System.out.println("에러났음 : "+  e);
+
         ErrorResponse response = new ErrorResponse(ErrorCode.MAKE_SIGNATURE);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> exceptionHandler(Exception e) {
+        System.out.println("에러났음 : "+  e);
+
         ErrorResponse response = new ErrorResponse(ErrorCode.EXCEPTION);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
@@ -77,6 +102,7 @@ public class ExceptionController {
         String responseJson = createResponseJson(errorResponse);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        System.out.println("Exception Controller Advice: " + errorResponse);
         return new ResponseEntity<>(responseJson, headers, status);
     }
 
