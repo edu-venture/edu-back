@@ -378,6 +378,7 @@ public class UserController {
         ResponseDTO<UserDTO> responseDTO =
                 new ResponseDTO<>();
 
+
         System.out.println("로그인 트라이 안으로 들어옴");
         //메시지를 담을 맵 선언
         Map<String, String> returnMap = new HashMap<>();
@@ -400,6 +401,7 @@ public class UserController {
             return ResponseEntity.ok().body(responseDTO);
         } else {
             throw new RuntimeException("login failed");
+
         }
     }
 
