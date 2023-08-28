@@ -4,11 +4,9 @@ package com.bit.eduventure.ES3_Course.Controller;
 import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
 import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
-import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
-import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
 import com.bit.eduventure.ES3_Course.Service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,9 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,7 +29,7 @@ public class CourseController {
     public ResponseEntity<?> getcourse(@RequestBody CourseDTO courseDTO) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
 
-        Course course = courseService.findById(courseDTO.getCouNo());
+        Course course = courseService.getCourse(courseDTO.getCouNo());
 
         CourseDTO courseDTOtosend = course.EntityToDTO();
         responseDTO.setItem(courseDTOtosend);
