@@ -24,7 +24,6 @@ public class TimeTableController {
 
     /* 시간표 등록 */
     @PostMapping("/regist")
-    //클라이언트로부터 받은 HTTP POST 요청의 body 부분을 PaymentCreateRequestDTO 타입의 객체로 변환하고, 이를 requestDTO라는 매개변수로 전달
     public ResponseEntity<?> registTimeTable(@RequestBody TimeTableDTO requestDTO) {
         System.out.println("requestDTO: " + requestDTO);
 
@@ -44,24 +43,24 @@ public class TimeTableController {
     }
 
     /* 시간표 조회 */
-    @GetMapping("/{timeNo}/getTimeTable")
-    public ResponseEntity<?> getTimeTable(@PathVariable int timeNo) {
-
-        System.out.println("timeNo=============="+timeNo);
-
-        ResponseDTO<TimeTableDTO> response = new ResponseDTO<>();
-
-        try {
-            TimeTableDTO res = timeTableService.getTimetable(timeNo);
-            response.setItem(res);
-            response.setStatusCode(HttpStatus.CREATED.value());
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            response.setErrorMessage(e.getMessage());
-            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
+//    @GetMapping("/{timeNo}")
+//    public ResponseEntity<?> getTimeTable(@PathVariable int timeNo) {
+//
+//        System.out.println("timeNo=============="+timeNo);
+//
+//        ResponseDTO<TimeTableDTO> response = new ResponseDTO<>();
+//
+//        try {
+//            TimeTableDTO res = timeTableService.getTimetable(timeNo);
+//            response.setItem(res);
+//            response.setStatusCode(HttpStatus.CREATED.value());
+//            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+//        } catch (Exception e) {
+//            response.setErrorMessage(e.getMessage());
+//            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
+//            return ResponseEntity.badRequest().body(response);
+//        }
+//    }
 
     /* 시간표 목록 조회 */
     @GetMapping("/getTimeTable-list")
@@ -91,7 +90,7 @@ public class TimeTableController {
 
         System.out.println("request"+ request);
         String claName = request.get("claName");
-        String timeWeek = request.get("couWeek");
+        String timeWeek = request.get("timeWeek");
 
         System.out.println("claName"+ claName);
         System.out.println("timeWeek"+ timeWeek);

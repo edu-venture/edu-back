@@ -46,24 +46,24 @@ public class TimeTableService {
     }
 
     /* 시간표 조회 */
-    public TimeTableDTO getTimetable(int timeNo) {
-        TimeTable timeTable = timeTableRepository.findById(timeNo).get();
-        Course course = courseRepository.findByClaName(timeTable.getClaName());
-
-        TimeTableDTO dto = TimeTableDTO.builder()
-                .timeNo(timeTable.getTimeNo())
-                .couNo(course.getCouNo())
-                .claName(course.getClaName())
-                .timeWeek(timeTable.getTimeWeek())
-                .timeClass(timeTable.getTimeClass())
-                .timePlace(timeTable.getTimePlace())
-                .timeColor(timeTable.getTimeColor())
-                .timeTitle(timeTable.getTimeTitle())
-                .timeTeacher(timeTable.getTimeTeacher())
-                .build();
-
-        return dto;
-    }
+//    public TimeTableDTO getTimetable(int timeNo) {
+//        TimeTable timeTable = timeTableRepository.findById(timeNo).get();
+//        Course course = courseRepository.findByClaName(timeTable.getClaName());
+//
+//        TimeTableDTO dto = TimeTableDTO.builder()
+//                .timeNo(timeTable.getTimeNo())
+//                .couNo(course.getCouNo())
+//                .claName(course.getClaName())
+//                .timeWeek(timeTable.getTimeWeek())
+//                .timeClass(timeTable.getTimeClass())
+//                .timePlace(timeTable.getTimePlace())
+//                .timeColor(timeTable.getTimeColor())
+//                .timeTitle(timeTable.getTimeTitle())
+//                .timeTeacher(timeTable.getTimeTeacher())
+//                .build();
+//
+//        return dto;
+//    }
 
     /* couNo을 기반으로 TimeTable 목록 조회 */
     public List<TimeTableDTO> getTimetablesByCouNo(int couNo) {
