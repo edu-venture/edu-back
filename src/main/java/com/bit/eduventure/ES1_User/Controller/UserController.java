@@ -412,6 +412,7 @@ public class UserController {
                 .map(user -> user.EntityToDTO())
                 .collect(Collectors.toList());
 
+
         responseDTO.setItems(userDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
 

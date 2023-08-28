@@ -7,7 +7,8 @@ import lombok.*;
 @Entity
 //@Table: 테이블 이름등을 지정
 @Table(name="T_TIMETABLE")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

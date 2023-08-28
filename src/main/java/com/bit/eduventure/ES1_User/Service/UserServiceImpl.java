@@ -100,10 +100,6 @@ private  final EmailService emailService;
         return loginUser.get();
     }
 
-
-
-
-
     @Override
     public Page<User> getUserList(Pageable pageable, String searchCondition, String searchKeyword) {
         if(searchCondition.equals("all")) {
