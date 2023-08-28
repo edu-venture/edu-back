@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 public class LiveStationRestController {
     private final LiveStationService liveStationService;
 
-    @GetMapping("/create/{channelName}")
-    public ResponseEntity<?> creatChannel(@PathVariable String channelName) {
-        return liveStationService.createChannel(channelName);
-    }
+//    @GetMapping("/create/{channelName}")
+//    public ResponseEntity<?> creatChannel(@PathVariable String channelName) {
+//        return liveStationService.createChannel(channelName);
+//    }
 
     @GetMapping("/info/{channelId}")
     public ResponseEntity<?> getChannelInfo(@PathVariable String channelId) {

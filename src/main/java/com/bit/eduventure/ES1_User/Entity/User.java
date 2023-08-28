@@ -2,6 +2,7 @@ package com.bit.eduventure.ES1_User.Entity;
 
 
 import com.bit.eduventure.ES1_User.DTO.UserDTO;
+import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,13 +16,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class User {
     @Id
     @GeneratedValue(
             strategy = GenerationType.IDENTITY
     )
-    @Column(name = "USER_NO")
+    @Column(name = "USER_NO") //
     private Integer id;
     @Column(unique = true)
     private String userId;
@@ -43,8 +43,17 @@ public class User {
     private String userAddressDetail;
     @Column(name = "USER_BUS")
     private Integer userBus;
-    @Column(name = "USER_JOIN_ID")
+    @Column(name = "USER_JOIN_ID") //
     private Integer userJoinId;
+
+    @Column(name = "USER_SCORE")
+    @ColumnDefault("0")
+
+    private Integer userScore;
+
+
+
+
     @Column(name = "USER_TYPE")
     private String userType;
     @Column(name = "USER_CONSULTCONTENT")
@@ -54,8 +63,8 @@ public class User {
     @Builder.Default
     private LocalDateTime userRegdate = LocalDateTime.now();
 
-    @Column(name = "USER_APPROVAL", columnDefinition = "VARCHAR(255) DEFAULT 'x'")
-    private String approval;
+    @Column(name = "USER_APPROVAL")
+    private String approval="x";
 
 
     @ManyToOne
@@ -69,12 +78,14 @@ public class User {
     @ColumnDefault("'ROLE_USER'")
     private String role;
     public UserDTO EntityToDTO() {
+        CourseDTO courseDTO = CourseDTO.builder().couNo(this.course.getCouNo()).build();
         UserDTO userDTO = UserDTO.builder()
 
-                .id(this.id).courseDTO(this.course.EntityToDTO())
+                .id(this.id)
+                .courseDTO(courseDTO)
                 .userId(this.userId)
 
-                .userId(this.userId).approval(this.approval)
+                .userId(this.userId).approval(this.approval).userScore(this.userScore)
 
                 .userName(this.userName).userAddressDetail(this.userAddressDetail)
 //                .userEmail(this.userEmail)

@@ -1,6 +1,9 @@
 package com.bit.eduventure.jwt;
 
 import com.bit.eduventure.ES1_User.Service.UserDetailsServiceImpl;
+import com.bit.eduventure.exception.errorCode.ErrorCode;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,15 +31,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsServiceImpl userDetailsServiceImpl;
     private final JwtTokenProvider jwtTokenProvider;
 
+    private final String REQUEST_NAME = "exception";
     //filter로 등록하면 자동으로 실행될 메소드
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        response.setCharacterEncoding("utf-8");
+
         try {
             //request에서 token꺼내오기
             //token 값이 있으면 토큰값이 담기고 토큰 값이 없으면 null이 담긴다.
             String token = parseBearerToken(request);
-
+            System.out.println(token);
+            System.out.println("여기는 토큰필터의 토큰이다");
             //토큰 검사 및 시큐리티 등록
             if (token != null && !token.equalsIgnoreCase("null")) {
                 //유효성 검사 및 username가져오기
@@ -49,17 +56,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 AbstractAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
                 );
-
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContext securityContext = SecurityContextHolder.getContext();
                 securityContext.setAuthentication(authenticationToken);
                 SecurityContextHolder.setContext(securityContext);
             }
+            filterChain.doFilter(request, response);
+        } catch (NullPointerException e) {
+            request.setAttribute(REQUEST_NAME, ErrorCode.NULL_TOKEN.getCode());
+        } catch (UnknownError e) {
+            //토큰이 없을 경우
+            request.setAttribute(REQUEST_NAME, ErrorCode.UNKNOWN_ERROR.getCode());
+        } catch (ExpiredJwtException e) {
+            //만료 에러
+            request.setAttribute(REQUEST_NAME, ErrorCode.EXPIRED_TOKEN.getCode());
+        } catch (MalformedJwtException e) {
+            //변조 에러
+            request.setAttribute(REQUEST_NAME, ErrorCode.WRONG_TYPE_TOKEN.getCode());
         } catch (Exception e) {
-            System.out.println("set security context erorr: " + e.getMessage());
+            request.setAttribute(REQUEST_NAME, ErrorCode.EXCEPTION.getCode());
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private String parseBearerToken(HttpServletRequest request) {

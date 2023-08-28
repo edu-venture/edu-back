@@ -31,4 +31,5 @@ public interface UserService {
     //권한에 맞는 유저 리스트 찾기
     List<User> getUserTypeList(String userType);
 
+    void increaseuserscore(Integer id);
 }

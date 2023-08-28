@@ -1,7 +1,9 @@
 package com.bit.eduventure.livestation.service;
 
 import com.bit.eduventure.dto.ResponseDTO;
+import com.bit.eduventure.exception.errorCode.MakeSignatureException;
 import com.bit.eduventure.livestation.dto.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -14,8 +16,10 @@ import org.springframework.web.client.RestTemplate;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -53,13 +57,13 @@ public class LiveStationService {
 
             return encodeBase64String;
         } catch (Exception e) {
-            return e.getMessage();
+            throw new MakeSignatureException();
         }
     }
 
-    public ResponseEntity<?> createChannel(String name) {
-        ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
+    public String createChannel(String name) {
         try {
+            ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(liveStationUrl);
             String url = urlBuilder.toString();
@@ -110,27 +114,18 @@ public class LiveStationService {
 
             ResponseEntity<LiveStationResponseDTO> response = restTemplate.exchange(new URI(url), HttpMethod.POST, body, LiveStationResponseDTO.class);
 
-            //보내줄 데이터 가공
-            LiveStationInfoDTO dto = LiveStationInfoDTO.builder()
-                    .channelId(response.getBody().getContent().getChannelId())
-                    .channelName(name)
-                    .build();
 
-            responseDTO.setItem(dto);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-            return ResponseEntity.badRequest().body(responseDTO);
+            return response.getBody().getContent().getChannelId();  // channelId 반환
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e.getMessage());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
     public ResponseEntity<?> getChannelInfo(String channelID) {
-        ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
         try {
+            ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(liveStationUrl);
             urlBuilder.append("/");
@@ -171,12 +166,10 @@ public class LiveStationService {
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
             return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-            return ResponseEntity.badRequest().body(responseDTO);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e.getMessage());
         }
+
     }
 
     public ResponseEntity<?> getServiceURL(String channelID) {
@@ -212,27 +205,22 @@ public class LiveStationService {
             System.out.println(response);
             //보내줄 데이터 가공
 
-            List<LiveStationUrlDTO> dtoList = new ArrayList<>();
-
-            for (ContentDTO contentDTO : response.getBody().getContents()) {
-                LiveStationUrlDTO dto = LiveStationUrlDTO.builder()
-                        .channelId(channelID)
-                        .name(contentDTO.getName())
-                        .url(contentDTO.getUrl())
-                        .build();
-                dtoList.add(dto);
-            }
+            List<LiveStationUrlDTO> dtoList = response.getBody().getContents().stream()
+                    .map(contentDTO -> LiveStationUrlDTO.builder()
+                            .channelId(channelID)
+                            .name(contentDTO.getName())
+                            .url(contentDTO.getUrl())
+                            .build())
+                    .collect(Collectors.toList());
 
             responseDTO.setItems(dtoList);
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
             return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-            return ResponseEntity.badRequest().body(responseDTO);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e.getMessage());
         }
+
     }
 
     public ResponseEntity<?> deleteChannel(String channelID) {
@@ -274,11 +262,8 @@ public class LiveStationService {
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
             return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-            return ResponseEntity.badRequest().body(responseDTO);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 

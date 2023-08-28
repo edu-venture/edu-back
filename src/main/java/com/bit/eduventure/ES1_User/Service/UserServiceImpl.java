@@ -159,10 +159,10 @@ private  final EmailService emailService;
         return userList;
     }
 
-
-
-
-
+    @Override
+    public void increaseuserscore(Integer id) {
+        userRepository.increaseuserscore(id);
+    }
 
 
 }
