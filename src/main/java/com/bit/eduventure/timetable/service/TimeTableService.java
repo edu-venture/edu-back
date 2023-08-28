@@ -1,10 +1,8 @@
 package com.bit.eduventure.timetable.service;
 
-import com.bit.eduventure.ES3_Course.Service.CourseService;
 import com.bit.eduventure.timetable.dto.TimeTableDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
-import com.bit.eduventure.ES1_User.Repository.UserRepository;
 import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.repository.TimeTableRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,26 +40,6 @@ public class TimeTableService {
         timeTableRepository.save(tableDTO.DTOTOEntity());
     }
 
-    /* 시간표 조회 */
-//    public TimeTableDTO getTimetable(int timeNo) {
-//        TimeTable timeTable = timeTableRepository.findById(timeNo).get();
-//        Course course = courseRepository.findByClaName(timeTable.getClaName());
-//
-//        TimeTableDTO dto = TimeTableDTO.builder()
-//                .timeNo(timeTable.getTimeNo())
-//                .couNo(course.getCouNo())
-//                .claName(course.getClaName())
-//                .timeWeek(timeTable.getTimeWeek())
-//                .timeClass(timeTable.getTimeClass())
-//                .timePlace(timeTable.getTimePlace())
-//                .timeColor(timeTable.getTimeColor())
-//                .timeTitle(timeTable.getTimeTitle())
-//                .timeTeacher(timeTable.getTimeTeacher())
-//                .build();
-//
-//        return dto;
-//    }
-
     /* couNo을 기반으로 TimeTable 목록 조회 */
     public List<TimeTableDTO> getTimetablesByCouNo(int couNo) {
         List<TimeTable> timeTableList = timeTableRepository.findAllByCouNo(couNo);
@@ -74,8 +52,6 @@ public class TimeTableService {
         }
         return returnList;
     }
-
-
 
     public List<String> getTimeWeekByCouNo(int couNo) {
         List<TimeTableDTO> dtos = getTimetablesByCouNo(couNo);
