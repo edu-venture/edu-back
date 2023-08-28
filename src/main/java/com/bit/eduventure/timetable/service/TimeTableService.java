@@ -20,17 +20,14 @@ import java.util.stream.Collectors;
 public class TimeTableService {
 
     private final CourseRepository courseRepository;
-    private final UserRepository userRepository;
     private final TimeTableRepository timeTableRepository;
-    private final CourseService courseService;
 
     /* 시간표 등록 */
     public void  registerTimetable(TimeTableDTO requestDTO) {
 
-        int couNo = courseService.findByClaName(requestDTO.getClaName()).getCouNo();
         // TimeTableDTO
         TimeTableDTO tableDTO = TimeTableDTO.builder()
-                .couNo(couNo)
+                .couNo(requestDTO.getCouNo())
                 .timeNo(requestDTO.getTimeNo())
                 .claName(requestDTO.getClaName())
                 .timeWeek(requestDTO.getTimeWeek())
@@ -154,6 +151,10 @@ public class TimeTableService {
 
         System.out.println("시간표 서비스 returnList2=============="+returnList);
         return returnList;
+    }
+
+    public List<TimeTable> getTimeTableListForClaName(String claName) {
+        return timeTableRepository.findAllByClaName(claName);
     }
 
 }
