@@ -43,9 +43,16 @@ public class CourseController {
 
         List<Course> courseList = courseService.getCourseList();
 
-        List<CourseDTO> courseDTOList =  courseList.stream()
-                .map(Course::EntityToDTO)
+        List<CourseDTO> courseDTOList = courseList.stream()
+                .map(course -> {
+                    CourseDTO courseDTO = course.EntityToDTO();
+                    long studentCnt = userService.getUserCountCourse(course.getCouNo());
+                    courseDTO.setStudentCnt(studentCnt);
+                    return courseDTO;
+                })
                 .collect(Collectors.toList());
+
+
 
         responseDTO.setItems(courseDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());

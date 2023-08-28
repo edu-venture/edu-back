@@ -78,7 +78,10 @@ public class User {
     @ColumnDefault("'ROLE_USER'")
     private String role;
     public UserDTO EntityToDTO() {
-        CourseDTO courseDTO = CourseDTO.builder().couNo(this.course.getCouNo()).build();
+        CourseDTO courseDTO = CourseDTO.builder()
+                .couNo(this.course.getCouNo())
+                .claName(this.course.getClaName())
+                .build();
         UserDTO userDTO = UserDTO.builder()
 
                 .id(this.id)

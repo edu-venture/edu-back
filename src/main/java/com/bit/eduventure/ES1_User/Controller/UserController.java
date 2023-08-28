@@ -23,7 +23,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -434,6 +433,16 @@ public class UserController {
                 .collect(Collectors.toList());
 
         responseDTO.setItems(userDTOList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("/user-all-list")
+    public ResponseEntity<?> getCourseUserList(){
+        ResponseDTO<User> responseDTO = new ResponseDTO<>();
+
+        responseDTO.setItems(userRepository.findAll());
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);

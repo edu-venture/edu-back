@@ -99,7 +99,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             //실제 token의 값만 리턴
             return bearerToken.substring(7);
         } else {
-            throw new UnknownError();
+            return null;
         }
     }
 }
