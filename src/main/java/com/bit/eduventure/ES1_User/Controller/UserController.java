@@ -216,12 +216,13 @@ public class UserController {
         UserDTO userDTO = userme.EntityToDTO();
 
 
-        try {
 
-        responseDTO.setItem(userDTO);
-        responseDTO.setStatusCode(HttpStatus.OK.value());
 
-        return ResponseEntity.ok().body(responseDTO);
+            responseDTO.setItem(userDTO);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+
+            return ResponseEntity.ok().body(responseDTO);
+
     }
 
 
