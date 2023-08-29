@@ -17,6 +17,7 @@ import java.util.NoSuchElementException;
 public class VodBoardService {
     private final VodBoardRepository vodBoardRepository;
     private final VodBoardFileRepository vodBoardFileRepository;
+    private final VodBoardCommentService vodBoardCommentService;
 
     //디비에 저장되어있는 파일 삭제
     public void deleteFile(VodBoardFile boardFile) {
@@ -51,6 +52,7 @@ public class VodBoardService {
 
     //삭제 기능
     public void deleteVodBoard(int boardNo) {
+        vodBoardCommentService.deleteAllCommentsAndRepliesByVodNo(boardNo);
         vodBoardRepository.deleteById(boardNo);
     }
 
