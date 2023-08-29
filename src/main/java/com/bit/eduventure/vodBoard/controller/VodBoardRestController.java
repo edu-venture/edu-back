@@ -16,7 +16,6 @@ import com.bit.eduventure.vodBoard.service.VodBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -113,12 +112,15 @@ public class VodBoardRestController {
 
     //상세 페이지 보여주기
     @GetMapping("/board/{boardNo}")
-    public ResponseEntity<?> getBoard(@PathVariable int boardNo) {
+    public ResponseEntity<?> getBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                      @PathVariable int boardNo) {
         ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
-
+        int userNo = customUserDetails.getUser().getId();
         VodBoard board = vodBoardService.getBoard(boardNo);
 
         VodBoardDTO returnBoardDTO = board.EntityToDTO();
+        returnBoardDTO.setLikeCount(vodBoardLikeService.getLikeCount(boardNo));
+        returnBoardDTO.setLikeStatus(vodBoardLikeService.getLikeStatue(boardNo, userNo));
 
         List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo); //첨부파일 첨가
 
@@ -309,19 +311,31 @@ public class VodBoardRestController {
     // ---------------------------------------- 좋아요 ----------------------------------------
 
     // 좋아요 등록
-    @PostMapping("/{vb_idx}/{m_idx}")
-    public ResponseEntity<VodBoardLikeDTO> likeVodBoard(@PathVariable int vb_idx, @PathVariable int m_idx) {
-        VodBoardLikeDTO liked = vodBoardLikeService.likeVodBoard(vb_idx, m_idx);
-        System.out.println("등록 성공");
-        return new ResponseEntity<>(liked, HttpStatus.OK);
+    @GetMapping("/like/{vodNo}")
+    public ResponseEntity<?> likeVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                          @PathVariable int vodNo) {
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+
+        int userNo = Integer.parseInt(customUserDetails.getUsername());
+
+        vodBoardLikeService.likeVodBoard(vodNo, userNo);
+
+        responseDTO.setItem("등록 성공");
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     // 좋아요 취소
-    @DeleteMapping("/{vb_idx}/{m_idx}")
-    public ResponseEntity<Void> unlikeVodBoard(@PathVariable int vb_idx, @PathVariable int m_idx) {
-        vodBoardLikeService.unlikeVodBoard(vb_idx, m_idx);
-        System.out.println("취소 성공");
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+    @DeleteMapping("/like/{likeNo}")
+    public ResponseEntity<?> unlikeVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                               @PathVariable int likeNo) {
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
+        vodBoardLikeService.unlikeVodBoard(likeNo);
+        responseDTO.setItem("삭제 성공");
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
 }
