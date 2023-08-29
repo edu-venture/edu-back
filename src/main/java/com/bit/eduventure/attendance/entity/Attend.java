@@ -41,6 +41,9 @@ public class Attend {
     @Column(name = "USER_NO")
     private int userNo;
 
+    @Column(name = "IS_Course")
+    private Boolean isCourse;
+
     public AttendDTO EntityToDTO() {
         AttendDTO attendDTO = AttendDTO.builder()
                 .id(this.id)
@@ -49,6 +52,7 @@ public class Attend {
                 .attFinish(this.attFinish)
                 .attDate(this.attDate)
                 .attContent(this.attContent)
+                .isCourse(this.isCourse)
                 .build();
         return attendDTO;
     }
