@@ -22,6 +22,7 @@ public class AttendDTO {
     private LocalDateTime attFinish;
     private LocalDate attDate;
     private String attContent;
+    private Boolean isCourse;
 
     private int userNo;
 
@@ -33,6 +34,8 @@ public class AttendDTO {
         this.attFinish = attend.getAttFinish();
         this.attDate = attend.getAttDate();
         this.attContent = attend.getAttContent();
+        this.isCourse = attend.getIsCourse();
+
 
     }
 
@@ -43,6 +46,7 @@ public class AttendDTO {
                 .attStart(this.attStart)
                 .attFinish(this.attFinish)
                 .attContent(this.attContent)
+                .isCourse(this.isCourse)
                 .build();
         return attend;
     }
