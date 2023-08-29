@@ -84,6 +84,15 @@ public class CourseController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
+    @PostMapping("/course")
+    public ResponseEntity<?> deleteCourseList(@RequestBody String couNoList) {
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+
+        responseDTO.setItem("반 삭제 완료");
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
 
 
 
