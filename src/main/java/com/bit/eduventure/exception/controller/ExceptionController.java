@@ -2,6 +2,7 @@ package com.bit.eduventure.exception.controller;
 
 import com.bit.eduventure.exception.errorCode.ErrorCode;
 import com.bit.eduventure.exception.errorCode.MakeSignatureException;
+import com.bit.eduventure.exception.errorCode.ObjectStorageException;
 import com.bit.eduventure.exception.response.ErrorResponse;
 import com.google.gson.Gson;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.management.OperationsException;
+import java.io.ObjectStreamException;
 import java.net.URISyntaxException;
 import java.util.NoSuchElementException;
 import java.util.zip.DataFormatException;
@@ -75,14 +77,14 @@ public class ExceptionController {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> runtimeExceptionHandler(RuntimeException e) {
         System.out.println("에러났음 : "+  e);
-        ErrorResponse response = new ErrorResponse(e.getMessage());
+        ErrorResponse response = new ErrorResponse(9997, e.getMessage());
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<String> illegalStateExceptionHandler(IllegalStateException e) {
         System.out.println("에러났음 : "+  e);
-        ErrorResponse response = new ErrorResponse(e.getMessage());
+        ErrorResponse response = new ErrorResponse(9998, e.getMessage());
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
