@@ -16,7 +16,6 @@ import com.bit.eduventure.vodBoard.service.VodBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,8 +33,7 @@ public class VodBoardRestController {
     private final VodBoardCommentService vodBoardCommentService;
     private final VodBoardLikeService vodBoardLikeService;
     private final UserService userService;
-    //등록
-    //value 주소 / cosumes 공식
+
     @PostMapping(value = "/board")
     public ResponseEntity<?> insertBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                         @RequestPart(value = "boardDTO", required = false) VodBoardDTO boardDTO,
@@ -46,7 +44,8 @@ public class VodBoardRestController {
         List<VodBoardFile> uploadFileList = new ArrayList<>();
         String saveName;
 
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        int userNo = customUserDetails.getUser().getId();
+
         User user = userService.findById(userNo);
         boardDTO.setUserDTO(user.EntityToDTO());
 
@@ -63,18 +62,20 @@ public class VodBoardRestController {
         //메인 비디오 저장
         if (videoFile != null) {
             saveName = objectStorageService.uploadFile(videoFile);
-            boardDTO.setOriginPath(objectStorageService.setObjectSrc(saveName));
-            boardDTO.setSavePath(saveName);
+            boardDTO.setSavePath(objectStorageService.getObjectSrc(saveName));
+            boardDTO.setOriginPath(videoFile.getOriginalFilename());
         }
 
         //섬네일 저장
-        //메인 비디오 저장
         if (thumbnail != null) {
             saveName = objectStorageService.uploadFile(thumbnail);
-            boardDTO.setOriginThumb(objectStorageService.setObjectSrc(saveName));
-            boardDTO.setSaveThumb(saveName);
+            boardDTO.setSaveThumb(objectStorageService.getObjectSrc(saveName));
+            boardDTO.setOriginThumb(thumbnail.getOriginalFilename());
+        } else {
+            saveName = "edu-venture.png";
+            boardDTO.setSaveThumb(objectStorageService.getObjectSrc(saveName));
+            boardDTO.setOriginThumb("saveName");
         }
-
         VodBoard board = boardDTO.DTOTOEntity();
         board.setUser(user);
 
@@ -89,12 +90,9 @@ public class VodBoardRestController {
 
     //강의 목록(제목, 강사, 영상 다 포함됨)
     @GetMapping("/board-list")
-    public ResponseEntity<?> getList() { // ResponseEntity<?> 스프링에서 제공하는 응답 객체
-        //ResponseEntity 바디에 담아줄 객체(ResponseDTO) 선언
-        //선언하면서 제네릭에 VodBoardFile 형태로 선언
-        //했기때문에 items에는 List<VodBoardFile> 를 저장할 수 있다 items = List<VodBoardFile>
-        //그리고 item에는 VodBoardFile 을 저장할 수 있다.
-        ResponseDTO<VodBoardDTO> responseDTO = new ResponseDTO<>(); //응답 바디와 <데이터 형태>
+    public ResponseEntity<?> getList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        ResponseDTO<VodBoardDTO> responseDTO = new ResponseDTO<>();
 
         List<VodBoard> vodBoardList = vodBoardService.getVodBoardList();
 
@@ -111,12 +109,16 @@ public class VodBoardRestController {
 
     //상세 페이지 보여주기
     @GetMapping("/board/{boardNo}")
-    public ResponseEntity<?> getBoard(@PathVariable int boardNo) {
+    public ResponseEntity<?> getBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                      @PathVariable int boardNo) {
         ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
 
+        int userNo = customUserDetails.getUser().getId();
         VodBoard board = vodBoardService.getBoard(boardNo);
 
         VodBoardDTO returnBoardDTO = board.EntityToDTO();
+        returnBoardDTO.setLikeCount(vodBoardLikeService.getLikeCount(boardNo));
+        returnBoardDTO.setLikeStatus(vodBoardLikeService.getLikeStatue(boardNo, userNo));
 
         List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo); //첨부파일 첨가
 
@@ -149,7 +151,7 @@ public class VodBoardRestController {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
         String saveName;
 
-        int userNo= Integer.parseInt(customUserDetails.getUsername());
+        int userNo= customUserDetails.getUser().getId();
         UserDTO userDTO = userService.findById(userNo).EntityToDTO();
         updatedBoardDTO.setUserDTO(userDTO);
 
@@ -183,19 +185,18 @@ public class VodBoardRestController {
         // 기존에 등록된 파일 삭제
         for (VodBoardFile existingFile : existingFileList) {
             objectStorageService.deleteObject(existingFile.getVodSaveName());
-            vodBoardService.deleteFile(existingFile);
         }
 
         // 새로 업로드한 비디오 및 섬네일 파일 저장
         if (videoFile != null && !videoFile.isEmpty()) {
             saveName = objectStorageService.uploadFile(videoFile);
-            vodBoard.setOriginPath(objectStorageService.setObjectSrc(saveName));
-            vodBoard.setSavePath(saveName);
+            vodBoard.setOriginPath(videoFile.getOriginalFilename());
+            vodBoard.setSavePath(objectStorageService.getObjectSrc(saveName));
         }
         if (thumbnail != null && !thumbnail.isEmpty()) {
             saveName = objectStorageService.uploadFile(thumbnail);
-            vodBoard.setOriginThumb(objectStorageService.setObjectSrc(saveName));
-            vodBoard.setSaveThumb(saveName);
+            vodBoard.setOriginThumb(objectStorageService.getObjectSrc(saveName));
+            vodBoard.setSaveThumb(objectStorageService.getObjectSrc(saveName));
         }
 
         // 새로 업로드한 파일 등록
@@ -210,36 +211,30 @@ public class VodBoardRestController {
     @DeleteMapping("/board/{boardNo}") //삭제 기능
     public ResponseEntity<?> deleteVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                             @PathVariable int boardNo) {
-        ResponseDTO<VodBoardDTO> responseDTO = new ResponseDTO<>();
-
-        int userNo= Integer.parseInt(customUserDetails.getUsername());
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        System.out.println("@DeleteMapping: " + boardNo);
+        int userNo= customUserDetails.getUser().getId();
         VodBoard vodBoard = vodBoardService.getBoard(boardNo);
 
         if (vodBoard.getUser().getId() != userNo) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
-        List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo); //첨부파일 첨가
+        List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo);
 
-        boardFileList.stream().forEach(vodBoardFile -> {
-            // 오브젝트 스토리지
-            objectStorageService.deleteObject(vodBoardFile.getVodSaveName());
-            // 첨부파일 디비 삭제
-            vodBoardService.deleteFile(vodBoardFile);
-        });
+        if (boardFileList != null) {
+            boardFileList.stream().forEach(vodBoardFile -> {
+                objectStorageService.deleteObject(vodBoardFile.getVodSaveName());
+            });
+        }
 
-        //게시물db삭제 (작은것 부터 삭제하는게 좋을것 같다. 첨부파일(오브젝트스토리지, 디비) -> 게시판
+        vodBoardService.deleteAllFile(boardNo);
+
+        vodBoardCommentService.deleteCommentVodNo(boardNo);
         vodBoardService.deleteVodBoard(boardNo);
 
 
-        //리액트에게 넘겨주기 위한 부분
-        List<VodBoard> vodBoardList = vodBoardService.getVodBoardList();
-
-        List<VodBoardDTO> vodBoardDTOList = vodBoardList.stream()
-                .map(VodBoard::EntityToDTO)
-                .collect(Collectors.toList());
-
-        responseDTO.setItems(vodBoardDTOList);
+        responseDTO.setItem("삭제되었습니다.");
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
@@ -251,7 +246,7 @@ public class VodBoardRestController {
                                            @RequestBody VodBoardCommentDTO vodBoardCommentDTO) {
         ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
 
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        int userNo = customUserDetails.getUser().getId();
         User user = userService.findById(userNo);
         vodBoardCommentDTO.setUserDTO(user.EntityToDTO());
         vodBoardCommentService.addComment(vodBoardCommentDTO);
@@ -306,19 +301,31 @@ public class VodBoardRestController {
     // ---------------------------------------- 좋아요 ----------------------------------------
 
     // 좋아요 등록
-    @PostMapping("/{vb_idx}/{m_idx}")
-    public ResponseEntity<VodBoardLikeDTO> likeVodBoard(@PathVariable int vb_idx, @PathVariable int m_idx) {
-        VodBoardLikeDTO liked = vodBoardLikeService.likeVodBoard(vb_idx, m_idx);
-        System.out.println("등록 성공");
-        return new ResponseEntity<>(liked, HttpStatus.OK);
+    @GetMapping("/like/{vodNo}")
+    public ResponseEntity<?> likeVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                          @PathVariable int vodNo) {
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+
+        int userNo = Integer.parseInt(customUserDetails.getUsername());
+
+        vodBoardLikeService.likeVodBoard(vodNo, userNo);
+
+        responseDTO.setItem("등록 성공");
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     // 좋아요 취소
-    @DeleteMapping("/{vb_idx}/{m_idx}")
-    public ResponseEntity<Void> unlikeVodBoard(@PathVariable int vb_idx, @PathVariable int m_idx) {
-        vodBoardLikeService.unlikeVodBoard(vb_idx, m_idx);
-        System.out.println("취소 성공");
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+    @DeleteMapping("/like/{likeNo}")
+    public ResponseEntity<?> unlikeVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                               @PathVariable int likeNo) {
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
+        vodBoardLikeService.unlikeVodBoard(likeNo);
+        responseDTO.setItem("삭제 성공");
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
 }

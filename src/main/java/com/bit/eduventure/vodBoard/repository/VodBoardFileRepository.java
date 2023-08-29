@@ -10,4 +10,5 @@ public interface VodBoardFileRepository extends JpaRepository<VodBoardFile, Inte
 
     List<VodBoardFile> findAllByVodBoardNo(int boardNo);
 
+    void deleteAllByVodBoardNo(int vodNo);
 }

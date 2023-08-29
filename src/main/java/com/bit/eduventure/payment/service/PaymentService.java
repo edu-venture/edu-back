@@ -167,7 +167,7 @@ public class PaymentService {
         return new Gson().fromJson(productList, type);
     }
 
-    //상품 정보와 가격 추출
+    //결제 번호 리스트 객체화
     public List<Integer> jsonTOpayNoList(String payNoList) {
         try {
             JsonElement jsonElement = JsonParser.parseString(payNoList);

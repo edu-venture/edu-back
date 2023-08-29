@@ -1,5 +1,6 @@
 package com.bit.eduventure.jwt;
 
+
 import com.bit.eduventure.ES1_User.Service.UserDetailsServiceImpl;
 import com.bit.eduventure.exception.errorCode.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -10,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;

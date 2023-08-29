@@ -7,6 +7,7 @@ import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.repository.TimeTableRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -149,5 +150,9 @@ public class TimeTableService {
         return returnList;
     }
 
+    @Transactional
+    public void deleteAllCourse(int couNo) {
+        timeTableRepository.deleteAllByCouNo(couNo);
+    }
 
 }
