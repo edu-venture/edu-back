@@ -5,7 +5,7 @@ import com.bit.eduventure.ES7_Board.Entity.Board;
 import com.bit.eduventure.ES7_Board.Entity.BoardFile;
 import com.bit.eduventure.ES7_Board.Repository.BoardFileRepository;
 import com.bit.eduventure.ES7_Board.Repository.BoardRepository;
-import com.bit.eduventure.mapper.BoardMapper;
+//import com.bit.eduventure.mapper.BoardMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 public class BoardServiceImpl implements BoardService {
-    private BoardMapper boardMapper;
+//    private BoardMapper boardMapper;
 
     private BoardRepository boardRepository;
 
@@ -23,10 +23,10 @@ public class BoardServiceImpl implements BoardService {
 
     //생성자 주입
     @Autowired
-    public BoardServiceImpl(BoardMapper boardMapper,
+    public BoardServiceImpl(
                             BoardRepository boardRepository,
                             BoardFileRepository boardFileRepository) {
-        this.boardMapper = boardMapper;
+//        this.boardMapper = boardMapper;
         this.boardRepository = boardRepository;
         this.boardFileRepository = boardFileRepository;
     }

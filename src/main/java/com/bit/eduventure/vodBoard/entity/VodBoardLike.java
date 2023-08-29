@@ -9,8 +9,9 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @RequiredArgsConstructor
-@Entity(name = "T_VOD_BOARD_CMT")
+@Entity
 @Builder
+@Table (name = "T_VOD_BOARD_LIKE")
 public class VodBoardLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
