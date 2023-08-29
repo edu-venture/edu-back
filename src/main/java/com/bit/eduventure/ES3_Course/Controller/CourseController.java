@@ -43,9 +43,16 @@ public class CourseController {
 
         List<Course> courseList = courseService.getCourseList();
 
-        List<CourseDTO> courseDTOList =  courseList.stream()
-                .map(Course::EntityToDTO)
+        List<CourseDTO> courseDTOList = courseList.stream()
+                .map(course -> {
+                    CourseDTO courseDTO = course.EntityToDTO();
+                    long studentCnt = userService.getUserCountCourse(course.getCouNo());
+                    courseDTO.setStudentCnt(studentCnt);
+                    return courseDTO;
+                })
                 .collect(Collectors.toList());
+
+
 
         responseDTO.setItems(courseDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
@@ -73,6 +80,15 @@ public class CourseController {
         courseService.createCourse(courseDTO);
 
         responseDTO.setItem("반 생성 완료");
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @DeleteMapping("/course")
+    public ResponseEntity<?> deleteCourseList(@RequestBody String couNoList) {
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+
+        responseDTO.setItem("반 삭제 완료");
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
     }

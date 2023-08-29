@@ -45,7 +45,10 @@ private String approval;
     private Integer userBus;
     private Integer userScore;
     public User DTOToEntity() {
-        Course course = Course.builder().couNo(this.courseDTO.getCouNo()).build();
+        Course course = Course.builder()
+                .couNo(this.courseDTO.getCouNo())
+                .claName(this.courseDTO.getClaName())
+                .build();
 
 
         User user = User.builder()

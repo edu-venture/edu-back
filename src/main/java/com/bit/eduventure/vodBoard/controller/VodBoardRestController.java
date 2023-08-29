@@ -1,6 +1,7 @@
 package com.bit.eduventure.vodBoard.controller;
 
 
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
@@ -15,10 +16,12 @@ import com.bit.eduventure.vodBoard.service.VodBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -77,7 +80,8 @@ public class VodBoardRestController {
 
         vodBoardService.insertBoard(board, uploadFileList);
 
-        responseDTO.setItem("저장되었습니다.");
+
+        responseDTO.setItem("등록되었습니다.");
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
@@ -99,8 +103,8 @@ public class VodBoardRestController {
                 .collect(Collectors.toList());
 
         //데이터, 통신 오류나 상태 코드 등을 담기 위해서 responseDTO를 선언하고 사용한다.
-        responseDTO.setStatusCode(HttpStatus.OK.value());
         responseDTO.setItems(vodBoardDTOList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO); // 파일 목록을 보여줄 뷰 페이지로 이동
     }
@@ -146,12 +150,13 @@ public class VodBoardRestController {
         String saveName;
 
         int userNo= Integer.parseInt(customUserDetails.getUsername());
+        UserDTO userDTO = userService.findById(userNo).EntityToDTO();
+        updatedBoardDTO.setUserDTO(userDTO);
+
         VodBoard vodBoard = vodBoardService.getBoard(boardNo);
 
-
         if (vodBoard.getUser().getId() != userNo) {
-            responseDTO.setErrorMessage("수정 권한이 없습니다.");
-            return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).body(responseDTO);
+            throw new RuntimeException("수정 권한이 없습니다.");
         }
 
         if (updatedBoardDTO != null) {
@@ -196,8 +201,7 @@ public class VodBoardRestController {
         // 새로 업로드한 파일 등록
         vodBoardService.insertBoard(vodBoard, uploadFileList);
 
-        // 수정 성공 메시지 등을 설정
-        responseDTO.setItem("정상적으로 수정되었습니다.");
+        responseDTO.setItem("수정되었습니다.");
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
@@ -206,14 +210,13 @@ public class VodBoardRestController {
     @DeleteMapping("/board/{boardNo}") //삭제 기능
     public ResponseEntity<?> deleteVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                             @PathVariable int boardNo) {
-        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        ResponseDTO<VodBoardDTO> responseDTO = new ResponseDTO<>();
 
         int userNo= Integer.parseInt(customUserDetails.getUsername());
         VodBoard vodBoard = vodBoardService.getBoard(boardNo);
 
         if (vodBoard.getUser().getId() != userNo) {
-            responseDTO.setErrorMessage("삭제 권한이 없습니다.");
-            return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).body(responseDTO);
+            throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
         List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo); //첨부파일 첨가
@@ -228,8 +231,15 @@ public class VodBoardRestController {
         //게시물db삭제 (작은것 부터 삭제하는게 좋을것 같다. 첨부파일(오브젝트스토리지, 디비) -> 게시판
         vodBoardService.deleteVodBoard(boardNo);
 
-        // 삭제 성공 메시지 등을 설정
-        responseDTO.setItem("정상적으로 모두 삭제되었습니다");
+
+        //리액트에게 넘겨주기 위한 부분
+        List<VodBoard> vodBoardList = vodBoardService.getVodBoardList();
+
+        List<VodBoardDTO> vodBoardDTOList = vodBoardList.stream()
+                .map(VodBoard::EntityToDTO)
+                .collect(Collectors.toList());
+
+        responseDTO.setItems(vodBoardDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
@@ -239,14 +249,19 @@ public class VodBoardRestController {
     @PostMapping("/comment")
     public ResponseEntity<?> createComment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                            @RequestBody VodBoardCommentDTO vodBoardCommentDTO) {
-        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
 
         int userNo = Integer.parseInt(customUserDetails.getUsername());
         User user = userService.findById(userNo);
         vodBoardCommentDTO.setUserDTO(user.EntityToDTO());
         vodBoardCommentService.addComment(vodBoardCommentDTO);
 
-        responseDTO.setItem("저장되었습니다.");
+        List<VodBoardCommentDTO> commentList =
+                vodBoardCommentService.getAllCommentList(vodBoardCommentDTO.getVodNo());
+        Map<String, Object> returnMap = new HashMap<>();
+
+        returnMap.put("commentList", commentList);
+        responseDTO.setItem(returnMap);
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
@@ -260,8 +275,7 @@ public class VodBoardRestController {
         int userNo = Integer.parseInt(customUserDetails.getUsername());
 
         if (userNo != vodBoardCommentService.getComment(vodBoardCommentDTO.getId()).getUser().getId()) {
-            responseDTO.setErrorMessage("수정 권한이 없습니다.");
-            return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).body(responseDTO);
+            throw new RuntimeException("수정 권한이 없습니다.");
         }
 
         vodBoardCommentService.addComment(vodBoardCommentDTO);
@@ -280,8 +294,7 @@ public class VodBoardRestController {
         int userNo = Integer.parseInt(customUserDetails.getUsername());
 
         if (userNo != vodBoardCommentService.getComment(commentNo).getUser().getId()) {
-            responseDTO.setErrorMessage("삭제 권한이 없습니다.");
-            return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).body(responseDTO);
+            throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
         vodBoardCommentService.deleteComment(commentNo);
