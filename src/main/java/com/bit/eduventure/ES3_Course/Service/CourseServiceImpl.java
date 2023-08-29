@@ -51,10 +51,7 @@ public class CourseServiceImpl  implements CourseService {
 
     @Override
     public void createCourse(CourseDTO courseDTO) {
-        Course course = Course.builder()
-                .user(courseDTO.getUserDTO().DTOToEntity())
-                .claName(courseDTO.getClaName())
-                .build();
+        Course course = courseDTO.DTOToEntity();
         courseRepository.save(course);
     }
 

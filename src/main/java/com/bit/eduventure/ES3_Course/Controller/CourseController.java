@@ -73,6 +73,7 @@ public class CourseController {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
         int userNo = courseDTO.getTeacherId();
+        System.out.println("userNo " + userNo);
         UserDTO userDTO = userService.findById(userNo).EntityToDTO();
         courseDTO.setUserDTO(userDTO);
 
@@ -85,6 +86,7 @@ public class CourseController {
 
     @DeleteMapping("/course")
     public ResponseEntity<?> deleteCourseList(@RequestBody String couNoList) {
+        System.out.println("couNoList: " + couNoList);
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
         List<Integer> integerList = courseService.jsonToIntList(couNoList);
