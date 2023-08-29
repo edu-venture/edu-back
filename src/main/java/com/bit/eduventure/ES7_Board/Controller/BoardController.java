@@ -8,11 +8,9 @@ import com.bit.eduventure.ES7_Board.DTO.BoardFileDTO;
 import com.bit.eduventure.ES7_Board.Entity.Board;
 import com.bit.eduventure.ES7_Board.Entity.BoardFile;
 import com.bit.eduventure.ES7_Board.Service.BoardService;
-import com.bit.eduventure.common.FileUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
 
