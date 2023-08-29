@@ -4,11 +4,12 @@ import com.bit.eduventure.ES7_Board.Entity.Board;
 import com.bit.eduventure.ES7_Board.Entity.BoardFile;
 import com.bit.eduventure.ES7_Board.Repository.BoardFileRepository;
 import com.bit.eduventure.ES7_Board.Repository.BoardRepository;
-import com.bit.eduventure.mapper.BoardMapper;
+import com.bit.eduventure.objectStorage.service.ObjectStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 @Service
@@ -19,14 +20,17 @@ public class QuizBoardServiceImpl implements QuizBoardService {
     private RepositoryQuizBoard repositoryQuizBoard;
 
     private RepositoryQuizBoardFile repositoryQuizBoardFile;
+    private ObjectStorageService objectStorageService;
 
     //생성자 주입
     @Autowired
     public QuizBoardServiceImpl(
             RepositoryQuizBoard repositoryQuizBoard,
-            RepositoryQuizBoardFile repositoryQuizBoardFile) {
+            RepositoryQuizBoardFile repositoryQuizBoardFile,
+            ObjectStorageService objectStorageService) {
         this.repositoryQuizBoard = repositoryQuizBoard;
         this.repositoryQuizBoardFile = repositoryQuizBoardFile;
+        this.objectStorageService = objectStorageService;
     }
 
     @Override
@@ -128,7 +132,28 @@ public class QuizBoardServiceImpl implements QuizBoardService {
 
     }
 
+    @Override
+    public QuizBoardFile saveQuizFile(MultipartFile file) {
+        QuizBoardFile quizBoardFile = new QuizBoardFile();
+        String origin = file.getOriginalFilename(); //원본 파일명
+        String saveName = objectStorageService.uploadFile(file);    //저장된 파일명
+        String saveSrc = objectStorageService.getObjectSrc(saveName);   //파일주소
 
+        quizBoardFile.setBoardFileOrigin(origin);
+        quizBoardFile.setBoardFileName(saveName);
+        quizBoardFile.setBoardFilePath(saveSrc);
+        return quizBoardFile;
+    }
+
+    @Override
+    public void deleteQuizFileList(int boardNo) {
+        List<QuizBoardFile> boardFileList = getBoardFileList(boardNo);
+
+        boardFileList.stream()
+                .forEach(quizBoardFile -> {
+                    objectStorageService.deleteObject(quizBoardFile.getBoardFileName());
+                });
+    }
 
 
 }

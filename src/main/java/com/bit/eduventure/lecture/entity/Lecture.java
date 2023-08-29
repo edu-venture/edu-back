@@ -23,6 +23,7 @@ public class Lecture {
     @Column(name = "LEC_LIVE_ID")
     private String liveStationId;
 
+
     @ManyToOne
     @JoinColumn(name = "COU_NO")
     private Course course;

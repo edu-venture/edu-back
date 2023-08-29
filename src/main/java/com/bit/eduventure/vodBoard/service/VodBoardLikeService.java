@@ -32,6 +32,7 @@ public class VodBoardLikeService {
     }
 
     //좋아요 개수 구하기
+    @Transactional
     public int getLikeCount(int vodNo) {
         return vodBoardLikeRepository.countAllByVodNo(vodNo);
     }

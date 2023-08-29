@@ -8,11 +8,9 @@ import com.bit.eduventure.ES7_Board.DTO.BoardFileDTO;
 import com.bit.eduventure.ES7_Board.Entity.Board;
 import com.bit.eduventure.ES7_Board.Entity.BoardFile;
 import com.bit.eduventure.ES7_Board.Service.BoardService;
-import com.bit.eduventure.common.FileUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -34,8 +31,8 @@ import java.util.*;
 public class BoardController {
     private BoardService boardService;
 
-    @Value("${file.path}")
-    String attachPath;
+//    @Value("${file.path}")
+//    String attachPath;
 
     @Autowired
     public BoardController(BoardService boardService) {
@@ -97,11 +94,11 @@ public class BoardController {
 //                request.getSession().getServletContext().getRealPath("/")
 //                + "/upload/";
 
-        File directory = new File(attachPath);
-
-        if(!directory.exists()) {
-            directory.mkdir();
-        }
+//        File directory = new File(attachPath);
+//
+//        if(!directory.exists()) {
+//            directory.mkdir();
+//        }
 
         List<BoardFile> uploadFileList = new ArrayList<BoardFile>();
 
@@ -127,7 +124,7 @@ public class BoardController {
                     if(!multipartFile.isEmpty()) {
                         BoardFile boardFile = new BoardFile();
 
-                        boardFile = FileUtils.parseFileInfo(multipartFile, attachPath);
+//                        boardFile = FileUtils.parseFileInfo(multipartFile, attachPath);
 
                         boardFile.setBoard(board);
 
@@ -189,7 +186,7 @@ public class BoardController {
 
                                 MultipartFile file = changeFileList[j];
 
-                                boardFile = FileUtils.parseFileInfo(file, attachPath);
+//                                boardFile = FileUtils.parseFileInfo(file, attachPath);
 
                                 boardFile.setBoard(board);
                                 boardFile.setBoardFileNo(originFiles.get(i).getBoardFileNo());
@@ -207,8 +204,8 @@ public class BoardController {
                         boardFile.setBoardFileStatus("D");
 
                         //실제 파일 삭제
-                        File dFile = new File(attachPath + originFiles.get(i).getBoardFileName());
-                        dFile.delete();
+//                        File dFile = new File(attachPath + originFiles.get(i).getBoardFileName());
+//                        dFile.delete();
 
                         uFileList.add(boardFile);
                     }
@@ -223,7 +220,7 @@ public class BoardController {
                             !file.getOriginalFilename().equals("")) {
                         BoardFile boardFile = new BoardFile();
 
-                        boardFile = FileUtils.parseFileInfo(file, attachPath);
+//                        boardFile = FileUtils.parseFileInfo(file, attachPath);
 
                         boardFile.setBoard(board);
                         boardFile.setBoardFileStatus("I");

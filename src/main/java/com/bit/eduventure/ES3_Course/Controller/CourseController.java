@@ -51,7 +51,7 @@ public class CourseController {
                     return courseDTO;
                 })
                 .collect(Collectors.toList());
-
+        System.out.println(courseDTOList.get(0).getCouNo());
         responseDTO.setItems(courseDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
@@ -69,7 +69,7 @@ public class CourseController {
 
     @PostMapping("/course")
     public ResponseEntity<?> creatCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                         @RequestBody CourseDTO courseDTO){
+                                         @RequestBody CourseDTO courseDTO) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
         int userNo = courseDTO.getTeacherId();
@@ -83,25 +83,31 @@ public class CourseController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    @DeleteMapping("/course")
-    public ResponseEntity<?> deleteCourseList(@RequestBody String couNoList) {
+    @PostMapping("/course/delete")
+    public ResponseEntity<?> deleteCourseList(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                              @RequestBody String couNoList) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
         List<Integer> integerList = courseService.jsonToIntList(couNoList);
+        System.out.println(integerList);
         courseService.deleteCourseList(integerList);
+
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @PutMapping("/course")
+    public ResponseEntity<?> modifyCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                          @RequestBody CourseDTO courseDTO) {
+
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+
+//        List<Integer> integerList = courseService.jsonToIntList(couNoList);
+//        System.out.println(integerList);
+//        courseService.deleteCourseList(integerList);
 
         responseDTO.setItem("반 삭제 완료");
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
     }
-
-
-
-
-
-
-
-
-
-
 }

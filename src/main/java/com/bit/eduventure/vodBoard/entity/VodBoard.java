@@ -59,9 +59,6 @@ public class VodBoard {
     @JoinColumn(name = "USER_NO")
     private User user;  // 유저 정보를 findBy 안쓰고 편하게 쓰기 위해서 작성함.
 
-    @OneToMany(mappedBy = "vodNo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VodBoardComment> comments = new ArrayList<>(); // 댓글과의 관계 표현
-
     public VodBoardDTO EntityToDTO() {
         VodBoardDTO vodBoardDTO = VodBoardDTO.builder()
                 .id(this.id)

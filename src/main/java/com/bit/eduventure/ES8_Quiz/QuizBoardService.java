@@ -4,6 +4,7 @@ import com.bit.eduventure.ES7_Board.Entity.Board;
 import com.bit.eduventure.ES7_Board.Entity.BoardFile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -28,5 +29,9 @@ public interface QuizBoardService {
     void plussGrossSample(int boardNo);
 
     void plussGrossRightAnswer(int boardNo);
+
+    QuizBoardFile saveQuizFile(MultipartFile file);
+
+    void deleteQuizFileList(int boardNo);
 
 }

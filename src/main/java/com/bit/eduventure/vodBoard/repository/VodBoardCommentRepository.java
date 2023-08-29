@@ -19,7 +19,7 @@ public interface VodBoardCommentRepository extends JpaRepository<VodBoardComment
 //    //해당 vbc_idx (댓글의 고유한 인덱스) 값에 대한 대댓글을 모두 삭제합니다.
 //    void deleteAllByVBcref(int qbc_idx); //vbc_idx VBcref
     //게시물 번호에 해당하는 모든 댓글 불러오기
-    List<VodBoardComment> findAllByVodNoId(int vodNo);
+    List<VodBoardComment> findAllByVodNo(int vodNo);
 //
-    void deleteAllByVodNoId(int vodNo);
+    void deleteAllByVodNo(int vodNo);
 }

@@ -5,15 +5,7 @@ import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
-import com.bit.eduventure.ES7_Board.DTO.BoardDTO;
-import com.bit.eduventure.ES7_Board.DTO.BoardFileDTO;
-import com.bit.eduventure.ES7_Board.Entity.Board;
-import com.bit.eduventure.ES7_Board.Entity.BoardFile;
-import com.bit.eduventure.ES7_Board.Repository.BoardRepository;
-import com.bit.eduventure.ES7_Board.Service.BoardService;
-import com.bit.eduventure.common.FileUtil;
-import com.bit.eduventure.common.FileUtils;
-import com.bit.eduventure.common.FileUtilsForObjectStorage;
+import com.bit.eduventure.objectStorage.service.ObjectStorageService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletOutputStream;
@@ -38,24 +30,13 @@ import java.util.*;
 @RestController
 @RequestMapping("/quiz")
 public class ControllerQuizBoard {
-private final FileUtilsForObjectStorage fileUtilsForObjectStorage;
 
-    private QuizBoardService quizBoardService;
-    @Autowired
-    private UserService userService;
-    private QuizUserHistoryService quizUserHistoryService;
+    private final ObjectStorageService objectStorageService;
+    private final QuizBoardService quizBoardService;
+    private final UserService userService;
+    private final QuizUserHistoryService quizUserHistoryService;
 //    @Autowired
 //    private RepositoryQuizBoard repositoryQuizBoard;
-//    @Value("${file.path}")
-//    String attachPath;
-
-    @Autowired
-    public ControllerQuizBoard(QuizBoardService quizBoardService, UserService userService, FileUtilsForObjectStorage fileUtilsForObjectStorage, QuizUserHistoryService quizUserHistoryService) {
-        this.quizBoardService = quizBoardService;
-        this.quizUserHistoryService = quizUserHistoryService;
-        this.fileUtilsForObjectStorage = fileUtilsForObjectStorage;
-        this.userService = userService;
-    }
 
     @GetMapping("/board-list")
     public ResponseEntity<?> getBoardList(@PageableDefault(page = 0, size = 10) Pageable pageable,
@@ -140,11 +121,12 @@ private final FileUtilsForObjectStorage fileUtilsForObjectStorage;
             while(iterator.hasNext()) {
                 List<MultipartFile> fileList = mphsRequest.getFiles(iterator.next());
 
-                for(MultipartFile multipartFile : fileList) {
-                    if(!multipartFile.isEmpty()) {
+                for(MultipartFile file : fileList) {
+                    if(!file.isEmpty()) {
+                        //                        quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(multipartFile, "quiz/");
                         QuizBoardFile quizBoardFile = new QuizBoardFile();
 
-                        quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(multipartFile, "quiz/");
+                        quizBoardFile = quizBoardService.saveQuizFile(file);
 
                         quizBoardFile.setQuizBoard(quizBoard);
 
@@ -209,7 +191,8 @@ private final FileUtilsForObjectStorage fileUtilsForObjectStorage;
 
                                 MultipartFile file = changeFileList[j];
 
-                                quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(file, "quiz/");
+//                                quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(file, "quiz/");
+                                quizBoardFile = quizBoardService.saveQuizFile(file);
                                 System.out.println("여긴가");
                                 quizBoardFile.setQuizBoard(quizBoard);
                                 quizBoardFile.setBoardFileNo(originFiles.get(i).getBoardFileNo());
@@ -244,7 +227,8 @@ private final FileUtilsForObjectStorage fileUtilsForObjectStorage;
                             !file.getOriginalFilename().equals("")) {
                         QuizBoardFile quizBoardFile = new QuizBoardFile();
 
-                        quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(file, "quiz/");
+//                        quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(file, "quiz/");
+                        quizBoardFile = quizBoardService.saveQuizFile(file);
 
                         quizBoardFile.setQuizBoard(quizBoard);
                         quizBoardFile.setBoardFileStatus("I");
@@ -291,6 +275,7 @@ private final FileUtilsForObjectStorage fileUtilsForObjectStorage;
         ResponseDTO<Map<String, String>> responseDTO =
                 new ResponseDTO<Map<String, String>>();
         try {
+            quizBoardService.deleteQuizFileList(boardNo);
             quizBoardService.deleteBoard(boardNo);
             Map<String, String> returnMap = new HashMap<String, String>();
             returnMap.put("msg", "정상적으로 삭제되었습니다.");
