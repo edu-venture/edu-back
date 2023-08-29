@@ -4,7 +4,6 @@ package com.bit.eduventure.lecture.controller;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
-import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.lecture.dto.LectureDTO;
@@ -34,31 +33,31 @@ public class LectureController {
     public ResponseEntity<?> createLecture(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                            @RequestBody LectureDTO lectureDTO) {
         ResponseDTO<LectureDTO> responseDTO = new ResponseDTO<>();
-        try {
-            int userNo = Integer.parseInt(customUserDetails.getUsername());
-            User user = userService.findById(userNo);
 
-            String title = lectureDTO.getTitle();
+        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        User user = userService.findById(userNo);
 
-            Course course = user.getCourse();
-
-            lectureDTO.setCourseDTO(course.EntityToDTO());
-            System.out.println("2 user.getCourse().EntityToDTO(): " + user.getCourse().EntityToDTO());
-            String channelId = liveStationService.createChannel(title);
-            System.out.println("3 channelId: " + channelId);
-            lectureDTO.setLiveStationId(channelId);
-            lectureDTO = lectureService.createLecture(lectureDTO);
-
-            responseDTO.setItem(lectureDTO);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-            return ResponseEntity.badRequest().body(responseDTO);
+        if (!user.getUserType().equals("teacher")) {
+            throw new RuntimeException("선생님이 아닙니다.");
         }
+
+        lectureDTO.setCourseDTO(user.EntityToDTO().getCourseDTO());
+        String title = lectureDTO.getTitle();
+
+        Course course = user.getCourse();
+
+        lectureDTO.setCourseDTO(course.EntityToDTO());
+
+        String channelId = liveStationService.createChannel(title);
+
+        lectureDTO.setLiveStationId(channelId);
+
+        lectureDTO = lectureService.createLecture(lectureDTO).EntityTODTO();
+
+        responseDTO.setItem(lectureDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
 
     }
 

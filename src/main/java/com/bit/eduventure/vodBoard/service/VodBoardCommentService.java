@@ -47,10 +47,10 @@ public class VodBoardCommentService {
                 .forEach(commentDTO -> {
                     VodBoardCommentDTO parentDTO = dtoMap.get(commentDTO.getVodCmtParentNo()); // Retrieve parent DTO from the map
                     if (parentDTO != null) {
-                        if (parentDTO.getVodCmtList() == null) {
-                            parentDTO.setVodCmtList(new ArrayList<>()); // Initialize the list if null
+                        if (parentDTO.getVodSonCmtList() == null) {
+                            parentDTO.setVodSonCmtList(new ArrayList<>()); // Initialize the list if null
                         }
-                        parentDTO.getVodCmtList().add(commentDTO);
+                        parentDTO.getVodSonCmtList().add(commentDTO);
                     }
                 });
 
@@ -72,5 +72,9 @@ public class VodBoardCommentService {
 
     public VodBoardComment getComment(int commentNo) {
         return vodBoardCommentRepository.findById(commentNo).orElseThrow();
+    }
+
+    public void deleteCommentVodNo(int vodNo) {
+        vodBoardCommentRepository.deleteAllByVodNo(vodNo);
     }
 }

@@ -20,4 +20,5 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     Course findByClaName(String claName);
 
     Course findByUserId(int userId);
+
 }

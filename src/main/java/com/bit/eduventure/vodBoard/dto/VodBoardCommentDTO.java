@@ -24,14 +24,13 @@ public class VodBoardCommentDTO {
     private int vodNo; // 댓글이 속하는 VOD 게시글의 인덱스(ID)
     private UserDTO userDTO; // 댓글 작성자의 회원 인덱스(ID)
     
-    private List<VodBoardCommentDTO> vodCmtList;    //자식 댓글 리스트
+    private List<VodBoardCommentDTO> vodSonCmtList;    //자식 댓글 리스트
     public VodBoardComment DTOTOEntity() {
         return VodBoardComment.builder()
                 .id(this.id)
                 .vodCmtContent(this.vodCmtContent)
                 .vodCmtRegdate(this.vodCmtRegdate)
                 .vodCmtParentNo(this.vodCmtParentNo)
-                .vodNo(this.vodNo)
                 .user(this.userDTO.DTOToEntity())
                 .build();
     }

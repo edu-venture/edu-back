@@ -1,7 +1,7 @@
 package com.bit.eduventure.vodBoard.service;
 
 import com.bit.eduventure.vodBoard.dto.VodBoardLikeDTO;
-import com.bit.eduventure.vodBoard.entity.VodBoardLikeEntity;
+import com.bit.eduventure.vodBoard.entity.VodBoardLike;
 import com.bit.eduventure.vodBoard.repository.VodBoardLikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,27 +14,30 @@ public class VodBoardLikeService {
     private final VodBoardLikeRepository vodBoardLikeRepository;
 
     @Transactional
-    public VodBoardLikeDTO likeVodBoard(int vb_idx, int m_idx) {
-        VodBoardLikeEntity likeEntity = vodBoardLikeRepository.findByVBidxAndMIdx(vb_idx, m_idx);
-        if (likeEntity == null) {
-            likeEntity = VodBoardLikeEntity.builder()
-                    .VBidx(vb_idx)
-                    .MIdx(m_idx)
-                    .likestatus(1) // 좋아요 상태로 설정
-                    .build();
+    public void likeVodBoard(int vodNo, int userNo) {
+        VodBoardLike vodBoardLike = VodBoardLike.builder()
+                .vodNo(vodNo)
+                .userNo(userNo)
+                .likeStatus(1)
+                .build();
+        vodBoardLikeRepository.save(vodBoardLike);
+    }
+
+    public int getLikeStatue(int vodNo, int userNo) {
+        if (vodBoardLikeRepository.findByVodNoAndUserNo(vodNo, userNo) != null) {
+            return 1;
         } else {
-            likeEntity.setLikestatus(1); // 이미 좋아요한 경우 상태 업데이트
+            return 0;
         }
-        vodBoardLikeRepository.save(likeEntity);
-        return VodBoardLikeDTO.vodBoardLikeDTO(likeEntity);
+    }
+
+    //좋아요 개수 구하기
+    public int getLikeCount(int vodNo) {
+        return vodBoardLikeRepository.countAllByVodNo(vodNo);
     }
 
     @Transactional
-    public void unlikeVodBoard(int vb_idx, int m_idx) {
-        VodBoardLikeEntity likeEntity = vodBoardLikeRepository.findByVBidxAndMIdx(vb_idx, m_idx);
-        if (likeEntity != null) {
-            likeEntity.setLikestatus(0); // 좋아요 취소 상태로 설정
-            vodBoardLikeRepository.save(likeEntity);
-        }
+    public void unlikeVodBoard(int likeNo) {
+        vodBoardLikeRepository.deleteById(likeNo);
     }
 }

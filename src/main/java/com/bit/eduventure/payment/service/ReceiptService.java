@@ -19,4 +19,8 @@ public class ReceiptService {
     public List<Receipt> getReceiptPayId(int payId) {
         return receiptRepository.findAllByPaymentId(payId);
     }
+
+    public void deleteReceipt(int payId) {
+        receiptRepository.deleteAllByPaymentId(payId);
+    }
 }

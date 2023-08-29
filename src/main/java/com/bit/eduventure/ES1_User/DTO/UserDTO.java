@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class UserDTO {
     private Integer id;
     private String userId;
@@ -46,7 +45,10 @@ private String approval;
     private Integer userBus;
     private Integer userScore;
     public User DTOToEntity() {
-        Course course = Course.builder().couNo(this.courseDTO.getCouNo()).build();
+        Course course = Course.builder()
+                .couNo(this.courseDTO.getCouNo())
+                .claName(this.courseDTO.getClaName())
+                .build();
 
 
         User user = User.builder()

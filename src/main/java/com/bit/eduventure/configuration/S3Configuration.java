@@ -10,21 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class S3Config {
-
-
-
-    @Value("${ncp.accessKey}")
-    private String accessKey;
-
-    @Value("${ncp.secretKey}")
-    private String secretKey;
-
-    @Value("${ncp.regionName}")
-    private String region;
-
-    @Value("${ncp.endPoint}")
-    private String endPoint;
+public class S3Configuration {
 
     @Value("${cloud.ncp.access.key}") // application.properties에서 aws.accessKey 설정
     private String cloudAccessKey;
@@ -37,9 +23,6 @@ public class S3Config {
 
     @Value("${cloud.aws.s3.endpoint}") // application.properties에서 aws.s3.endpointUrl 설정
     private String cloudEndPoint;
-
-    @Value("${cloud.aws.s3.bucket.name}")
-    private String bucket;
 
     @Bean
     public AmazonS3 amazonS3Client() {

@@ -4,27 +4,20 @@ package com.bit.eduventure.attendance.controller;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
-import com.bit.eduventure.ES1_User.Service.UserServiceImpl;
 import com.bit.eduventure.attendance.entity.Attend;
-import com.bit.eduventure.attendance.service.AttendanceService;
+import com.bit.eduventure.attendance.service.AttendService;
 import com.bit.eduventure.attendance.dto.AttendDTO;
 import com.bit.eduventure.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import retrofit2.http.Path;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,12 +26,38 @@ import java.util.Map;
 @RestController
 @RequestMapping("/attendance")
 @RequiredArgsConstructor
-public class AttendanceController {
+public class AttendController {
 
 
-    private final AttendanceService attendanceService;
+    private final AttendService attendService;
 
     private final UserService userService;
+
+
+    //가장 최초 화면: 처음 화면은 Null로 하고 수업일 여부를 띄워준다.
+    @GetMapping("/main")
+    public ResponseEntity<?> getAttendForUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
+        int userId = Integer.parseInt(customUserDetails.getUsername());
+        User user = userService.findById(userId);  // userNo로 사용자 정보를 찾습니다. 해당 메서드는 UserService에서 정의되어 있어야 합니다.
+
+        System.out.println(user.getUserName());
+
+        try {
+            AttendDTO response = attendService.getIsCourseForUser(userId);
+
+
+            responseDTO.setItem(response);
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            responseDTO.setErrorMessage(e.getMessage());
+
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
 
     // 입실 처리
     @PostMapping("/enter")
@@ -46,14 +65,15 @@ public class AttendanceController {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = Integer.parseInt(customUserDetails.getUsername());
         System.out.println(userId);
-
+        System.out.println("엔터 들어왔다 어텐드");
 
         try {
             LocalDateTime attendTime = LocalDateTime.now(); // 현재 시간으로 입실 시간 설정
 
 
-            AttendDTO response = attendanceService.registerAttendance(userId, attendTime);
-
+            AttendDTO response = attendService.registerAttendance(userId, attendTime);
+            System.out.println(response);
+            System.out.println("리스폰스를 받아왔다");
             responseDTO.setItem(response);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(response);
@@ -71,12 +91,13 @@ public class AttendanceController {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = Integer.parseInt(customUserDetails.getUsername());
         System.out.println(userId);
+        System.out.println("엑싯 들어왔다 어텐드");
 
         try {
             LocalDateTime exitTime = LocalDateTime.now(); // 현재 시간으로 퇴실 시간 설정
 
 
-            AttendDTO response = attendanceService.registerExitTime(userId, exitTime);
+            AttendDTO response = attendService.registerExitTime(userId, exitTime);
 
             responseDTO.setItem(response);
             responseDTO.setStatusCode(HttpStatus.OK.value());
@@ -98,7 +119,7 @@ public class AttendanceController {
         try {
 
             User user = userService.findById(userId);
-            List<AttendDTO> records = attendanceService.getAttendanceRecordsByUser(user);
+            List<AttendDTO> records = attendService.getAttendanceRecordsByUser(user);
 
             responseDTO.setItem(records);
             responseDTO.setStatusCode(HttpStatus.OK.value());
@@ -122,7 +143,7 @@ public class AttendanceController {
         try {
 
             User user = userService.findById(userId);
-            List<AttendDTO> records = attendanceService.getAttendanceRecordsByUserAndDate(user, date);
+            List<AttendDTO> records = attendService.getAttendanceRecordsByUserAndDate(user, date);
 
             responseDTO.setItem(records);
             responseDTO.setStatusCode(HttpStatus.OK.value());
@@ -145,7 +166,7 @@ public class AttendanceController {
         try {
 
             User user = userService.findById(userId);
-            List<AttendDTO> records = attendanceService.getAttendanceRecordsByUserAndMonth(user, yearMonth);
+            List<AttendDTO> records = attendService.getAttendanceRecordsByUserAndMonth(user, yearMonth);
 
             responseDTO.setItem(records);
             responseDTO.setStatusCode(HttpStatus.OK.value());
@@ -170,7 +191,7 @@ public class AttendanceController {
 
         try {
             Attend attend = attendDTO.DTOToEntity();
-            Attend updatedAttend = attendanceService.updateAttendRecord(attend);
+            Attend updatedAttend = attendService.updateAttendRecord(attend);
             AttendDTO updateAttendDTO = updatedAttend.EntityToDTO();
 
             responseDTO.setItem(updateAttendDTO);
@@ -193,7 +214,7 @@ public class AttendanceController {
         ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
 
         try{
-            attendanceService.deleteAttendList(attList);
+            attendService.deleteAttendList(attList);
 
 
             Map<String, Object> returnMap = new HashMap<>();
