@@ -26,6 +26,8 @@ public class VodBoardDTO { // 보드 dto에 원래 이름, 저장이름, 오브�
     private String savePath;
     private String originThumb;
     private String saveThumb;
+    private int likeCount;
+    private int likeStatus;
     private UserDTO userDTO;
 
     public VodBoard DTOTOEntity() {

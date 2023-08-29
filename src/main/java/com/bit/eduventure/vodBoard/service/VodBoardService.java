@@ -52,7 +52,7 @@ public class VodBoardService {
 
     //삭제 기능
     public void deleteVodBoard(int boardNo) {
-        vodBoardCommentService.deleteAllCommentsAndRepliesByVodNo(boardNo);
+        vodBoardCommentService.deleteCommentVodNo(boardNo);
         vodBoardRepository.deleteById(boardNo);
     }
 
