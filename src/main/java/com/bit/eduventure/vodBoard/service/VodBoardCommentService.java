@@ -73,4 +73,8 @@ public class VodBoardCommentService {
     public VodBoardComment getComment(int commentNo) {
         return vodBoardCommentRepository.findById(commentNo).orElseThrow();
     }
+
+    public void deleteCommentVodNo(int vodNo) {
+        vodBoardCommentRepository.deleteAllByVodNo(vodNo);
+    }
 }
