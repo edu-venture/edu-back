@@ -28,7 +28,7 @@ public class VodBoardComment {
     @Column(name="VOD_CMT_PAR_NO")
     private int vodCmtParentNo; //대댓글을 위한 부모 댓글의 인덱스
 
-    @JoinColumn(name = "VOD_NO")
+    @Column(name = "VOD_NO")
     private int vodNo; // 이 댓글이 어떤 게시물에 속하는지 표시
 
     @ManyToOne(fetch = FetchType.LAZY)
