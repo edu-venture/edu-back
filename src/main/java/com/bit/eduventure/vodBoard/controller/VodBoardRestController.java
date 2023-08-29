@@ -89,12 +89,9 @@ public class VodBoardRestController {
 
     //강의 목록(제목, 강사, 영상 다 포함됨)
     @GetMapping("/board-list")
-    public ResponseEntity<?> getList() { // ResponseEntity<?> 스프링에서 제공하는 응답 객체
-        //ResponseEntity 바디에 담아줄 객체(ResponseDTO) 선언
-        //선언하면서 제네릭에 VodBoardFile 형태로 선언
-        //했기때문에 items에는 List<VodBoardFile> 를 저장할 수 있다 items = List<VodBoardFile>
-        //그리고 item에는 VodBoardFile 을 저장할 수 있다.
-        ResponseDTO<VodBoardDTO> responseDTO = new ResponseDTO<>(); //응답 바디와 <데이터 형태>
+    public ResponseEntity<?> getList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        System.out.println(customUserDetails.getUsername());
+        ResponseDTO<VodBoardDTO> responseDTO = new ResponseDTO<>();
 
         List<VodBoard> vodBoardList = vodBoardService.getVodBoardList();
 
@@ -114,6 +111,7 @@ public class VodBoardRestController {
     public ResponseEntity<?> getBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                       @PathVariable int boardNo) {
         ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
+        System.out.println("boardNo: " + boardNo);
         int userNo = customUserDetails.getUser().getId();
         VodBoard board = vodBoardService.getBoard(boardNo);
 
