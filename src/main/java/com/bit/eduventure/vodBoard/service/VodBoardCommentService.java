@@ -2,7 +2,6 @@ package com.bit.eduventure.vodBoard.service;
 
 import com.bit.eduventure.ES1_User.Repository.UserRepository;
 import com.bit.eduventure.vodBoard.dto.VodBoardCommentDTO;
-import com.bit.eduventure.vodBoard.entity.VodBoard;
 import com.bit.eduventure.vodBoard.entity.VodBoardComment;
 import com.bit.eduventure.vodBoard.repository.VodBoardCommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,7 @@ public class VodBoardCommentService {
 
     //게시물에 해당하는 모든 댓글 리스트 가져오는 메서드
     public List<VodBoardCommentDTO> getAllCommentList(int vodNo) {
-        List<VodBoardComment> list = vodBoardCommentRepository.findAllByVodNoId(vodNo);
+        List<VodBoardComment> list = vodBoardCommentRepository.findAllByVodNo(vodNo);
 
         List<VodBoardCommentDTO> dtoList = list.stream()
                 .map(VodBoardComment::EntityTODTO)
@@ -48,10 +47,10 @@ public class VodBoardCommentService {
                 .forEach(commentDTO -> {
                     VodBoardCommentDTO parentDTO = dtoMap.get(commentDTO.getVodCmtParentNo()); // Retrieve parent DTO from the map
                     if (parentDTO != null) {
-                        if (parentDTO.getVodCmtList() == null) {
-                            parentDTO.setVodCmtList(new ArrayList<>()); // Initialize the list if null
+                        if (parentDTO.getVodSonCmtList() == null) {
+                            parentDTO.setVodSonCmtList(new ArrayList<>()); // Initialize the list if null
                         }
-                        parentDTO.getVodCmtList().add(commentDTO);
+                        parentDTO.getVodSonCmtList().add(commentDTO);
                     }
                 });
 
@@ -66,51 +65,16 @@ public class VodBoardCommentService {
         return savedComment.EntityTODTO();
     }
 
-//    //부모 댓글 삭제 메소드
-//    public void deleteParentComment(int commentNo) {
-//        List<VodBoardComment> childComments = vodBoardCommentRepository.findAllByVodCmtParentNo(commentNo);
-//
-//        for (VodBoardComment childComment : childComments) {
-//            deleteChildComment(childComment.getId()); // 자식 댓글 삭제
-//        }
-//
-//        vodBoardCommentRepository.deleteById(commentNo); // 부모 댓글 삭제
-//    }
-//
-//    //자식 댓글 삭제 메소드
-//    public void deleteChildComment(int commentNo) {
-//        vodBoardCommentRepository.deleteById(commentNo);
-//    }
-
-
-    // 게시물 삭제 시 해당 게시물의 댓글 전체 삭제
-    public void deleteAllCommentsAndRepliesByVodNo(int boardNo) {
-        vodBoardCommentRepository.deleteAllByVodNoId(boardNo);
-    }
-
-    // 댓글 삭제 시 댓글인지 대댓글인지 구분 후 삭제
-    public void deleteCommentAndReplies(int commentId) {
-        VodBoardComment comment = vodBoardCommentRepository.findById(commentId).orElse(null);
-        if (comment == null) {
-            // 댓글이 없는 경우 처리
-            return;
-        }
-
-        if (comment.getVodCmtParentNo() == 0) {
-            // 댓글일 경우: 댓글과 그에 딸린 대댓글 모두 삭제
-            List<VodBoardComment> childComments = vodBoardCommentRepository.findAllByVodCmtParentNo(commentId);
-
-            childComments.forEach(childComment -> deleteCommentAndReplies(childComment.getId())); // 재귀적으로 자식 댓글 삭제
-        }
-
-        // 댓글 또는 대댓글 삭제
-        vodBoardCommentRepository.deleteById(commentId);
+    //댓글 삭제 메소드
+    public void deleteComment(int commentNo) {
+        vodBoardCommentRepository.deleteById(commentNo);
     }
 
     public VodBoardComment getComment(int commentNo) {
         return vodBoardCommentRepository.findById(commentNo).orElseThrow();
     }
 
-
-
+    public void deleteCommentVodNo(int vodNo) {
+        vodBoardCommentRepository.deleteAllByVodNo(vodNo);
+    }
 }

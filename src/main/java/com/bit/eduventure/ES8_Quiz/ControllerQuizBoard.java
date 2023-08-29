@@ -13,8 +13,11 @@ import com.bit.eduventure.ES7_Board.Repository.BoardRepository;
 import com.bit.eduventure.ES7_Board.Service.BoardService;
 import com.bit.eduventure.common.FileUtil;
 import com.bit.eduventure.common.FileUtils;
+import com.bit.eduventure.common.FileUtilsForObjectStorage;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletOutputStream;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -31,22 +34,26 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/quiz")
 public class ControllerQuizBoard {
+private final FileUtilsForObjectStorage fileUtilsForObjectStorage;
 
     private QuizBoardService quizBoardService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private RepositoryQuizBoard repositoryQuizBoard;
-    @Value("${file.path}")
-    String attachPath;
+    private QuizUserHistoryService quizUserHistoryService;
+//    @Autowired
+//    private RepositoryQuizBoard repositoryQuizBoard;
+//    @Value("${file.path}")
+//    String attachPath;
 
     @Autowired
-    public ControllerQuizBoard(QuizBoardService quizBoardService, UserService userService) {
+    public ControllerQuizBoard(QuizBoardService quizBoardService, UserService userService, FileUtilsForObjectStorage fileUtilsForObjectStorage, QuizUserHistoryService quizUserHistoryService) {
         this.quizBoardService = quizBoardService;
+        this.quizUserHistoryService = quizUserHistoryService;
+        this.fileUtilsForObjectStorage = fileUtilsForObjectStorage;
         this.userService = userService;
     }
 
@@ -111,11 +118,7 @@ public class ControllerQuizBoard {
 //                request.getSession().getServletContext().getRealPath("/")
 //                + "/upload/";
 
-        File directory = new File(attachPath);
 
-        if(!directory.exists()) {
-            directory.mkdir();
-        }
 
         List<QuizBoardFile> uploadFileList = new ArrayList<QuizBoardFile>();
 
@@ -141,7 +144,7 @@ public class ControllerQuizBoard {
                     if(!multipartFile.isEmpty()) {
                         QuizBoardFile quizBoardFile = new QuizBoardFile();
 
-                        quizBoardFile = FileUtil.parseFileInfo(multipartFile, attachPath);
+                        quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(multipartFile, "quiz/");
 
                         quizBoardFile.setQuizBoard(quizBoard);
 
@@ -206,7 +209,7 @@ public class ControllerQuizBoard {
 
                                 MultipartFile file = changeFileList[j];
 
-                                quizBoardFile = FileUtil.parseFileInfo(file, attachPath);
+                                quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(file, "quiz/");
                                 System.out.println("여긴가");
                                 quizBoardFile.setQuizBoard(quizBoard);
                                 quizBoardFile.setBoardFileNo(originFiles.get(i).getBoardFileNo());
@@ -224,8 +227,7 @@ public class ControllerQuizBoard {
                         boardFile.setBoardFileStatus("D");
 
                         //실제 파일 삭제
-                        File dFile = new File(attachPath + originFiles.get(i).getBoardFileName());
-                        dFile.delete();
+
 
                         uFileList.add(boardFile);
                     }
@@ -242,7 +244,7 @@ public class ControllerQuizBoard {
                             !file.getOriginalFilename().equals("")) {
                         QuizBoardFile quizBoardFile = new QuizBoardFile();
 
-                        quizBoardFile = FileUtil.parseFileInfo(file, attachPath);
+                        quizBoardFile = fileUtilsForObjectStorage.parseFileInfo(file, "quiz/");
 
                         quizBoardFile.setQuizBoard(quizBoard);
                         quizBoardFile.setBoardFileStatus("I");
@@ -402,6 +404,49 @@ userService.increaseuserscore(customUserDetails.getUser().getId());
         }
 
     }
+
+
+    @PostMapping("/registerquizhistory")
+    public ResponseEntity<?> registerUserQuizHistory(@RequestBody QuizUserHistoryDTO quizUserHistoryDTO) {
+        System.out.println(quizUserHistoryDTO);
+        System.out.println(quizUserHistoryDTO);
+        ResponseDTO<QuizUserHistoryDTO> responseDTO = new ResponseDTO<>();
+        QuizUserHistory quizUserHistory = quizUserHistoryDTO.DTOToEntity();
+        QuizUserHistory quizUserHistory1 =  quizUserHistoryService.register(quizUserHistory);
+        try {
+
+            responseDTO.setItem(quizUserHistory1.EntityToDTO());
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @PostMapping("/getallquizhistory")
+    public ResponseEntity<?> getallquizhistory(@RequestBody QuizUserHistoryDTO quizUserHistoryDTO) {
+        System.out.println("겟올퀴즈 히스토리 들오옴");
+        System.out.println(quizUserHistoryDTO);
+        ResponseDTO<QuizUserHistoryDTO> responseDTO = new ResponseDTO<>();
+
+        QuizUserHistory quizUserHistory = quizUserHistoryDTO.DTOToEntity();
+        QuizUserHistory quizUserHistory1 =  quizUserHistoryService.findIfExist(quizUserHistory);
+        System.out.println(quizUserHistory1);
+        try {
+
+            responseDTO.setItem(quizUserHistory1.EntityToDTO());
+            responseDTO.setStatusCode(HttpStatus.OK.value());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+
 
 
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -18,23 +19,17 @@ public class VodBoardService {
     private final VodBoardFileRepository vodBoardFileRepository;
     private final VodBoardCommentService vodBoardCommentService;
 
-//    public List<VodBoard> getBoardList() {
-//        return vodBoardRepository.findAll();
-//    }
-
     //디비에 저장되어있는 파일 삭제
     public void deleteFile(VodBoardFile boardFile) {
         vodBoardFileRepository.delete(boardFile);
     }
 
     public VodBoard getBoard(int boardNo) {
-        VodBoard returnBoard = vodBoardRepository.findById(boardNo).orElseThrow();
-//        if (vodBoardRepository.findById(boardNo).isEmpty()) {
-//            return null;
-//        }
-//        VodBoard returnBoard = vodBoardRepository.findById(boardNo).get();
+        VodBoard returnBoard = vodBoardRepository.findById(boardNo)
+                .orElseThrow(() -> new NoSuchElementException());
         returnBoard.setHits(returnBoard.getHits()+1); //조회수 증가
         vodBoardRepository.save(returnBoard);
+
         return returnBoard;
     }
 
@@ -50,13 +45,9 @@ public class VodBoardService {
 
     //수정 기능
     public VodBoard updateVodBoard(int boardNo, VodBoard updatedVodBoard) {
-        vodBoardRepository.findById(boardNo).orElseThrow();
+        vodBoardRepository.findById(boardNo)
+                .orElseThrow(() -> new NoSuchElementException());
         return vodBoardRepository.save(updatedVodBoard);
-//        if (vodBoardRepository.existsById(boardNo)) {
-//            //이게 아닌디
-//            return vodBoardRepository.save(updatedVodBoard);
-//        }
-//        return null; // 수정할 게시물이 없는 경우
     }
 
     //삭제 기능
@@ -78,10 +69,10 @@ public class VodBoardService {
         vodBoardRepository.save(board);
         vodBoardRepository.flush();
         if (fileList != null) {
-            for (VodBoardFile boardFile : fileList) {
+            fileList.stream().forEach(boardFile -> {
                 boardFile.setVodBoardNo(board.getId());
                 vodBoardFileRepository.save(boardFile);
-            }
+            });
         }
 
     }

@@ -1,6 +1,7 @@
 package com.bit.eduventure.ES3_Course.DTO;
 
 
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import jakarta.persistence.Column;
@@ -15,17 +16,19 @@ public class CourseDTO {
 
     private Integer couNo;
     private String claName;
-    private int userId;
+    private String couMemo;
+    private int teacherId;
+    private long studentCnt;
+    private UserDTO userDTO;
 
     public Course DTOToEntity(){
         Course course = Course.builder()
                 .couNo(this.couNo)
                 .claName(this.claName)
-                .userId(this.userId)
+                .couMemo(this.couMemo)
+                .user(this.userDTO.DTOToEntity())
                 .build();
         return course;
-
-
     }
 
 

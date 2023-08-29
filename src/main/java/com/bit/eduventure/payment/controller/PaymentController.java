@@ -1,5 +1,6 @@
 package com.bit.eduventure.payment.controller;
 
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
@@ -40,129 +41,111 @@ public class PaymentController {
     //클라이언트로부터 받은 HTTP POST 요청의 body 부분을 PaymentCreateRequestDTO 타입의 객체로 변환하고, 이를 requestDTO라는 매개변수로 전달
     public ResponseEntity<?> createPayment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                            @RequestBody PaymentRequestDTO requestDTO) {
+        System.out.println("requestDTO: " + requestDTO);
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
         List<PaymentResponseDTO> returnList = new ArrayList<>();
 
-        try {
-            int userNo = Integer.parseInt(customUserDetails.getUsername());
-            requestDTO.setUserNo(userNo);
+        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        requestDTO.setUserNo(userNo);
 
-            PaymentDTO paymentDTO = paymentService.createPayment(requestDTO).EntityTODTO();  // 서비스 메서드 호출
-            User user = userService.findById(paymentDTO.getPayTo());
+        PaymentDTO paymentDTO = paymentService.createPayment(requestDTO).EntityTODTO();  // 서비스 메서드 호출
+        User user = userService.findById(paymentDTO.getPayTo());
 
-            PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
-                    .userName(user.getUserName())
-                    .couNo(user.getCourse().getCouNo())
-                    .build();
+        PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
+                .userName(user.getUserName())
+                .couNo(user.getCourse().getCouNo())
+                .build();
 
-            returnList.add(paymentResponseDTO);
+        returnList.add(paymentResponseDTO);
 
-            responseDTO.setItems(returnList); // 응답 DTO 설정
-            responseDTO.setStatusCode(HttpStatus.OK.value()); // 상태 코드 설정
+        responseDTO.setItems(returnList); // 응답 DTO 설정
+        responseDTO.setStatusCode(HttpStatus.OK.value()); // 상태 코드 설정
 
-            System.out.println("responseDTO: " + responseDTO);
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage()); // 에러 메시지 설정
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value()); // 상태 코드 설정
-
-            return ResponseEntity.badRequest().body(responseDTO); // 에러 발생시 응답 반환
-        }
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     //납부서 상세 조회(학생)
     @GetMapping("/student/bill")
     public ResponseEntity<?> getPayment(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
-        try {
-            //요청을 보낸 유저 데이터 확인하기
-            int userNo = Integer.parseInt(customUserDetails.getUsername());
-            LocalDateTime now = LocalDateTime.now();
-            Month month = now.getMonth();
 
-            //결제 정보 가져오기
-            PaymentDTO paymentDTO = paymentService.getPayment(userNo, month.getValue()).EntityTODTO();
+        //요청을 보낸 유저 데이터 확인하기
+        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        LocalDateTime now = LocalDateTime.now();
+        Month month = now.getMonth();
 
-            //결제에 맞는 상품 리스트 가져와서 DTO리스트로 변환
-            List<Receipt> receiptList = receiptService.getReceiptPayId(paymentDTO.getPayNo());
+        //결제 정보 가져오기
+        PaymentDTO paymentDTO = paymentService.getPayment(userNo, month.getValue()).EntityTODTO();
 
-            List<ReceiptDTO> receiptDTOList = receiptList.stream()
-                    .map(Receipt::EntityTODTO)
-                    .collect(Collectors.toList());
+        //결제에 맞는 상품 리스트 가져와서 DTO리스트로 변환
+        List<Receipt> receiptList = receiptService.getReceiptPayId(paymentDTO.getPayNo());
 
-            //리턴할 데이터 가공
-            PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
-                    .userNo(paymentDTO.getUserNo())
-                    .payFrom(paymentDTO.getPayFrom())
-                    .totalPrice(paymentDTO.getTotalPrice())
-                    .userName(userService.findById(paymentDTO.getPayTo()).getUserName())
-                    .issDay(paymentService.issDateMonth(paymentDTO.getIssDate().toString(), issDateArray[2]))
-                    .issMonth(paymentService.issDateMonth(paymentDTO.getIssDate().toString(), issDateArray[1]))
-                    .issYear(paymentService.issDateMonth(paymentDTO.getIssDate().toString(), issDateArray[0]))
-                    .productList(receiptDTOList)
-                    .isPay(paymentDTO.isPay())
-                    .build();
+        //엔티티 리스트를 dto리스트로 전환
+        List<ReceiptDTO> receiptDTOList = receiptList.stream()
+                .map(Receipt::EntityTODTO)
+                .collect(Collectors.toList());
 
-            responseDTO.setItem(paymentResponseDTO);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
+        //리턴할 데이터 가공
+        PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
+                .userNo(paymentDTO.getUserNo())
+                .payFrom(paymentDTO.getPayFrom())
+                .totalPrice(paymentDTO.getTotalPrice())
+                .userName(userService.findById(paymentDTO.getPayTo()).getUserName())
+                .issDay(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[2]))
+                .issMonth(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[1]))
+                .issYear(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[0]))
+                .productList(receiptDTOList)
+                .isPay(paymentDTO.isPay())
+                .build();
 
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        responseDTO.setItem(paymentResponseDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
 
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     //납부서 리스트 보기 (학생)
     @GetMapping("/student/bill-list")
     public ResponseEntity<?> getPaymentList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
-        List<PaymentResponseDTO> returnList =new ArrayList<>();
 
-        try {
-            int userNo = Integer.parseInt(customUserDetails.getUsername());
-            User user = userService.findById(userNo);
-            User parentUser = userService.findById(user.getUserJoinId());
-            List<Payment> paymentList = paymentService.getPaymentList(userNo);
+        //요청을 보낸 유저 데이터 확인하기
+        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        User user = userService.findById(userNo);
+        User parentUser = userService.findById(user.getUserJoinId());
 
-            for (Payment payment : paymentList) {
+        //유저 정보에 맞는 모든 결제 정보 리스트
+        List<Payment> paymentList = paymentService.getPaymentList(userNo);
 
-                List<ReceiptDTO> receiptDTOList = new ArrayList<>();
-                List<Receipt> receiptList = receiptService.getReceiptPayId(payment.getPayNo());
+        List<PaymentResponseDTO> returnList = paymentList.stream()
+                .map(payment -> {
+                    List<ReceiptDTO> receiptDTOList = receiptService.getReceiptPayId(payment.getPayNo())
+                            .stream()
+                            .map(Receipt::EntityTODTO)
+                            .collect(Collectors.toList());
 
-                receiptDTOList = receiptList.stream()
-                        .map(receipt -> receipt.EntityTODTO())
-                        .collect(Collectors.toList());
+                    return PaymentResponseDTO.builder()
+                            .payNo(payment.getPayNo())
+                            .userName(user.getUserName())
+                            .couNo(user.getCourse().getCouNo())
+                            .claName(user.getCourse().getClaName())
+                            .issDay(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[2]))
+                            .issMonth(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[1]))
+                            .issYear(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[0]))
+                            .totalPrice(payment.getTotalPrice())
+                            .parentTel(parentUser.getUserTel())
+                            .payMethod(payment.getPayMethod())
+                            .isPay(payment.isPay())
+                            .payFrom(payment.getPayFrom())
+                            .productList(receiptDTOList)
+                            .build();
+                })
+                .collect(Collectors.toList());
 
-                PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
-                        .payNo(payment.getPayNo())
-                        .userName(user.getUserName())
-                        .couNo(user.getCourse().getCouNo())
-                        .claName(user.getCourse().getClaName())
-                        .issDay(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[2]))
-                        .issMonth(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[1]))
-                        .issYear(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[0]))
-                        .totalPrice(payment.getTotalPrice())
-                        .parentTel(parentUser.getUserTel())
-                        .payMethod(payment.getPayMethod())
-                        .isPay(payment.isPay())
-                        .payFrom(payment.getPayFrom())
-                        .productList(receiptDTOList)
-                        .build();
-                returnList.add(paymentResponseDTO);
-            }
+        responseDTO.setItems(returnList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
 
-            responseDTO.setItems(returnList);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        return ResponseEntity.ok().body(responseDTO);
     }
 
 
@@ -170,71 +153,86 @@ public class PaymentController {
     @GetMapping("/admin/bill-list")
     public ResponseEntity<?> getPaymentList() {
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
-        List<PaymentResponseDTO> returnList =new ArrayList<>();
 
-        try {
-            List<Payment> paymentList = paymentService.getPaymentList();
+        //모든 결제 정보 리스트
+        List<Payment> paymentList = paymentService.getPaymentList();
 
-            for (Payment payment : paymentList) {
+        List<PaymentResponseDTO> returnList = paymentList.stream()
+                .map(payment -> {
+                    User user = userService.findById(payment.getPayTo());
+                    User parentUser = userService.findById(user.getUserJoinId());
 
-                User user = userService.findById(payment.getPayTo());
-                User parentUser = userService.findById(user.getUserJoinId());
+                    List<Receipt> receiptList = receiptService.getReceiptPayId(payment.getPayNo());
 
-                List<Receipt> receiptList = receiptService.getReceiptPayId(payment.getPayNo());
+                    List<ReceiptDTO> receiptDTOList = receiptList.stream()
+                            .map(Receipt::EntityTODTO)
+                            .collect(Collectors.toList());
 
-                List<ReceiptDTO> receiptDTOList = receiptList.stream()
-                        .map(Receipt::EntityTODTO)
-                        .collect(Collectors.toList());
+                    return PaymentResponseDTO.builder()
+                            .payNo(payment.getPayNo())
+                            .userName(user.getUserName())
+                            .couNo(user.getCourse().getCouNo())
+                            .claName(user.getCourse().getClaName())
+                            .issDay(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[2]))
+                            .issMonth(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[1]))
+                            .issYear(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[0]))
+                            .totalPrice(payment.getTotalPrice())
+                            .parentTel(parentUser.getUserTel())
+                            .payMethod(payment.getPayMethod())
+                            .isPay(payment.isPay())
+                            .payFrom(payment.getPayFrom())
+                            .productList(receiptDTOList)
+                            .build();
+                })
+                .collect(Collectors.toList());
 
-                PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
-                        .payNo(payment.getPayNo())
-                        .userName(user.getUserName())
-                        .couNo(user.getCourse().getCouNo())
-                        .claName(user.getCourse().getClaName())
-                        .issDay(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[2]))
-                        .issMonth(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[1]))
-                        .issYear(paymentService.issDateMonth(payment.getIssDate().toString(), issDateArray[0]))
-                        .totalPrice(payment.getTotalPrice())
-                        .parentTel(parentUser.getUserTel())
-                        .payMethod(payment.getPayMethod())
-                        .isPay(payment.isPay())
-                        .payFrom(payment.getPayFrom())
-                        .productList(receiptDTOList)
-                        .build();
-                returnList.add(paymentResponseDTO);
-            }
+        responseDTO.setItems(returnList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
 
-            responseDTO.setItems(returnList);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     //납부서 삭제
-//    @DeleteMapping("/admin/bill/{payNo}")
-//    public ResponseEntity<?> deletePayment(@PathVariable int payNo) {
-//        ResponseDTO<String> response = new ResponseDTO<>();
-//        try {
-//
-//            paymentService.deletePayment(userNo, dateTime);
-//
-//            response.setItem("납부서 삭제 성공");
-//            response.setStatusCode(HttpStatus.OK.value());
-//
-//            return ResponseEntity.ok().body(response);
-//
-//        } catch (Exception e) {
-//            response.setErrorMessage(e.getMessage());
-//            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//    }
+    @PostMapping("/admin/bill/delete")
+    public ResponseEntity<?> deletePayment(@RequestBody String payNoList) {
+
+        ResponseDTO<String> response = new ResponseDTO<>();
+        List<Integer> payNoIntList = paymentService.jsonTOpayNoList(payNoList);
+
+        paymentService.deletePaymentList(payNoIntList);
+        response.setItem("납부서 삭제 성공");
+        response.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    //개별 납부서 보기
+    @GetMapping("/admin/{payNo}")
+    public ResponseEntity<?> getPayment(@PathVariable int payNo) {
+        ResponseDTO<PaymentResponseDTO> response = new ResponseDTO<>();
+
+        PaymentDTO paymentDTO = paymentService.getPayment(payNo).EntityTODTO();
+        UserDTO userDTO = userService.findById(paymentDTO.getPayTo()).EntityToDTO();
+
+        List<Receipt> receiptList = receiptService.getReceiptPayId(paymentDTO.getPayNo());
+
+        List<ReceiptDTO> receiptDTOList = receiptList.stream()
+                .map(Receipt::EntityTODTO)
+                .collect(Collectors.toList());
+
+        PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
+                .claName(userDTO.getCourseDTO().getClaName())
+                .userName(userDTO.getUserName())
+                .issYear(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[0]))
+                .issMonth(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[1]))
+                .productList(receiptDTOList)
+                .build();
+
+        response.setItem(paymentResponseDTO);
+        response.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(response);
+    }
 //
 //    /* 납부서 수정 */
 //    @PutMapping("/{userNo}/bill/{issDate}")
@@ -263,78 +261,5 @@ public class PaymentController {
 //            return ResponseEntity.badRequest().body(response); // 에러 발생시 응답 반환
 //        }
 //    }
-//
-//    /* 영수증 조회 */
-//    @GetMapping("/{userNo}/receipt/{issDate}")
-//    public ResponseEntity<?> getReceipt(@PathVariable int userNo, @PathVariable String issDate) {
-//
-//        // 클라이언트에게 전달할 최종 응답 객체 생성
-//        ResponseDTO<ReceiptGetResponseDTO> response = new ResponseDTO<>();
-//
-//        try {
-//            LocalDateTime dateTime = LocalDateTime.of(Integer.parseInt(issDate.substring(0, 4)), Integer.parseInt(issDate.substring(4, 6)), 1, 0, 0);
-//
-//            //payNo에 해당하는 모든 Payment 객체들의 목록을 가져오기, payments라는 List<Payment> 타입의 변수에 저장
-//            List<Payment> payments = paymentService.getReceipt(userNo, dateTime);
-//
-//            //payments 리스트가 null이거나 비어 있으면, 예외처리
-//            if (ListUtils.isEmpty(payments)) {
-//                throw new IllegalArgumentException("결제 정보가 없습니다.");
-//            }
-//
-//            //PaymentGetResponseDTO의 생성자에 payments를 전달
-//            ReceiptGetResponseDTO responseDTO = new ReceiptGetResponseDTO(payments);
-//
-//            // 유저 이름 가져오기
-//            String userName = userService.getUserNo(responseDTO.getUserNo());
-//            responseDTO.setPayTo(userName);
-//
-//            response.setItem(responseDTO);
-//            response.setStatusCode(HttpStatus.OK.value());
-//            return ResponseEntity.ok().body(response);
-//        } catch (Exception e) {
-//            response.setErrorMessage(e.getMessage());
-//            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//    }
-//
-//    @GetMapping("/list-list")
-//    public ResponseEntity<?> getReceiptList() {
-//        ResponseDTO<ReceiptListResponseDTO> response = new ResponseDTO<>();
-//        try {
-//            List<ReceiptListResponseDTO> returnList = new ArrayList<>();
-//            List<Payment> paymentList = paymentService.list();
-//            for (Payment payment : paymentList) {
-//
-//                //부모 아이디 찾아서 넘겨주기
-//                int parenId = userService.findById(payment.getUserNo()).getUserJoinId();
-//                String parentTel = userService.findById(parenId).getUserTel();
-//
-//                ReceiptListResponseDTO dto = ReceiptListResponseDTO.builder()
-//                        .payNo(payment.getPayNo())
-//                        .userNo(payment.getUserNo())
-//                        .products(payment.getProduct())
-//                        .payDate(payment.getPayDate())
-//                        .payFrom(payment.getPayFrom())
-//                        .payTo(payment.getPayTo())
-//                        .payMethod(payment.getPayMethod())
-//                        .isPay(payment.isPay())
-//                        .totalPrice(payment.getTotalPrice())
-//                        .parentTel(parentTel)
-//                        .build();
-//                returnList.add(dto);
-//            }
-//            response.setItems(returnList);
-//            response.setStatusCode(HttpStatus.OK.value());
-//
-//            return ResponseEntity.ok().body(response);
-//        } catch (Exception e) {
-//            response.setErrorMessage(e.getMessage());
-//            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//
-//
-//    }
+
 }

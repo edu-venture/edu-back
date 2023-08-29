@@ -1,14 +1,11 @@
 package com.bit.eduventure.payment.dto;
 
-import com.bit.eduventure.payment.entity.Receipt;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

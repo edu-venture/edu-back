@@ -1,12 +1,10 @@
 package com.bit.eduventure.timetable.dto;
 
 import com.bit.eduventure.timetable.entity.TimeTable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -14,7 +12,7 @@ public class TimeTableDTO {
     private Integer timeNo;
     private String timeTitle;
     private String timePlace;
-    private String timeClass;
+    private String timeClass; //교시
     private String timeColor;
     private String timeWeek;
     private String timeTeacher;

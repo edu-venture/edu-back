@@ -4,21 +4,22 @@ import com.bit.eduventure.payment.dto.PaymentRequestDTO;
 import com.bit.eduventure.payment.entity.Payment;
 import com.bit.eduventure.payment.entity.Receipt;
 import com.bit.eduventure.payment.repository.PaymentRepository;
-import com.bit.eduventure.payment.repository.ReceiptRepository;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import com.siot.IamportRestClient.IamportClient;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Type;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -41,14 +42,15 @@ public class PaymentService {
 
     // 납부서 등록
     public Payment createPayment(PaymentRequestDTO requestDTO) {
-
+        LocalDateTime now = LocalDateTime.now();
         //디비에 저장할 형태 만들기
         Payment payment = Payment.builder()
                 .userNo(requestDTO.getUserNo())
+                .payMethod("card")
                 .totalPrice(0)
                 .payFrom("에듀벤처")
                 .payTo(requestDTO.getPayTo())
-                .createDate(LocalDateTime.now())
+                .createDate(now)
                 .issDate(stringToLocalDateTime(requestDTO.getIssDate()))
                 .isPay(false)
                 .build();
@@ -59,15 +61,13 @@ public class PaymentService {
         Map<String, Integer> productList = jsonTOProductMap(requestDTO.getProductList());
 
         //상품과 가격 디비에 저장하면서 총합 구하기
-        int totalPrice = productList.entrySet().stream()
-                .map(entry -> {
+        int totalPrice = productList.values().stream()
+                .peek(price -> {
                     Receipt receipt = Receipt.builder()
                             .paymentId(payNo)
-                            .productName(entry.getKey())
-                            .productPrice(entry.getValue())
+                            .productPrice(price)
                             .build();
                     receiptService.saveReceipt(receipt);
-                    return entry.getValue();
                 })
                 .mapToInt(Integer::intValue)
                 .sum();
@@ -78,54 +78,81 @@ public class PaymentService {
         //디비에 다시 저장
         return savePayment(payment);
     }
+    //개별 납부서 조회
+    public Payment getPayment(int payNo) {
+        return paymentRepository.findById(payNo)
+                .orElseThrow(() -> new NoSuchElementException());
+    }
 
     //학생 개별 납부서 조회
     public Payment getPayment(int userNo, int month) {
-        return paymentRepository.findByPayToAndIssDateMonth(userNo, month).get(0);
+        int year = LocalDateTime.now().getYear();
+        List<Payment> payments = paymentRepository.findByPayToAndYearMonth(userNo, year, month);
+        if (!payments.isEmpty()) {
+            return payments.get(0);
+        }
+        throw new NoSuchElementException("해당 월에 납부서가 없습니다.");
     }
 
     //학생 납부서 전체 조회
     public List<Payment> getPaymentList(int userNo) {
-        return paymentRepository.findAllByPayTo(userNo);
+        List<Payment> paymentList = paymentRepository.findAllByPayTo(userNo);
+        if (!paymentList.isEmpty()) {
+            return paymentList;
+        }
+        throw new NoSuchElementException("해당 유저의 납부서가 없습니다.");
     }
 
     //납부서 전체 조회
     public List<Payment> getPaymentList() {
-        return paymentRepository.findAll();
+        List<Payment> paymentList = paymentRepository.findAll();
+
+        return paymentList;
+
+    }
+
+    //여러 개의 납부서 일괄 삭제
+    @Transactional
+    public void deletePaymentList(List<Integer> payNoList) {
+        payNoList.stream()
+                .forEach(payNo -> {
+                    receiptService.deleteReceipt(payNo);
+                    paymentRepository.deleteById(payNo);
+                });
+    }
+
+    //한 개의 납부서 일괄 삭제
+    public void deletePayment(int payNo) {
+        receiptService.deleteReceipt(payNo);
+        paymentRepository.deleteById(payNo);
     }
 
     //년, 월, 일만 추출하기
-    public String issDateMonth(String inputDate, String type) {
+    public String getIssDate(String inputDate, String type) {
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
         LocalDateTime dateTime = LocalDateTime.parse(inputDate, inputFormatter);
 
-        String result = "";
-
+        DateTimeFormatter outputFormatter = null;
         if ("year".equals(type)) {
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy");
-            result = dateTime.format(outputFormatter);
+            outputFormatter = DateTimeFormatter.ofPattern("yyyy");
         } else if ("month".equals(type)) {
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM");
-            result = dateTime.format(outputFormatter);
+            outputFormatter = DateTimeFormatter.ofPattern("MM");
         } else if ("day".equals(type)) {
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM");
-            result = dateTime.format(outputFormatter);
+            outputFormatter = DateTimeFormatter.ofPattern("dd");
         }
 
-        return result;
+        if (outputFormatter != null) {
+            return dateTime.format(outputFormatter);
+        }
+        return "";
     }
+
 
     //결제일 (문자열) -> LocalDateTime로 변환
     public LocalDateTime stringToLocalDateTime(String inputDate) {
-        Instant instant = Instant.parse(inputDate);
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-        String formattedDate = localDateTime.toString();
-
-        LocalDateTime returnData = LocalDateTime.parse(formattedDate, formatter);
-
-        System.out.println("localDateTime: " + returnData);
-        return returnData;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime localDateTime = LocalDateTime.parse(inputDate, formatter);
+        return localDateTime;
     }
 
     //페이먼트 저장
@@ -135,18 +162,39 @@ public class PaymentService {
 
     //상품 정보와 가격 추출
     public Map<String, Integer> jsonTOProductMap(String productList) {
-        Map<String, Integer> returnMap = new HashMap<>();
+        System.out.println(productList);
+        Type type = new TypeToken<Map<String, Integer>>(){}.getType();
+        return new Gson().fromJson(productList, type);
+    }
 
-        JsonArray jsonArray = JsonParser.parseString(productList).getAsJsonArray();
+    //결제 번호 리스트 객체화
+    public List<Integer> jsonTOpayNoList(String payNoList) {
+        try {
+            JsonElement jsonElement = JsonParser.parseString(payNoList);
+            JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray("payNo");
 
-        for (JsonElement jsonElement : jsonArray) {
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            String detail = jsonObject.get("detail").getAsString();
-            int price = jsonObject.get("price").getAsInt();
-
-            returnMap.put(detail, price);
+            List<Integer> result = new ArrayList<>();
+            for (JsonElement element : jsonArray) {
+                int value = element.getAsInt();
+                result.add(value);
+            }
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("JSON 처리 오류");
         }
-        return returnMap;
+    }
+    // 결제 성공 후 uid db 업데이트
+    public void updatePayment(int payNo, com.siot.IamportRestClient.response.Payment iamPayment) {
+        Payment dbPayment = paymentRepository.findById(payNo)
+                .orElseThrow(() -> new NoSuchElementException());
+
+        dbPayment.setPayMethod(iamPayment.getPayMethod());
+        dbPayment.setTotalPrice(iamPayment.getAmount().intValue());
+        dbPayment.setImpUid(iamPayment.getImpUid());
+        dbPayment.setPayDate(iamPayment.getPaidAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        dbPayment.setPay(true);
+
+        paymentRepository.save(dbPayment);
     }
 //
 //    /* 납부서 수정 */
@@ -185,32 +233,6 @@ public class PaymentService {
 //    }
 //
 //
-//    /* 납부서 삭제 */
-//
-//    /* 영수증 조회 - 특정 userNo, 월별*/
-//    public List<Payment> getReceipt(int userNo, LocalDateTime issDate) {
-//        return repository.findByUserNoAndIsPayTrueAndIssDate(userNo, issDate);
-//    }
-//
-//    /* 결제 성공 후 db 업데이트 */
-//    public void updatePayment(int payNo, com.siot.IamportRestClient.response.Payment payment) {
-//
-//        List<Payment> payments = repository.findByPayNo(payNo);
-//        if (payments.size() == 0) {
-//            throw new IllegalArgumentException("Invalid payNo: " + payNo);
-//        }
-//
-//        payments.stream().forEach(p -> {
-//            p.setPayMethod(payment.getPayMethod());
-//            p.setTotalPrice(payment.getAmount().intValue());
-//            p.setImpUid(payment.getImpUid());
-//            p.setPayDate(payment.getPaidAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-//            p.setPay(true);
-//            p.setPayTo(payment.getBuyerName());
-//        });
-//
-//        repository.saveAll(payments);
-//    }
 //
 //    /* 결제 취소 후 db 업데이트 */
 //    public void refundPayment(int payNo, com.siot.IamportRestClient.response.Payment payment) {
@@ -255,24 +277,7 @@ public class PaymentService {
 //            throw new RuntimeException("Failed to get iamport token", e);
 //        }
 //    }
-//
-//
-//    public void deletePayment(int userNo, LocalDateTime dateTime) {
-//        // 특정 사용자와 날짜에 해당하는 Payment 엔터티 목록 조회
-//        List<Payment> paymentsToDelete = repository.findByUserNoAndIssDate(userNo, dateTime);
-//
-//        // 해당 Payment 엔터티가 존재하는지 검사
-//        if (paymentsToDelete == null || paymentsToDelete.isEmpty()) {
-//            throw new IllegalArgumentException("해당 날짜에 결제 정보가 없습니다.");
-//        }
-//
-//        // 조회된 모든 Payment 엔터티 삭제
-//        repository.deleteAll(paymentsToDelete);
-//    }
-//
-//    public List<Payment> list() {
-//        return repository.findAll();
-//    }
+
 
 
 }

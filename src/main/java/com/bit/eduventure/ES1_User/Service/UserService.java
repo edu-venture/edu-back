@@ -32,4 +32,6 @@ public interface UserService {
     List<User> getUserTypeList(String userType);
 
     void increaseuserscore(Integer id);
+
+    long getUserCountCourse(int couNo);
 }
