@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
-private  final EmailService emailService;
+    private  final EmailService emailService;
     @Override
     public User idCheck(String userId) {
         Optional<User> userOptional = userRepository.findByUserId(userId);
@@ -100,10 +100,6 @@ private  final EmailService emailService;
         return loginUser.get();
     }
 
-
-
-
-
     @Override
     public Page<User> getUserList(Pageable pageable, String searchCondition, String searchKeyword) {
         if(searchCondition.equals("all")) {
@@ -164,5 +160,18 @@ private  final EmailService emailService;
         userRepository.increaseuserscore(id);
     }
 
+    @Override
+    public long getUserCountCourse(int couNo) {
+        return userRepository.countByUserTypeAndCourseCouNo("student", couNo);
+    }
 
+    @Override
+    public List<User> getUserListForCouNo(int couNo) {
+        return userRepository.findAllByCourseCouNo(couNo);
+    }
+
+    @Override
+    public List<User> getUserList() {
+        return userRepository.findAll();
+    }
 }

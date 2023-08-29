@@ -1,9 +1,11 @@
 package com.bit.eduventure.timetable.controller;
 
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.timetable.dto.TimeTableDTO;
+import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.service.TimeTableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,25 +39,6 @@ public class TimeTableController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response); // 성공적인 응답 반환
     }
 
-    /* 시간표 조회 */
-//    @GetMapping("/{timeNo}")
-//    public ResponseEntity<?> getTimeTable(@PathVariable int timeNo) {
-//
-//        System.out.println("timeNo=============="+timeNo);
-//
-//        ResponseDTO<TimeTableDTO> response = new ResponseDTO<>();
-//
-//        try {
-//            TimeTableDTO res = timeTableService.getTimetable(timeNo);
-//            response.setItem(res);
-//            response.setStatusCode(HttpStatus.CREATED.value());
-//            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-//        } catch (Exception e) {
-//            response.setErrorMessage(e.getMessage());
-//            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//    }
 
     /* 시간표 목록 조회 */
     @GetMapping("/getTimeTable-list")
@@ -77,12 +60,8 @@ public class TimeTableController {
     public ResponseEntity<?> deleteTimeTable(@RequestBody Map<String, String> request) {
         ResponseDTO<Map<String, String>> responseDTO = new ResponseDTO<Map<String, String>>();
 
-        System.out.println("request"+ request);
         String claName = request.get("claName");
-        String timeWeek = request.get("couWeek");
-
-        System.out.println("claName"+ claName);
-        System.out.println("timeWeek"+ timeWeek);
+        String timeWeek = request.get("timeWeek");
 
         timeTableService.deleteTimetable(claName, timeWeek);
         Map<String, String> returnMap = new HashMap<String, String>();
@@ -100,20 +79,23 @@ public class TimeTableController {
 
         ResponseDTO<TimeTableDTO> response = new ResponseDTO<>();
 
-        try {
-
             int userNo = Integer.parseInt(customUserDetails.getUsername());
+            UserDTO userDTO = userService.findById(userNo).EntityToDTO();
 
-            List<TimeTableDTO> res = timeTableService.getTimetablesByStudent(userNo);
+            List<TimeTableDTO> timeTableDTOList= timeTableService.getTimetableByStudent(userDTO.getCourseDTO().getCouNo());
 
-            response.setItems(res);
+            // timeWeek의 첫 글자만 잘라서 저장.
+            for (TimeTableDTO dto : timeTableDTOList) {
+                String timeWeek = dto.getTimeWeek();
+                if (timeWeek != null && !timeWeek.isEmpty()) {
+                    dto.setTimeWeek(timeWeek.substring(0, 1));
+                }
+            }
+
+
+            response.setItems(timeTableDTOList);
             response.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            response.setErrorMessage(e.getMessage());
-            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(response);
-        }
     }
 
 }

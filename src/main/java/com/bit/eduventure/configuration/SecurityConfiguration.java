@@ -51,45 +51,10 @@ public class SecurityConfiguration {
                 )
                 //요청 주소에 대한 권한 설정
                 .authorizeHttpRequests((authorizeRequests) -> {
-                    //'/'요청은 모든 사용자가 이용가능
                     authorizeRequests.requestMatchers("/").permitAll();
+                    authorizeRequests.requestMatchers("/**").permitAll();
                     authorizeRequests.requestMatchers("/vod/**").permitAll();
-                    //css, js, images, upload 같은 정적 리소스들도 권한처리 필수
-                    authorizeRequests.requestMatchers("/upload/**").permitAll();
-                    //게시판 기능은 권한을 가지고 있는 사용자만 사용가능
-                    authorizeRequests.requestMatchers("/board/**").hasAnyRole("ADMIN", "USER");
-                    //관리자 페이지는 관리자만 사용가능
-                    authorizeRequests.requestMatchers("/admin/**").hasRole("ADMIN");
-                    //회원가입, 로그인, 아이디중복체크 등 요청은 모든 사용자가 사용가능
-                    authorizeRequests.requestMatchers("/user/join").permitAll();
-                    authorizeRequests.requestMatchers("/igiveyougps").permitAll();
-                    authorizeRequests.requestMatchers("/hihi").permitAll();
-                    authorizeRequests.requestMatchers("/receivephoto").permitAll();
-                    authorizeRequests.requestMatchers("/trytogetphotofromserver").permitAll();
-//                    authorizeRequests.requestMatchers("/user/**").permitAll();
-                    authorizeRequests.requestMatchers("/user/id-check").permitAll();
-                    authorizeRequests.requestMatchers("/user/getuser").permitAll();
-                    authorizeRequests.requestMatchers("/user/getstudent").permitAll();
-                    authorizeRequests.requestMatchers("/user/login").permitAll();
-                    authorizeRequests.requestMatchers("/user/update").permitAll();
-                    authorizeRequests.requestMatchers("/user/updatepassword").permitAll();
-                    authorizeRequests.requestMatchers("/user/user-list").permitAll();
-                    authorizeRequests.requestMatchers("/api/**").permitAll();
-                    authorizeRequests.requestMatchers("/user/**").permitAll();
-                    authorizeRequests.requestMatchers("/notice/**").permitAll();
                     authorizeRequests.requestMatchers("/course/**").permitAll();
-                    authorizeRequests.requestMatchers("/quiz/**");
-                    authorizeRequests.requestMatchers("/sms/**").permitAll();
-                    authorizeRequests.requestMatchers("/user/deleteselectusers").permitAll();
-                    authorizeRequests.requestMatchers("/timetable/**").permitAll();
-                    authorizeRequests.requestMatchers("/iamport/**").permitAll();
-                    authorizeRequests.requestMatchers("/attendance/**").permitAll();
-                    authorizeRequests.requestMatchers("/attendance/admin/**").hasRole("ADMIN");
-
-                    //결제 관련 주소
-                    authorizeRequests.requestMatchers("/payment/**").permitAll();
-
-
                     //이외의 요청은 인증된 사용자만 사용자만 사용가능
                     authorizeRequests.anyRequest().authenticated();
                 })

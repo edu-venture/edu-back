@@ -24,11 +24,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class LiveStationService {
-    @Value("${cloud.ncp.live.access.key}")
+    @Value("${cloud.ncp.access.key}")
     String accessKey;
-    @Value("${cloud.ncp.live.secret.key}")
+    @Value("${cloud.ncp.secret.key}")
     String secretKey;
-    @Value("${cloud.ncp.live.bucket.name}")
+    @Value("${cloud.aws.s3.bucket.name}")
     String bucket;
 
     String liveStationUrl = "https://livestation.apigw.ntruss.com/api/v2/channels";

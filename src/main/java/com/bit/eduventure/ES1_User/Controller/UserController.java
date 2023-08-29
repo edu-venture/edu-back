@@ -23,7 +23,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,8 +129,6 @@ public class UserController {
                                     .role(user.getRole()).userBirth(user.getUserBirth()).userSchool(user.getUserSchool()).userAddress(user.getUserAddress()).userJoinId(user.getUserJoinId())
                                     .build()
             );
-
-            System.out.println(pageUserDTO);
             System.out.println("이게 페이지유저 디티오");
 
             responseDTO.setPageItems(pageUserDTO);
@@ -302,9 +299,9 @@ public class UserController {
         );
         user.setApproval("x");
         user.setRole("ROLE_ADMIN");
-        Course course = Course.builder().couNo(1).build();
+//        Course course = Course.builder().couNo(1).build();
 
-        user.setCourse(course);
+//        user.setCourse(course);
         System.out.println(user);
         //회원가입처리(화면에서 보내준 내용을 디비에 저장)
         System.out.println("admin가입 서비스넣기 일보직전");
@@ -415,6 +412,7 @@ public class UserController {
                 .map(user -> user.EntityToDTO())
                 .collect(Collectors.toList());
 
+
         responseDTO.setItems(userDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
@@ -437,6 +435,16 @@ public class UserController {
                 .collect(Collectors.toList());
 
         responseDTO.setItems(userDTOList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("/user-all-list")
+    public ResponseEntity<?> getCourseUserList(){
+        ResponseDTO<User> responseDTO = new ResponseDTO<>();
+
+        responseDTO.setItems(userRepository.findAll());
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);

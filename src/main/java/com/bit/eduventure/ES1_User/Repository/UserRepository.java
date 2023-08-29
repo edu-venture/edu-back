@@ -53,6 +53,10 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     //권한에 맞는 유저 리스트 가져오기
     List<User> findAllByUserType(String userType);
 
+    Long countByUserTypeAndCourseCouNo(String userType, int courseId);
+
+    List<User> findAllByCourseCouNo(int couNo);
+
     @Transactional
     @Modifying
     @Query("UPDATE User u SET u.userScore = u.userScore + 1 WHERE u.id = ?1")

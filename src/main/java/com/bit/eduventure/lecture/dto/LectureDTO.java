@@ -5,9 +5,12 @@ import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.lecture.entity.Lecture;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Builder
-@Data
+@Getter
+@Setter
 public class LectureDTO {
 
     private Integer id;

@@ -43,10 +43,15 @@ public class CourseController {
 
         List<Course> courseList = courseService.getCourseList();
 
-        List<CourseDTO> courseDTOList =  courseList.stream()
-                .map(Course::EntityToDTO)
+        List<CourseDTO> courseDTOList = courseList.stream()
+                .map(course -> {
+                    CourseDTO courseDTO = course.EntityToDTO();
+                    long studentCnt = userService.getUserCountCourse(course.getCouNo());
+                    courseDTO.setStudentCnt(studentCnt);
+                    return courseDTO;
+                })
                 .collect(Collectors.toList());
-
+        System.out.println(courseDTOList.get(0).getCouNo());
         responseDTO.setItems(courseDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
@@ -64,9 +69,10 @@ public class CourseController {
 
     @PostMapping("/course")
     public ResponseEntity<?> creatCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                         @RequestBody CourseDTO courseDTO){
+                                         @RequestBody CourseDTO courseDTO) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
+
+        int userNo = courseDTO.getTeacherId();
         UserDTO userDTO = userService.findById(userNo).EntityToDTO();
         courseDTO.setUserDTO(userDTO);
 
@@ -77,13 +83,31 @@ public class CourseController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
+    @PostMapping("/course/delete")
+    public ResponseEntity<?> deleteCourseList(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                              @RequestBody String couNoList) {
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
+        List<Integer> integerList = courseService.jsonToIntList(couNoList);
+        System.out.println(integerList);
+        courseService.deleteCourseList(integerList);
 
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
+    }
 
+    @PutMapping("/course")
+    public ResponseEntity<?> modifyCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                          @RequestBody CourseDTO courseDTO) {
 
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
+//        List<Integer> integerList = courseService.jsonToIntList(couNoList);
+//        System.out.println(integerList);
+//        courseService.deleteCourseList(integerList);
 
-
-
-
+        responseDTO.setItem("반 삭제 완료");
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
+    }
 }
