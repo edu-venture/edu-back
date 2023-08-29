@@ -4,7 +4,6 @@ import com.bit.eduventure.ES7_Board.Entity.Board;
 import com.bit.eduventure.ES7_Board.Entity.BoardFile;
 import com.bit.eduventure.ES7_Board.Repository.BoardFileRepository;
 import com.bit.eduventure.ES7_Board.Repository.BoardRepository;
-import com.bit.eduventure.mapper.BoardMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -9,9 +9,11 @@ import com.bit.eduventure.ES2_GPS.Entity.DriverPhoto;
 import com.bit.eduventure.ES2_GPS.Entity.GPS;
 import com.bit.eduventure.ES2_GPS.Repository.DriverPhotoRepository;
 import com.bit.eduventure.ES2_GPS.Repository.GPSRepository;
+import com.bit.eduventure.objectStorage.service.ObjectStorageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,33 +30,32 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-
-@Controller
+//@Controller
+@RequiredArgsConstructor
 public class GpsController {
 
     private final GPSRepository gpsRepository;
     private final DriverPhotoRepository driverPhotoRepository;
+    private final ObjectStorageService objectStorageService;
+
+//    public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPhotoRepository){
+//
+//        this.gpsRepository = gpsRepository;
+//        this.driverPhotoRepository = driverPhotoRepository;
+//    }
+
+//    @Value("${file.path}")
+//    private String uploadDir;
 
 
+//
+//    @Autowired
+//    private AmazonS3 amazonS3Client;
 
-public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPhotoRepository){
-
-    this.gpsRepository = gpsRepository;
-    this.driverPhotoRepository = driverPhotoRepository;
-}
-
-    @Value("${file.path}")
-    private String uploadDir;
-
-
-
-    @Autowired
-    private AmazonS3 amazonS3Client;
-
-    @Value("${s3.bucket.name}")
+    @Value("${cloud.aws.s3.bucket.name}")
     private String bucketName;
 
-    @Value("${ncp.endPoint}")
+    @Value("${cloud.aws.s3.endpoint}")
     private String endPoint;
 
 
@@ -178,23 +179,27 @@ public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPh
             String fileName = file.getOriginalFilename();
             String fileExtension = fileName.substring(fileName.lastIndexOf("."));
 
-            // S3에 저장할 고유한 키 생성
-            String s3Key = UUID.randomUUID().toString() + fileExtension;
+//            // S3에 저장할 고유한 키 생성
+//            String s3Key = UUID.randomUUID().toString() + fileExtension;
 
-            // MultipartFile을 File 객체로 변환
-            File tempFile = File.createTempFile("temp", fileExtension);
-            file.transferTo(tempFile);
+            String saveImg = objectStorageService.uploadFile(file);
 
-            // S3에 파일 업로드
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, s3Key, tempFile).withCannedAcl(CannedAccessControlList.PublicRead);
-            amazonS3Client.putObject(putObjectRequest);
+            String imageUrl = objectStorageService.getObjectSrc(saveImg);
+
+//            // MultipartFile을 File 객체로 변환
+//            File tempFile = File.createTempFile("temp", fileExtension);
+//            file.transferTo(tempFile);
+//
+//            // S3에 파일 업로드
+//            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, s3Key, tempFile).withCannedAcl(CannedAccessControlList.PublicRead);
+//            amazonS3Client.putObject(putObjectRequest);
 
             // S3 URL 생성
 //            String imageUrl = "https://" + bucketName + ".s3." + amazonS3Client.getRegion() + ".amazonaws.com/" + s3Key;
 
 
             // S3 URL 생성
-            String imageUrl = endPoint + "/" + bucketName + "/" + s3Key;
+//            String imageUrl = endPoint + "/" + bucketName + "/" + s3Key;
 
 
 
@@ -205,7 +210,7 @@ public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPh
             driverPhotoRepository.save(driverphoto);
 
             return new ResponseEntity<>("File uploaded successfully", HttpStatus.OK);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>("Failed to upload file", HttpStatus.OK);
         }

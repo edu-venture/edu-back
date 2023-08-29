@@ -16,7 +16,6 @@ import com.bit.eduventure.vodBoard.service.VodBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,8 +33,7 @@ public class VodBoardRestController {
     private final VodBoardCommentService vodBoardCommentService;
     private final VodBoardLikeService vodBoardLikeService;
     private final UserService userService;
-    //등록
-    //value 주소 / cosumes 공식
+
     @PostMapping(value = "/board")
     public ResponseEntity<?> insertBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                         @RequestPart(value = "boardDTO", required = false) VodBoardDTO boardDTO,
@@ -63,19 +61,19 @@ public class VodBoardRestController {
         //메인 비디오 저장
         if (videoFile != null) {
             saveName = objectStorageService.uploadFile(videoFile);
-            boardDTO.setSavePath(objectStorageService.setObjectSrc(saveName));
+            boardDTO.setSavePath(objectStorageService.getObjectSrc(saveName));
             boardDTO.setOriginPath(videoFile.getOriginalFilename());
         }
 
         //섬네일 저장
-        //메인 비디오 저장
         if (thumbnail != null) {
             saveName = objectStorageService.uploadFile(thumbnail);
-            boardDTO.setSaveThumb(objectStorageService.setObjectSrc(saveName));
+            boardDTO.setSaveThumb(objectStorageService.getObjectSrc(saveName));
             boardDTO.setOriginThumb(thumbnail.getOriginalFilename());
         } else {
-            boardDTO.setSaveThumb("static/images/edu-venture.png");
-            boardDTO.setOriginThumb("edu-venture.png");
+            saveName = "edu-venture.png";
+            boardDTO.setSaveThumb(objectStorageService.getObjectSrc(saveName));
+            boardDTO.setOriginThumb("saveName");
         }
         VodBoard board = boardDTO.DTOTOEntity();
         board.setUser(user);
@@ -186,18 +184,17 @@ public class VodBoardRestController {
         for (VodBoardFile existingFile : existingFileList) {
             objectStorageService.deleteObject(existingFile.getVodSaveName());
         }
-        vodBoardService.deleteAllFile(boardNo);
 
         // 새로 업로드한 비디오 및 섬네일 파일 저장
         if (videoFile != null && !videoFile.isEmpty()) {
             saveName = objectStorageService.uploadFile(videoFile);
-            vodBoard.setOriginPath(objectStorageService.setObjectSrc(saveName));
-            vodBoard.setSavePath(saveName);
+            vodBoard.setOriginPath(videoFile.getOriginalFilename());
+            vodBoard.setSavePath(objectStorageService.getObjectSrc(saveName));
         }
         if (thumbnail != null && !thumbnail.isEmpty()) {
             saveName = objectStorageService.uploadFile(thumbnail);
-            vodBoard.setOriginThumb(objectStorageService.setObjectSrc(saveName));
-            vodBoard.setSaveThumb(saveName);
+            vodBoard.setOriginThumb(objectStorageService.getObjectSrc(saveName));
+            vodBoard.setSaveThumb(objectStorageService.getObjectSrc(saveName));
         }
 
         // 새로 업로드한 파일 등록
@@ -223,10 +220,13 @@ public class VodBoardRestController {
 
         List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo); //첨부파일 첨가
 
-//        boardFileList.stream().forEach(vodBoardFile -> {
-//            // 오브젝트 스토리지
-//            objectStorageService.deleteObject(vodBoardFile.getVodSaveName());
-//        });
+        if (boardFileList != null) {
+            boardFileList.stream().forEach(vodBoardFile -> {
+                // 오브젝트 스토리지
+                objectStorageService.deleteObject(vodBoardFile.getVodSaveName());
+            });
+        }
+
         vodBoardService.deleteAllFile(boardNo);
 
         //게시물db삭제 (작은것 부터 삭제하는게 좋을것 같다. 첨부파일(오브젝트스토리지, 디비) -> 게시판
