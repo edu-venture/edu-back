@@ -46,14 +46,15 @@ public class AttendanceController {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = Integer.parseInt(customUserDetails.getUsername());
         System.out.println(userId);
-
+        System.out.println("엔터 들어왔다 어텐드");
 
         try {
             LocalDateTime attendTime = LocalDateTime.now(); // 현재 시간으로 입실 시간 설정
 
 
             AttendDTO response = attendanceService.registerAttendance(userId, attendTime);
-
+            System.out.println(response);
+            System.out.println("리스폰스를 받아왔다");
             responseDTO.setItem(response);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(response);
@@ -71,6 +72,7 @@ public class AttendanceController {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = Integer.parseInt(customUserDetails.getUsername());
         System.out.println(userId);
+        System.out.println("엑싯 들어왔다 어텐드");
 
         try {
             LocalDateTime exitTime = LocalDateTime.now(); // 현재 시간으로 퇴실 시간 설정

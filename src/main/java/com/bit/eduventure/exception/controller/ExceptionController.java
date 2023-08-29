@@ -2,7 +2,6 @@ package com.bit.eduventure.exception.controller;
 
 import com.bit.eduventure.exception.errorCode.ErrorCode;
 import com.bit.eduventure.exception.errorCode.MakeSignatureException;
-import com.bit.eduventure.exception.errorCode.ObjectStorageException;
 import com.bit.eduventure.exception.response.ErrorResponse;
 import com.google.gson.Gson;
 import org.springframework.http.HttpHeaders;
@@ -22,30 +21,35 @@ public class ExceptionController {
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<String> nullPointerExceptionHandler(NullPointerException e) {
+        System.out.println("에러났음 : "+  e);
         ErrorResponse response = new ErrorResponse(ErrorCode.NULL_POINT);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<String> noSuchElementExceptionHandler(NoSuchElementException e) {
+        System.out.println("에러났음 : "+  e);
         ErrorResponse response = new ErrorResponse(ErrorCode.NO_SUCH_ELEMENT);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ClassCastException.class)
     public ResponseEntity<String> classCastExceptionHandler(ClassCastException e) {
+        System.out.println("에러났음 : "+  e);
         ErrorResponse response = new ErrorResponse(ErrorCode.CLASS_CAST);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(StackOverflowError.class)
     public ResponseEntity<String> stackOverFlowErrorHandler(StackOverflowError e) {
+        System.out.println("에러났음 : "+  e);
         ErrorResponse response = new ErrorResponse(ErrorCode.STACK_OVER_FLOW);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DataFormatException.class)
     public ResponseEntity<String> dataFormatExceptionHandler(DataFormatException e) {
+        System.out.println("에러났음 : "+  e);
         ErrorResponse response = new ErrorResponse(ErrorCode.DATA_FORMAT);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
@@ -70,18 +74,21 @@ public class ExceptionController {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> runtimeExceptionHandler(RuntimeException e) {
-        ErrorResponse response = new ErrorResponse(9997, e.getMessage());
+        System.out.println("에러났음 : "+  e);
+        ErrorResponse response = new ErrorResponse(e.getMessage());
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<String> illegalStateExceptionHandler(IllegalStateException e) {
-        ErrorResponse response = new ErrorResponse(9998, e.getMessage());
+        System.out.println("에러났음 : "+  e);
+        ErrorResponse response = new ErrorResponse(e.getMessage());
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> exceptionHandler(Exception e) {
+        System.out.println("에러났음 : "+  e);
         ErrorResponse response = new ErrorResponse(ErrorCode.EXCEPTION);
         return setResponse(response, HttpStatus.BAD_REQUEST);
     }
@@ -91,6 +98,7 @@ public class ExceptionController {
         String responseJson = createResponseJson(errorResponse);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        System.out.println("Exception Controller Advice: " + errorResponse);
         return new ResponseEntity<>(responseJson, headers, status);
     }
 
@@ -98,3 +106,4 @@ public class ExceptionController {
         return new Gson().toJson(errorResponse);
     }
 }
+
