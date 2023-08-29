@@ -4,6 +4,7 @@
 //import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 //import com.bit.eduventure.ES1_User.Entity.User;
 //import com.bit.eduventure.ES1_User.Repository.UserRepository;
+//import com.bit.eduventure.oauth.provider.KakaoUserInfo;
 //import com.bit.eduventure.oauth.provider.OAuth2UserInfo;
 //import org.springframework.security.crypto.password.PasswordEncoder;
 //import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -43,15 +44,15 @@
 //        OAuth2UserInfo oAuth2UserInfo = null;
 //        //소셜 카테고리 검증
 //
-////        if (userRequest.getClientRegistration().getRegistrationId().equals("kakao")) {
-////            oAuth2UserInfo = new KakaoUserInfo(oAuth2User.getAttributes());
-////            providerId = oAuth2UserInfo.getProviderId();
-////            userName = oAuth2UserInfo.getName();
-////
-////        } else {
-////            System.out.println("카카오 로그인만 지원합니다.");
-////
-////        }
+//        if (userRequest.getClientRegistration().getRegistrationId().equals("kakao")) {
+//            oAuth2UserInfo = new KakaoUserInfo(oAuth2User.getAttributes());
+//            providerId = oAuth2UserInfo.getProviderId();
+//            userName = oAuth2UserInfo.getName();
+//
+//        } else {
+//            System.out.println("카카오 로그인만 지원합니다.");
+//
+//        }
 //        String provider = oAuth2UserInfo.getProvider();
 //        //kakao_123456
 //        String userId = provider + "_" + providerId;
