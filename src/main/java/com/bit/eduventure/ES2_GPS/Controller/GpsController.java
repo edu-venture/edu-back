@@ -1,6 +1,10 @@
 package com.bit.eduventure.ES2_GPS.Controller;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
@@ -9,10 +13,12 @@ import com.bit.eduventure.ES2_GPS.Entity.DriverPhoto;
 import com.bit.eduventure.ES2_GPS.Entity.GPS;
 import com.bit.eduventure.ES2_GPS.Repository.DriverPhotoRepository;
 import com.bit.eduventure.ES2_GPS.Repository.GPSRepository;
+import com.bit.eduventure.configuration.NaverConfiguration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,20 +34,23 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@PropertySource("classpath:/application.properties")
 
 @Controller
 public class GpsController {
 
     private final GPSRepository gpsRepository;
     private final DriverPhotoRepository driverPhotoRepository;
+    private final NaverConfiguration naverConfiguration;
 
 
 
-public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPhotoRepository){
+    public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPhotoRepository, NaverConfiguration naverConfiguration){
 
-    this.gpsRepository = gpsRepository;
-    this.driverPhotoRepository = driverPhotoRepository;
-}
+        this.gpsRepository = gpsRepository;
+        this.driverPhotoRepository = driverPhotoRepository;
+        this.naverConfiguration = naverConfiguration;
+    }
 
     @Value("${file.path}")
     private String uploadDir;
@@ -52,6 +61,7 @@ public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPh
     private AmazonS3 amazonS3Client;
 
     @Value("${s3.bucket.name}")
+//    @Value("eduventure")
     private String bucketName;
 
     @Value("${ncp.endPoint}")
@@ -149,11 +159,7 @@ public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPh
             Optional<GPS> gps2 = gpslist.stream().filter(a -> a.getCarnumber() == 2).findFirst();
             Optional<GPS> gps3 = gpslist.stream().filter(a -> a.getCarnumber() == 3).findFirst();
 
-//            System.out.println("여기 gps 1 2 3 쓰는곳");
 
-//            System.out.println(gps1);
-//            System.out.println(gps2);
-//            System.out.println(gps3);
             responseDTO.setItems(gpslist);
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
@@ -170,6 +176,11 @@ public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPh
 
     @PostMapping("/receivephoto")
     public ResponseEntity<String> receivePhoto(@RequestParam("image") MultipartFile file, @RequestParam("carnumber") String carNumber) {
+        amazonS3Client = AmazonS3ClientBuilder.standard()
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(naverConfiguration.getEndPoint(), naverConfiguration.getRegionName())).withCredentials(new AWSStaticCredentialsProvider(
+
+                        new BasicAWSCredentials(naverConfiguration.getAccessKey(), naverConfiguration.getSecretKey())
+                )).build();
         if (file.isEmpty()) {
             return new ResponseEntity<>("fileisempty", HttpStatus.BAD_REQUEST);
         }
@@ -187,26 +198,35 @@ public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPh
 
             // S3에 파일 업로드
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, s3Key, tempFile).withCannedAcl(CannedAccessControlList.PublicRead);
+            System.out.println("여기까진 된건가");
+
+            System.out.println(putObjectRequest);
+            System.out.println("putobjectRequest");
+
             amazonS3Client.putObject(putObjectRequest);
 
             // S3 URL 생성
 //            String imageUrl = "https://" + bucketName + ".s3." + amazonS3Client.getRegion() + ".amazonaws.com/" + s3Key;
-
+            System.out.println("여기까지. amazons3클라이언트에 풋 오브젝트했다.");
 
             // S3 URL 생성
             String imageUrl = endPoint + "/" + bucketName + "/" + s3Key;
 
 
+            System.out.println(imageUrl);
 
 
             DriverPhoto driverphoto = new DriverPhoto();
             driverphoto.setCarnumber(Integer.valueOf(carNumber));
             driverphoto.setPhotoname(imageUrl);
-            driverPhotoRepository.save(driverphoto);
+            System.out.println("여기까진된건가? 세이브 전이다");
 
+            driverPhotoRepository.save(driverphoto);
+            System.out.println("여기까진된건가? 세이브 다음이다");
             return new ResponseEntity<>("File uploaded successfully", HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("에러남 여기서");
             return new ResponseEntity<>("Failed to upload file", HttpStatus.OK);
         }
     }
@@ -226,7 +246,7 @@ public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPh
 //        List <GPS> gpslist = gpsRepository.findLatestForEachCarNumber();
         try {
 
-           DriverPhoto driverPhoto= driverPhotoRepository.findLatestPhoto(Integer.valueOf(userBus));
+            DriverPhoto driverPhoto= driverPhotoRepository.findLatestPhoto(Integer.valueOf(userBus));
 
             System.out.println("이것이 드라이버포토이다");
             System.out.println(driverPhoto);
