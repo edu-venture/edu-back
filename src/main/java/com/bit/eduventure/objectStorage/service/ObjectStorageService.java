@@ -24,7 +24,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ObjectStorageService {
-    private final VodBoardRepository vodBoardRepository;
 
     private final AmazonS3 s3;
     @Value("${cloud.aws.s3.bucket.name}")
@@ -93,23 +92,7 @@ public class ObjectStorageService {
         return saveFilename;
     }
 
-    //리스트 목록 가져오기 메소드 -> 뷰 페이지에서 출력하면 됨.
-//    public List<VodBoardFile> getListOfFiles(int vodBoardNo) {
-//        List<VodBoardFile> fileList = vodBoardFileRepository.findAllByVodBoardNo(vodBoardNo);
-//
-//        return fileList;
-//    }
-
-    //상세보기
-    public VodBoard getBoard(int boardNo) {
-        return vodBoardRepository.findById(boardNo).get();
-    }
-
-    public List<VodBoard> getVodBoardList() {
-        return vodBoardRepository.findAll();
-    }
-
-    public String setObjectSrc(String saveFileName) {
+    public String getObjectSrc(String saveFileName) {
         StringBuilder storageAddress = new StringBuilder();
         storageAddress.append(ncpAddress);
         storageAddress.append(bucket);

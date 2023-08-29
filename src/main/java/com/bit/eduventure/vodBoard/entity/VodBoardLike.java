@@ -9,7 +9,8 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @RequiredArgsConstructor
-@Entity(name = "T_VOD_BOARD_LIKE")
+@Entity
+@Table (name = "T_VOD_BOARD_LIKE")
 @Builder
 public class VodBoardLike {
     @Id
