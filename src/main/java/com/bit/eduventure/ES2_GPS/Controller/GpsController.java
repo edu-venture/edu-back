@@ -1,6 +1,10 @@
 package com.bit.eduventure.ES2_GPS.Controller;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
@@ -15,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,7 +35,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-//@Controller
+@PropertySource("classpath:/application.properties")
 @RequiredArgsConstructor
 public class GpsController {
 
@@ -38,25 +43,8 @@ public class GpsController {
     private final DriverPhotoRepository driverPhotoRepository;
     private final ObjectStorageService objectStorageService;
 
-//    public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPhotoRepository){
-//
-//        this.gpsRepository = gpsRepository;
-//        this.driverPhotoRepository = driverPhotoRepository;
-//    }
-
-//    @Value("${file.path}")
-//    private String uploadDir;
-
-
-//
-//    @Autowired
-//    private AmazonS3 amazonS3Client;
-
-    @Value("${cloud.aws.s3.bucket.name}")
-    private String bucketName;
-
-    @Value("${cloud.aws.s3.endpoint}")
-    private String endPoint;
+//    @Value("${cloud.aws.s3.bucket.name}")
+//    private String bucketName;
 
 
     @PostMapping("/hihi")
@@ -150,11 +138,7 @@ public class GpsController {
             Optional<GPS> gps2 = gpslist.stream().filter(a -> a.getCarnumber() == 2).findFirst();
             Optional<GPS> gps3 = gpslist.stream().filter(a -> a.getCarnumber() == 3).findFirst();
 
-//            System.out.println("여기 gps 1 2 3 쓰는곳");
 
-//            System.out.println(gps1);
-//            System.out.println(gps2);
-//            System.out.println(gps3);
             responseDTO.setItems(gpslist);
             responseDTO.setStatusCode(HttpStatus.OK.value());
 
@@ -170,48 +154,60 @@ public class GpsController {
 
 
     @PostMapping("/receivephoto")
-    public ResponseEntity<String> receivePhoto(@RequestParam("image") MultipartFile file, @RequestParam("carnumber") String carNumber) {
+    public ResponseEntity<String> receivePhoto(@RequestParam("image") MultipartFile file,
+                                               @RequestParam("carnumber") String carNumber) {
         if (file.isEmpty()) {
             return new ResponseEntity<>("fileisempty", HttpStatus.BAD_REQUEST);
         }
         try {
-            // 파일 이름과 확장자 추출
-            String fileName = file.getOriginalFilename();
-            String fileExtension = fileName.substring(fileName.lastIndexOf("."));
+            String origin = file.getOriginalFilename(); //원본 파일명
+            String saveName = objectStorageService.uploadFile(file);    //저장된 파일명
+            String saveSrc = objectStorageService.getObjectSrc(saveName);   //파일주소
+//
+//            // 파일 이름과 확장자 추출
+//            String fileName = file.getOriginalFilename();
+//            String fileExtension = fileName.substring(fileName.lastIndexOf("."));
 
+//
+//
 //            // S3에 저장할 고유한 키 생성
 //            String s3Key = UUID.randomUUID().toString() + fileExtension;
-
-            String saveImg = objectStorageService.uploadFile(file);
-
-            String imageUrl = objectStorageService.getObjectSrc(saveImg);
-
+//
 //            // MultipartFile을 File 객체로 변환
 //            File tempFile = File.createTempFile("temp", fileExtension);
 //            file.transferTo(tempFile);
 //
 //            // S3에 파일 업로드
 //            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, s3Key, tempFile).withCannedAcl(CannedAccessControlList.PublicRead);
+//            System.out.println("여기까진 된건가");
+//
+//            System.out.println(putObjectRequest);
+//            System.out.println("putobjectRequest");
+//
 //            amazonS3Client.putObject(putObjectRequest);
-
-            // S3 URL 생성
-//            String imageUrl = "https://" + bucketName + ".s3." + amazonS3Client.getRegion() + ".amazonaws.com/" + s3Key;
-
-
-            // S3 URL 생성
+//
+//            // S3 URL 생성
+////            String imageUrl = "https://" + bucketName + ".s3." + amazonS3Client.getRegion() + ".amazonaws.com/" + s3Key;
+//            System.out.println("여기까지. amazons3클라이언트에 풋 오브젝트했다.");
+//
+//            // S3 URL 생성
 //            String imageUrl = endPoint + "/" + bucketName + "/" + s3Key;
-
-
+//
+//
+//            System.out.println(imageUrl);
 
 
             DriverPhoto driverphoto = new DriverPhoto();
             driverphoto.setCarnumber(Integer.valueOf(carNumber));
-            driverphoto.setPhotoname(imageUrl);
-            driverPhotoRepository.save(driverphoto);
+            driverphoto.setPhotoname(saveSrc);
+            System.out.println("여기까진된건가? 세이브 전이다");
 
+            driverPhotoRepository.save(driverphoto);
+            System.out.println("여기까진된건가? 세이브 다음이다");
             return new ResponseEntity<>("File uploaded successfully", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("에러남 여기서");
             return new ResponseEntity<>("Failed to upload file", HttpStatus.OK);
         }
     }
@@ -231,7 +227,7 @@ public class GpsController {
 //        List <GPS> gpslist = gpsRepository.findLatestForEachCarNumber();
         try {
 
-           DriverPhoto driverPhoto= driverPhotoRepository.findLatestPhoto(Integer.valueOf(userBus));
+            DriverPhoto driverPhoto= driverPhotoRepository.findLatestPhoto(Integer.valueOf(userBus));
 
             System.out.println("이것이 드라이버포토이다");
             System.out.println(driverPhoto);
