@@ -16,6 +16,8 @@ public class CourseDTO {
 
     private Integer couNo;
     private String claName;
+    private String couMemo;
+    private int teacherId;
     private long studentCnt;
     private UserDTO userDTO;
 
@@ -23,6 +25,7 @@ public class CourseDTO {
         Course course = Course.builder()
                 .couNo(this.couNo)
                 .claName(this.claName)
+                .couMemo(this.couMemo)
                 .user(this.userDTO.DTOToEntity())
                 .build();
         return course;

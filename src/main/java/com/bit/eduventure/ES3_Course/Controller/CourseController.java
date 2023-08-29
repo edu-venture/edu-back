@@ -52,8 +52,6 @@ public class CourseController {
                 })
                 .collect(Collectors.toList());
 
-
-
         responseDTO.setItems(courseDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
@@ -73,7 +71,8 @@ public class CourseController {
     public ResponseEntity<?> creatCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                          @RequestBody CourseDTO courseDTO){
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
+
+        int userNo = courseDTO.getTeacherId();
         UserDTO userDTO = userService.findById(userNo).EntityToDTO();
         courseDTO.setUserDTO(userDTO);
 
