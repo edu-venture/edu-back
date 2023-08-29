@@ -22,4 +22,6 @@ public interface CourseService {
     Course findByTeacherId(int teacherId);
 
     void createCourse(CourseDTO courseDTO);
+
+    List<Integer> jsonToIntList(String couNoList);
 }

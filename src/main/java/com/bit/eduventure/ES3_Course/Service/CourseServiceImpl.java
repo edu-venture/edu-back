@@ -6,6 +6,9 @@ import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
 import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.service.TimeTableService;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -53,6 +56,23 @@ public class CourseServiceImpl  implements CourseService {
                 .claName(courseDTO.getClaName())
                 .build();
         courseRepository.save(course);
+    }
+
+    @Override
+    public List<Integer> jsonToIntList(String couNoList) {
+        try {
+            JsonElement jsonElement = JsonParser.parseString(couNoList);
+            JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray("couNoList");
+
+            List<Integer> result = new ArrayList<>();
+            for (JsonElement element : jsonArray) {
+                int value = element.getAsInt();
+                result.add(value);
+            }
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("JSON 처리 오류");
+        }
     }
 
     @Override

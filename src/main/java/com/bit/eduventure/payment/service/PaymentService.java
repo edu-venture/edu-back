@@ -5,12 +5,16 @@ import com.bit.eduventure.payment.entity.Payment;
 import com.bit.eduventure.payment.entity.Receipt;
 import com.bit.eduventure.payment.repository.PaymentRepository;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.siot.IamportRestClient.IamportClient;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Type;
 import java.time.*;
@@ -74,6 +78,11 @@ public class PaymentService {
         //디비에 다시 저장
         return savePayment(payment);
     }
+    //개별 납부서 조회
+    public Payment getPayment(int payNo) {
+        return paymentRepository.findById(payNo)
+                .orElseThrow(() -> new NoSuchElementException());
+    }
 
     //학생 개별 납부서 조회
     public Payment getPayment(int userNo, int month) {
@@ -97,13 +106,13 @@ public class PaymentService {
     //납부서 전체 조회
     public List<Payment> getPaymentList() {
         List<Payment> paymentList = paymentRepository.findAll();
-        if (!paymentList.isEmpty()) {
-            return paymentList;
-        }
-        throw new NoSuchElementException("납부서가 없습니다.");
+
+        return paymentList;
+
     }
 
     //여러 개의 납부서 일괄 삭제
+    @Transactional
     public void deletePaymentList(List<Integer> payNoList) {
         payNoList.stream()
                 .forEach(payNo -> {
@@ -141,9 +150,8 @@ public class PaymentService {
 
     //결제일 (문자열) -> LocalDateTime로 변환
     public LocalDateTime stringToLocalDateTime(String inputDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         LocalDateTime localDateTime = LocalDateTime.parse(inputDate, formatter);
-
         return localDateTime;
     }
 
@@ -154,10 +162,27 @@ public class PaymentService {
 
     //상품 정보와 가격 추출
     public Map<String, Integer> jsonTOProductMap(String productList) {
+        System.out.println(productList);
         Type type = new TypeToken<Map<String, Integer>>(){}.getType();
         return new Gson().fromJson(productList, type);
     }
 
+    //상품 정보와 가격 추출
+    public List<Integer> jsonTOpayNoList(String payNoList) {
+        try {
+            JsonElement jsonElement = JsonParser.parseString(payNoList);
+            JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray("payNo");
+
+            List<Integer> result = new ArrayList<>();
+            for (JsonElement element : jsonArray) {
+                int value = element.getAsInt();
+                result.add(value);
+            }
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("JSON 처리 오류");
+        }
+    }
     // 결제 성공 후 uid db 업데이트
     public void updatePayment(int payNo, com.siot.IamportRestClient.response.Payment iamPayment) {
         Payment dbPayment = paymentRepository.findById(payNo)

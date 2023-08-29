@@ -1,5 +1,6 @@
 package com.bit.eduventure.payment.controller;
 
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
@@ -40,6 +41,7 @@ public class PaymentController {
     //클라이언트로부터 받은 HTTP POST 요청의 body 부분을 PaymentCreateRequestDTO 타입의 객체로 변환하고, 이를 requestDTO라는 매개변수로 전달
     public ResponseEntity<?> createPayment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                            @RequestBody PaymentRequestDTO requestDTO) {
+        System.out.println("requestDTO: " + requestDTO);
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
         List<PaymentResponseDTO> returnList = new ArrayList<>();
 
@@ -191,12 +193,42 @@ public class PaymentController {
     }
 
     //납부서 삭제
-    @DeleteMapping("/admin/bill")
-    public ResponseEntity<?> deletePayment(@RequestBody List<Integer> payNoList) {
-        ResponseDTO<String> response = new ResponseDTO<>();
-        paymentService.deletePaymentList(payNoList);
+    @PostMapping("/admin/bill/delete")
+    public ResponseEntity<?> deletePayment(@RequestBody String payNoList) {
 
+        ResponseDTO<String> response = new ResponseDTO<>();
+        List<Integer> payNoIntList = paymentService.jsonTOpayNoList(payNoList);
+
+        paymentService.deletePaymentList(payNoIntList);
         response.setItem("납부서 삭제 성공");
+        response.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    //개별 납부서 보기
+    @GetMapping("/admin/{payNo}")
+    public ResponseEntity<?> getPayment(@PathVariable int payNo) {
+        ResponseDTO<PaymentResponseDTO> response = new ResponseDTO<>();
+
+        PaymentDTO paymentDTO = paymentService.getPayment(payNo).EntityTODTO();
+        UserDTO userDTO = userService.findById(paymentDTO.getPayTo()).EntityToDTO();
+
+        List<Receipt> receiptList = receiptService.getReceiptPayId(paymentDTO.getPayNo());
+
+        List<ReceiptDTO> receiptDTOList = receiptList.stream()
+                .map(Receipt::EntityTODTO)
+                .collect(Collectors.toList());
+
+        PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
+                .claName(userDTO.getCourseDTO().getClaName())
+                .userName(userDTO.getUserName())
+                .issYear(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[0]))
+                .issMonth(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[1]))
+                .productList(receiptDTOList)
+                .build();
+
+        response.setItem(paymentResponseDTO);
         response.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(response);

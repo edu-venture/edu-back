@@ -20,7 +20,8 @@ public class ErrorResponse {
         this.message = errorCode.getMessage();
     }
 
-    public ErrorResponse(String message) {
+    public ErrorResponse(int code, String message) {
+        this.code = code;
         this.message = message;
     }
 }

@@ -16,6 +16,7 @@ public class CourseDTO {
 
     private Integer couNo;
     private String claName;
+    private long studentCnt;
     private UserDTO userDTO;
 
     public Course DTOToEntity(){
