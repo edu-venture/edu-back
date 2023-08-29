@@ -5,9 +5,7 @@ import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 
 import com.bit.eduventure.exception.errorCode.ObjectStorageException;
-import com.bit.eduventure.vodBoard.entity.VodBoard;
 
-import com.bit.eduventure.vodBoard.repository.VodBoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.net.URLEncoder;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
