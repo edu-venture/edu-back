@@ -12,6 +12,7 @@ import com.bit.eduventure.vodBoard.entity.VodBoardFile;
 import com.bit.eduventure.vodBoard.service.VodBoardCommentService;
 import com.bit.eduventure.vodBoard.service.VodBoardLikeService;
 import com.bit.eduventure.vodBoard.service.VodBoardService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -135,7 +136,7 @@ public class VodBoardRestController {
             List<VodBoardFileDTO> boardFileDTOList = boardFileList.stream()
                     .map(VodBoardFile::EntityToDTO)
                     .collect(Collectors.toList());
-            
+
             List<VodBoardCommentDTO> commentList = vodBoardCommentService.getAllCommentList(boardNo);
 
             Map<String, Object> returnMap = new HashMap<>();
@@ -240,13 +241,15 @@ public class VodBoardRestController {
         try {
             int userNo= Integer.parseInt(customUserDetails.getUsername());
             VodBoard vodBoard = vodBoardService.getBoard(boardNo);
-            
+
             if (vodBoard.getUser().getId() != userNo) {
                 responseDTO.setErrorMessage("삭제 권한이 없습니다.");
                 return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).body(responseDTO);
             }
 
-            List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo); //첨부파일 첨가
+            vodBoardCommentService.deleteAllCommentsAndRepliesByVodNo(boardNo); //댓글 전체 삭제
+
+            List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo); //첨부파일
 
             boardFileList.stream().forEach(vodBoardFile -> {
                 // 오브젝트 스토리지
@@ -330,17 +333,26 @@ public class VodBoardRestController {
                 responseDTO.setErrorMessage("삭제 권한이 없습니다.");
                 return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).body(responseDTO);
             }
-            
-            vodBoardCommentService.deleteComment(commentNo);
+
+            vodBoardCommentService.deleteCommentAndReplies(commentNo);
             responseDTO.setItem("삭제되었습니다.");
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
+
+        } catch (EntityNotFoundException e) {
+            responseDTO.setStatusCode(HttpStatus.NOT_FOUND.value());
+            responseDTO.setErrorMessage("댓글이 존재하지 않습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDTO); //댓글 여부
+
         } catch (Exception e) {
             responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
             responseDTO.setErrorMessage(e.getMessage());
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
+
+//    @DeleteMapping("/comment/{commentNo}/")
+
 
     // ---------------------------------------- 좋아요 ----------------------------------------
 

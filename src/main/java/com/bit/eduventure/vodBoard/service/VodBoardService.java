@@ -16,6 +16,7 @@ import java.util.List;
 public class VodBoardService {
     private final VodBoardRepository vodBoardRepository;
     private final VodBoardFileRepository vodBoardFileRepository;
+    private final VodBoardCommentService vodBoardCommentService;
 
 //    public List<VodBoard> getBoardList() {
 //        return vodBoardRepository.findAll();
@@ -60,6 +61,7 @@ public class VodBoardService {
 
     //삭제 기능
     public void deleteVodBoard(int boardNo) {
+        vodBoardCommentService.deleteAllCommentsAndRepliesByVodNo(boardNo);
         vodBoardRepository.deleteById(boardNo);
     }
 
