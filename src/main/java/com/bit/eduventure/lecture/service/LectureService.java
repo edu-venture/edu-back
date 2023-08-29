@@ -28,5 +28,11 @@ public class LectureService {
         return lectureRepository.findAll();
     }
 
+    //학생별 강의 주소 조회
+//    public List<Lecture> getCouLecture(int couNo) {
+//        return lectureRepository.findAllByCouNo(couNo);
+//
+//    }
+
 
 }
