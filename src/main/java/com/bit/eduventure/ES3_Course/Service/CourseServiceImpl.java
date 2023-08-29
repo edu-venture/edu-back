@@ -59,6 +59,15 @@ public class CourseServiceImpl  implements CourseService {
     }
 
     @Override
+    public void deleteCourseList(List<Integer> couNoList) {
+        couNoList.stream()
+                .forEach(couNo -> {
+                    courseRepository.deleteById(couNo);
+                });
+    }
+
+
+    @Override
     public List<Integer> jsonToIntList(String couNoList) {
         try {
             JsonElement jsonElement = JsonParser.parseString(couNoList);

@@ -88,6 +88,9 @@ public class CourseController {
     public ResponseEntity<?> deleteCourseList(@RequestBody String couNoList) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
+        List<Integer> integerList = courseService.jsonToIntList(couNoList);
+        courseService.deleteCourseList(integerList);
+
         responseDTO.setItem("반 삭제 완료");
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);

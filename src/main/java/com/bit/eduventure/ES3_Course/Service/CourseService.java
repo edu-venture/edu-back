@@ -23,5 +23,7 @@ public interface CourseService {
 
     void createCourse(CourseDTO courseDTO);
 
+    void deleteCourseList(List<Integer> couNoList);
+
     List<Integer> jsonToIntList(String couNoList);
 }
