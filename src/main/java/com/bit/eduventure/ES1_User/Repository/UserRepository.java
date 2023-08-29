@@ -55,6 +55,8 @@ public interface UserRepository extends JpaRepository<User,Integer> {
 
     Long countByUserTypeAndCourseCouNo(String userType, int courseId);
 
+    List<User> findAllByCourseCouNo(int couNo);
+
     @Transactional
     @Modifying
     @Query("UPDATE User u SET u.userScore = u.userScore + 1 WHERE u.id = ?1")
