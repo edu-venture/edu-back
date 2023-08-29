@@ -74,7 +74,7 @@ public class VodBoardRestController {
         } else {
             saveName = "edu-venture.png";
             boardDTO.setSaveThumb(objectStorageService.getObjectSrc(saveName));
-            boardDTO.setOriginThumb("saveName");
+            boardDTO.setOriginThumb(saveName);
         }
         VodBoard board = boardDTO.DTOTOEntity();
         board.setUser(user);
