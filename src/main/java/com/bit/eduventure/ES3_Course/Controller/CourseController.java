@@ -84,7 +84,7 @@ public class CourseController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    @PostMapping("/course")
+    @DeleteMapping("/course")
     public ResponseEntity<?> deleteCourseList(@RequestBody String couNoList) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
