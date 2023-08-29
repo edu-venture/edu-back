@@ -25,8 +25,7 @@ public class VodBoardCommentService {
     //게시물에 해당하는 모든 댓글 리스트 가져오는 메서드
     @Transactional
     public List<VodBoardCommentDTO> getAllCommentList(int vodNo) {
-        List<VodBoardComment> list = vodBoardCommentRepository.findAllByVodNo(vodNo);
-
+        List<VodBoardComment> list = vodBoardCommentRepository.findAllByVodNoId(vodNo);
         List<VodBoardCommentDTO> dtoList = list.stream()
                 .map(VodBoardComment::EntityTODTO)
                 .collect(Collectors.toList());
@@ -79,6 +78,6 @@ public class VodBoardCommentService {
 
     @Transactional
     public void deleteCommentVodNo(int vodNo) {
-        vodBoardCommentRepository.deleteAllByVodNo(vodNo);
+        vodBoardCommentRepository.deleteAllByVodNoId(vodNo);
     }
 }

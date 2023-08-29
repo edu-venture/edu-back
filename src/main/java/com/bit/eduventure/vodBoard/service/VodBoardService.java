@@ -59,7 +59,7 @@ public class VodBoardService {
     //삭제 기능
     @Transactional
     public void deleteVodBoard(int boardNo) {
-        vodBoardCommentService.deleteCommentVodNo(boardNo);
+//        vodBoardCommentService.deleteCommentVodNo(boardNo);
         vodBoardRepository.deleteById(boardNo);
     }
 
