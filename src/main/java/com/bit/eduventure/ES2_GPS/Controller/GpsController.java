@@ -13,10 +13,11 @@ import com.bit.eduventure.ES2_GPS.Entity.DriverPhoto;
 import com.bit.eduventure.ES2_GPS.Entity.GPS;
 import com.bit.eduventure.ES2_GPS.Repository.DriverPhotoRepository;
 import com.bit.eduventure.ES2_GPS.Repository.GPSRepository;
-import com.bit.eduventure.configuration.NaverConfiguration;
+import com.bit.eduventure.objectStorage.service.ObjectStorageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
@@ -35,37 +36,15 @@ import java.util.UUID;
 
 @RestController
 @PropertySource("classpath:/application.properties")
-
-@Controller
+@RequiredArgsConstructor
 public class GpsController {
 
     private final GPSRepository gpsRepository;
     private final DriverPhotoRepository driverPhotoRepository;
-    private final NaverConfiguration naverConfiguration;
+    private final ObjectStorageService objectStorageService;
 
-
-
-    public GpsController(GPSRepository gpsRepository, DriverPhotoRepository driverPhotoRepository, NaverConfiguration naverConfiguration){
-
-        this.gpsRepository = gpsRepository;
-        this.driverPhotoRepository = driverPhotoRepository;
-        this.naverConfiguration = naverConfiguration;
-    }
-
-    @Value("${file.path}")
-    private String uploadDir;
-
-
-
-    @Autowired
-    private AmazonS3 amazonS3Client;
-
-    @Value("${s3.bucket.name}")
-//    @Value("eduventure")
-    private String bucketName;
-
-    @Value("${ncp.endPoint}")
-    private String endPoint;
+//    @Value("${cloud.aws.s3.bucket.name}")
+//    private String bucketName;
 
 
     @PostMapping("/hihi")
@@ -175,56 +154,58 @@ public class GpsController {
 
 
     @PostMapping("/receivephoto")
-    public ResponseEntity<String> receivePhoto(@RequestParam("image") MultipartFile file, @RequestParam("carnumber") String carNumber) {
-        amazonS3Client = AmazonS3ClientBuilder.standard()
-                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(naverConfiguration.getEndPoint(), naverConfiguration.getRegionName())).withCredentials(new AWSStaticCredentialsProvider(
-
-                        new BasicAWSCredentials(naverConfiguration.getAccessKey(), naverConfiguration.getSecretKey())
-                )).build();
+    public ResponseEntity<String> receivePhoto(@RequestParam("image") MultipartFile file,
+                                               @RequestParam("carnumber") String carNumber) {
         if (file.isEmpty()) {
             return new ResponseEntity<>("fileisempty", HttpStatus.BAD_REQUEST);
         }
         try {
-            // 파일 이름과 확장자 추출
-            String fileName = file.getOriginalFilename();
-            String fileExtension = fileName.substring(fileName.lastIndexOf("."));
+            String origin = file.getOriginalFilename(); //원본 파일명
+            String saveName = objectStorageService.uploadFile(file);    //저장된 파일명
+            String saveSrc = objectStorageService.getObjectSrc(saveName);   //파일주소
+//
+//            // 파일 이름과 확장자 추출
+//            String fileName = file.getOriginalFilename();
+//            String fileExtension = fileName.substring(fileName.lastIndexOf("."));
 
-            // S3에 저장할 고유한 키 생성
-            String s3Key = UUID.randomUUID().toString() + fileExtension;
-
-            // MultipartFile을 File 객체로 변환
-            File tempFile = File.createTempFile("temp", fileExtension);
-            file.transferTo(tempFile);
-
-            // S3에 파일 업로드
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, s3Key, tempFile).withCannedAcl(CannedAccessControlList.PublicRead);
-            System.out.println("여기까진 된건가");
-
-            System.out.println(putObjectRequest);
-            System.out.println("putobjectRequest");
-
-            amazonS3Client.putObject(putObjectRequest);
-
-            // S3 URL 생성
-//            String imageUrl = "https://" + bucketName + ".s3." + amazonS3Client.getRegion() + ".amazonaws.com/" + s3Key;
-            System.out.println("여기까지. amazons3클라이언트에 풋 오브젝트했다.");
-
-            // S3 URL 생성
-            String imageUrl = endPoint + "/" + bucketName + "/" + s3Key;
-
-
-            System.out.println(imageUrl);
+//
+//
+//            // S3에 저장할 고유한 키 생성
+//            String s3Key = UUID.randomUUID().toString() + fileExtension;
+//
+//            // MultipartFile을 File 객체로 변환
+//            File tempFile = File.createTempFile("temp", fileExtension);
+//            file.transferTo(tempFile);
+//
+//            // S3에 파일 업로드
+//            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, s3Key, tempFile).withCannedAcl(CannedAccessControlList.PublicRead);
+//            System.out.println("여기까진 된건가");
+//
+//            System.out.println(putObjectRequest);
+//            System.out.println("putobjectRequest");
+//
+//            amazonS3Client.putObject(putObjectRequest);
+//
+//            // S3 URL 생성
+////            String imageUrl = "https://" + bucketName + ".s3." + amazonS3Client.getRegion() + ".amazonaws.com/" + s3Key;
+//            System.out.println("여기까지. amazons3클라이언트에 풋 오브젝트했다.");
+//
+//            // S3 URL 생성
+//            String imageUrl = endPoint + "/" + bucketName + "/" + s3Key;
+//
+//
+//            System.out.println(imageUrl);
 
 
             DriverPhoto driverphoto = new DriverPhoto();
             driverphoto.setCarnumber(Integer.valueOf(carNumber));
-            driverphoto.setPhotoname(imageUrl);
+            driverphoto.setPhotoname(saveSrc);
             System.out.println("여기까진된건가? 세이브 전이다");
 
             driverPhotoRepository.save(driverphoto);
             System.out.println("여기까진된건가? 세이브 다음이다");
             return new ResponseEntity<>("File uploaded successfully", HttpStatus.OK);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("에러남 여기서");
             return new ResponseEntity<>("Failed to upload file", HttpStatus.OK);
