@@ -52,8 +52,6 @@ public class CourseController {
                 })
                 .collect(Collectors.toList());
 
-
-
         responseDTO.setItems(courseDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
@@ -92,9 +90,6 @@ public class CourseController {
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
     }
-
-
-
 
 
 
