@@ -19,4 +19,6 @@ public interface TimeTableRepository extends JpaRepository<TimeTable, Integer> {
 
     @Query(value = "SELECT t FROM TimeTable t JOIN User u ON t.couNo = u.course.couNo WHERE u.id = :userNo")
     List<TimeTable> findTimeTablesByUserId(Integer userNo);
+
+    void deleteAllByCouNo(int couNo);
 }

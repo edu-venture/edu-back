@@ -129,8 +129,6 @@ public class UserController {
                                     .role(user.getRole()).userBirth(user.getUserBirth()).userSchool(user.getUserSchool()).userAddress(user.getUserAddress()).userJoinId(user.getUserJoinId())
                                     .build()
             );
-
-            System.out.println(pageUserDTO);
             System.out.println("이게 페이지유저 디티오");
 
             responseDTO.setPageItems(pageUserDTO);
@@ -301,9 +299,9 @@ public class UserController {
         );
         user.setApproval("x");
         user.setRole("ROLE_ADMIN");
-        Course course = Course.builder().couNo(1).build();
+//        Course course = Course.builder().couNo(1).build();
 
-        user.setCourse(course);
+//        user.setCourse(course);
         System.out.println(user);
         //회원가입처리(화면에서 보내준 내용을 디비에 저장)
         System.out.println("admin가입 서비스넣기 일보직전");

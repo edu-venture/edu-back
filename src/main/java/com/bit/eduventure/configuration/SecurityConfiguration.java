@@ -54,6 +54,7 @@ public class SecurityConfiguration {
                     authorizeRequests.requestMatchers("/").permitAll();
                     authorizeRequests.requestMatchers("/**").permitAll();
                     authorizeRequests.requestMatchers("/vod/**").permitAll();
+                    authorizeRequests.requestMatchers("/course/**").permitAll();
                     //이외의 요청은 인증된 사용자만 사용자만 사용가능
                     authorizeRequests.anyRequest().authenticated();
                 })

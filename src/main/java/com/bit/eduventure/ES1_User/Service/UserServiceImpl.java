@@ -165,5 +165,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.countByUserTypeAndCourseCouNo("student", couNo);
     }
 
+    @Override
+    public List<User> getUserListForCouNo(int couNo) {
+        return userRepository.findAllByCourseCouNo(couNo);
+    }
 
+    @Override
+    public List<User> getUserList() {
+        return userRepository.findAll();
+    }
 }

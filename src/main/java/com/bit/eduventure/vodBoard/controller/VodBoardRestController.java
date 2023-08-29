@@ -44,7 +44,8 @@ public class VodBoardRestController {
         List<VodBoardFile> uploadFileList = new ArrayList<>();
         String saveName;
 
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        int userNo = customUserDetails.getUser().getId();
+
         User user = userService.findById(userNo);
         boardDTO.setUserDTO(user.EntityToDTO());
 
@@ -90,7 +91,7 @@ public class VodBoardRestController {
     //강의 목록(제목, 강사, 영상 다 포함됨)
     @GetMapping("/board-list")
     public ResponseEntity<?> getList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        System.out.println(customUserDetails.getUsername());
+
         ResponseDTO<VodBoardDTO> responseDTO = new ResponseDTO<>();
 
         List<VodBoard> vodBoardList = vodBoardService.getVodBoardList();
@@ -111,7 +112,7 @@ public class VodBoardRestController {
     public ResponseEntity<?> getBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                       @PathVariable int boardNo) {
         ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
-        System.out.println("boardNo: " + boardNo);
+
         int userNo = customUserDetails.getUser().getId();
         VodBoard board = vodBoardService.getBoard(boardNo);
 
@@ -150,7 +151,7 @@ public class VodBoardRestController {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
         String saveName;
 
-        int userNo= Integer.parseInt(customUserDetails.getUsername());
+        int userNo= customUserDetails.getUser().getId();
         UserDTO userDTO = userService.findById(userNo).EntityToDTO();
         updatedBoardDTO.setUserDTO(userDTO);
 
@@ -212,25 +213,23 @@ public class VodBoardRestController {
                                             @PathVariable int boardNo) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
         System.out.println("@DeleteMapping: " + boardNo);
-        int userNo= Integer.parseInt(customUserDetails.getUsername());
+        int userNo= customUserDetails.getUser().getId();
         VodBoard vodBoard = vodBoardService.getBoard(boardNo);
 
         if (vodBoard.getUser().getId() != userNo) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
-        List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo); //첨부파일 첨가
+        List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo);
 
         if (boardFileList != null) {
             boardFileList.stream().forEach(vodBoardFile -> {
-                // 오브젝트 스토리지
                 objectStorageService.deleteObject(vodBoardFile.getVodSaveName());
             });
         }
 
         vodBoardService.deleteAllFile(boardNo);
 
-        //게시물db삭제 (작은것 부터 삭제하는게 좋을것 같다. 첨부파일(오브젝트스토리지, 디비) -> 게시판
         vodBoardCommentService.deleteCommentVodNo(boardNo);
         vodBoardService.deleteVodBoard(boardNo);
 
@@ -247,7 +246,7 @@ public class VodBoardRestController {
                                            @RequestBody VodBoardCommentDTO vodBoardCommentDTO) {
         ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
 
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        int userNo = customUserDetails.getUser().getId();
         User user = userService.findById(userNo);
         vodBoardCommentDTO.setUserDTO(user.EntityToDTO());
         vodBoardCommentService.addComment(vodBoardCommentDTO);
