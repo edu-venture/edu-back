@@ -24,6 +24,9 @@ public class Course {
     @Column(name = "COU_NAME")
     private String claName;     //반 이름
 
+    @Column(name = "COU_MEMO")
+    private String couMemo;     //반 메모
+
     @ManyToOne
     @JoinColumn(name = "USER_NO")
     private User user;  //담당 선생님 유저 아이디
@@ -32,6 +35,7 @@ public class Course {
         CourseDTO courseDTO = CourseDTO.builder()
                 .couNo(this.couNo)
                 .claName(this.claName)
+                .couMemo(this.couMemo)
                 .userDTO(this.user.EntityToDTO())
                 .build();
         return courseDTO;

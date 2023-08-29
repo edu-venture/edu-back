@@ -63,18 +63,20 @@ public class VodBoardRestController {
         //메인 비디오 저장
         if (videoFile != null) {
             saveName = objectStorageService.uploadFile(videoFile);
-            boardDTO.setOriginPath(objectStorageService.setObjectSrc(saveName));
-            boardDTO.setSavePath(saveName);
+            boardDTO.setSavePath(objectStorageService.setObjectSrc(saveName));
+            boardDTO.setOriginPath(videoFile.getOriginalFilename());
         }
 
         //섬네일 저장
         //메인 비디오 저장
         if (thumbnail != null) {
             saveName = objectStorageService.uploadFile(thumbnail);
-            boardDTO.setOriginThumb(objectStorageService.setObjectSrc(saveName));
-            boardDTO.setSaveThumb(saveName);
+            boardDTO.setSaveThumb(objectStorageService.setObjectSrc(saveName));
+            boardDTO.setOriginThumb(thumbnail.getOriginalFilename());
+        } else {
+            boardDTO.setSaveThumb("static/images/edu-venture.png");
+            boardDTO.setOriginThumb("edu-venture.png");
         }
-
         VodBoard board = boardDTO.DTOTOEntity();
         board.setUser(user);
 
@@ -229,6 +231,7 @@ public class VodBoardRestController {
         });
 
         //게시물db삭제 (작은것 부터 삭제하는게 좋을것 같다. 첨부파일(오브젝트스토리지, 디비) -> 게시판
+        vodBoardCommentService.deleteCommentVodNo(boardNo);
         vodBoardService.deleteVodBoard(boardNo);
 
 

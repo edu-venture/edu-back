@@ -20,4 +20,6 @@ public interface VodBoardCommentRepository extends JpaRepository<VodBoardComment
 //    void deleteAllByVBcref(int qbc_idx); //vbc_idx VBcref
     //게시물 번호에 해당하는 모든 댓글 불러오기
     List<VodBoardComment> findAllByVodNo(int vodNo);
+
+    void deleteAllByVodNo(int vodNo);
 }

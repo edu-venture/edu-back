@@ -52,8 +52,6 @@ public class CourseController {
                 })
                 .collect(Collectors.toList());
 
-
-
         responseDTO.setItems(courseDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
@@ -73,7 +71,8 @@ public class CourseController {
     public ResponseEntity<?> creatCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                          @RequestBody CourseDTO courseDTO){
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
+
+        int userNo = courseDTO.getTeacherId();
         UserDTO userDTO = userService.findById(userNo).EntityToDTO();
         courseDTO.setUserDTO(userDTO);
 
@@ -87,6 +86,9 @@ public class CourseController {
     @DeleteMapping("/course")
     public ResponseEntity<?> deleteCourseList(@RequestBody String couNoList) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
+
+        List<Integer> integerList = courseService.jsonToIntList(couNoList);
+        courseService.deleteCourseList(integerList);
 
         responseDTO.setItem("반 삭제 완료");
         responseDTO.setStatusCode(HttpStatus.OK.value());
