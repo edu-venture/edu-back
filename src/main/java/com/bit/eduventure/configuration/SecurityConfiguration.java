@@ -51,7 +51,9 @@ public class SecurityConfiguration {
                 )
                 //요청 주소에 대한 권한 설정
                 .authorizeHttpRequests((authorizeRequests) -> {
+                    authorizeRequests.requestMatchers("/").permitAll();
                     authorizeRequests.requestMatchers("/**").permitAll();
+                    authorizeRequests.requestMatchers("/vod/**").permitAll();
                     //이외의 요청은 인증된 사용자만 사용자만 사용가능
                     authorizeRequests.anyRequest().authenticated();
                 })
