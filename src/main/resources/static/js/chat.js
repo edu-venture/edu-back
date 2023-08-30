@@ -32,7 +32,7 @@ function sendMessage() {
             content: messageContent,
             sender: "김민제" // For simplicity, using "anonymous" as sender
         };
-        stompClient.send("/app/sendMsg/{lectureId}", {}, JSON.stringify(chatMessage));
+        stompClient.send("/app/sendMsg/123", {}, JSON.stringify(chatMessage));
         // lectureId, userId
     }
 }
