@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface LectureRepository extends JpaRepository<Lecture, Integer> {
 
-    List<Lecture> findAllByCourseCouNo(Integer couNo);
+    List<Lecture> findAllByCouNo(Integer couNo);
 
 
 }
