@@ -73,13 +73,9 @@ public class UserController {
         ResponseDTO<Map<String, String>> responseDTO =
                 new ResponseDTO<Map<String, String>>();
         try {
-
             for (int i = 0; i < selectedUserIds.size(); i++) {
-
                 System.out.println(selectedUserIds.get(i));
                 userService.deleteUser(selectedUserIds.get(i));
-
-
             }
 
 
@@ -243,6 +239,7 @@ public class UserController {
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody JoinDTO joinDTO) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+        int couNo = joinDTO.getUserDTO().getCouNo();
         UserDTO userDTO = joinDTO.getUserDTO();
         UserDTO parentDTO = joinDTO.getParentDTO();
         userDTO.setApproval("o");
@@ -262,6 +259,11 @@ public class UserController {
         System.out.println(user);
         System.out.println(parent);
         //회원가입처리(화면에서 보내준 내용을 디비에 저장)
+        if (couNo != 0) {
+            Course course = courseService.getCourse(couNo);
+            user.setCourse(course);
+            parent.setCourse(course);
+        }
         User joinUser = userService.join(user);
         parent.setUserJoinId(joinUser.getId());
         User joinParent = userService.join(parent);
@@ -404,15 +406,16 @@ public class UserController {
     @GetMapping("/type-list/{userType}")
     public ResponseEntity<?> getTeacherList(@PathVariable String userType) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
-
+        System.out.println("/type-list/{userType}: " + userType);
         List<User> userList = userService.getUserTypeList(userType);
-
         List<UserDTO> userDTOList = userList.stream()
                 .map(user -> {
                     UserDTO userDTO = user.EntityToDTO();
-                    int id = user.getUserJoinId();
-                    UserDTO dto = userService.findById(id).EntityToDTO();
-                    userDTO.setParentDTO(dto);
+                    if (userType.equals("student")) {
+                        int id = user.getUserJoinId();
+                        UserDTO dto = userService.findById(id).EntityToDTO();
+                        userDTO.setParentDTO(dto);
+                    }
                     return userDTO;
                 })
                 .collect(Collectors.toList());
