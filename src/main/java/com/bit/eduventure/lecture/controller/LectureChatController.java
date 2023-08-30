@@ -29,5 +29,12 @@ public class LectureChatController {
 //        return chatMessage;
 //    }
 
+//    @MessageMapping("/sendMessage/{lecId}")
+//    @SendTo("/topic/public/{lecId}")
+//    public String sendMessage(@Payload String chatMessage,
+//                              @DestinationVariable String lecId) {
+//        return chatBotService.processMessage(chatMessage);
+//    }
+
 
 }

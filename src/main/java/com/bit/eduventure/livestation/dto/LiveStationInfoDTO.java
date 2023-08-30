@@ -8,7 +8,7 @@ import lombok.Data;
 public class LiveStationInfoDTO {
     private String channelId;
     private String channelName;
-
+    private String channelStatus;
     private int cdnInstanceNo;
     private String cdnStatus;
 

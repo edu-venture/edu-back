@@ -63,7 +63,7 @@ public class LiveStationService {
 
     public String createChannel(String name) {
         try {
-            ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
+            String title = name.replaceAll(" ", "");
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(liveStationUrl);
             String url = urlBuilder.toString();
@@ -82,7 +82,7 @@ public class LiveStationService {
                     .accessControl("PRIVATE")
                     .build();
             LiveStationRequestDTO requestDTO = LiveStationRequestDTO.builder()
-                    .channelName(name)
+                    .channelName(title)
                     .cdn(cdnDTO)
                     .qualitySetId(3)
                     .useDvr(true)
@@ -156,6 +156,7 @@ public class LiveStationService {
             LiveStationInfoDTO dto = LiveStationInfoDTO.builder()
                     .channelId(channelID)
                     .channelName(response.getBody().getContent().getChannelName())
+                    .channelStatus(response.getBody().getContent().getChannelStatus())
                     .cdnInstanceNo(response.getBody().getContent().getCdn().getInstanceNo())
                     .cdnStatus(response.getBody().getContent().getCdn().getStatusName())
                     .publishUrl(response.getBody().getContent().getPublishUrl())

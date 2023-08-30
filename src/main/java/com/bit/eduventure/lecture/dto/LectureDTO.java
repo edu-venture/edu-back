@@ -16,8 +16,7 @@ public class LectureDTO {
     private Integer id;
     private String title;
     private String liveStationId;
-
-    private CourseDTO courseDTO;
+    private int couNo;
 
 
 
@@ -26,7 +25,7 @@ public class LectureDTO {
                 .id(this.id)
                 .title(this.title)
                 .liveStationId(this.liveStationId)
-                .course(this.courseDTO.DTOToEntity())
+                .couNo(this.couNo)
                 .build();
 
         return lecture;
