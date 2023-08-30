@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,7 +40,7 @@ public class ControllerQuizBoard {
 //    private RepositoryQuizBoard repositoryQuizBoard;
 
     @GetMapping("/board-list")
-    public ResponseEntity<?> getBoardList(@PageableDefault(page = 0, size = 10) Pageable pageable,
+    public ResponseEntity<?> getBoardList(@PageableDefault(page = 0, size = 10, sort = "boardNo", direction = Sort.Direction.DESC) Pageable pageable,
                                           @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                           @RequestParam(value = "searchCondition", required = false) String searchCondition,
                                           @RequestParam(value = "searchKeyword", required = false) String searchKeyword) {
