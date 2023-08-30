@@ -61,15 +61,19 @@ public class PaymentService {
         Map<String, Integer> productList = jsonTOProductMap(requestDTO.getProductList());
 
         //상품과 가격 디비에 저장하면서 총합 구하기
-        int totalPrice = productList.values().stream()
-                .peek(price -> {
+        int totalPrice = productList.entrySet().stream()
+                .peek(entry -> {
+                    String productName = entry.getKey();
+                    int productPrice = entry.getValue();
+
                     Receipt receipt = Receipt.builder()
                             .paymentId(payNo)
-                            .productPrice(price)
+                            .productName(productName)
+                            .productPrice(productPrice)
                             .build();
                     receiptService.saveReceipt(receipt);
                 })
-                .mapToInt(Integer::intValue)
+                .mapToInt(Map.Entry::getValue)
                 .sum();
 
         //상품의 총합을 구해서
@@ -163,8 +167,17 @@ public class PaymentService {
     //상품 정보와 가격 추출
     public Map<String, Integer> jsonTOProductMap(String productList) {
         System.out.println(productList);
-        Type type = new TypeToken<Map<String, Integer>>(){}.getType();
-        return new Gson().fromJson(productList, type);
+        Gson gson = new Gson();
+        Type type = new TypeToken<List<Map<String, Object>>>() {}.getType();
+        List<Map<String, Object>> dataList = gson.fromJson(productList, type);
+
+        Map<String, Integer> resultMap = new HashMap<>();
+        for (Map<String, Object> data : dataList) {
+            String detail = (String) data.get("detail");
+            int price = ((Number) data.get("price")).intValue();
+            resultMap.put(detail, price);
+        }
+        return resultMap;
     }
 
     //결제 번호 리스트 객체화

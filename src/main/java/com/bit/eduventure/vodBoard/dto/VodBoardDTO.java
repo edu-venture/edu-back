@@ -22,12 +22,18 @@ public class VodBoardDTO { // 보드 dto에 원래 이름, 저장이름, 오브�
     private LocalDateTime regDate;
     private LocalDateTime modDate;
     private int hits;
+
     private String originPath;
     private String savePath;
+    private String objectPath;
+
     private String originThumb;
     private String saveThumb;
+    private String objectThumb;
+
     private int likeCount;
     private int likeStatus;
+
     private UserDTO userDTO;
 
     public VodBoard DTOTOEntity() {
@@ -38,11 +44,15 @@ public class VodBoardDTO { // 보드 dto에 원래 이름, 저장이름, 오브�
                 .writer(this.writer)
                 .regDate(this.regDate)
                 .modDate(this.modDate)
-                .originThumb(this.originThumb)
-                .saveThumb(this.saveThumb)
-                .hits(this.hits)
+
                 .originPath(this.originPath)
                 .savePath(this.savePath)
+
+                .originThumb(this.originThumb)
+                .saveThumb(this.saveThumb)
+
+                .hits(this.hits)
+
                 .user(this.userDTO.DTOToEntity())
                 .build();
         return vodBoard;

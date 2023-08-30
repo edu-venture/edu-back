@@ -10,6 +10,7 @@ import com.bit.eduventure.ES1_User.Repository.UserRepository;
 import com.bit.eduventure.ES1_User.Service.UserDetailsServiceImpl;
 import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES3_Course.Entity.Course;
+import com.bit.eduventure.ES3_Course.Service.CourseService;
 import com.bit.eduventure.ES4_Email.Service.EmailService;
 import com.bit.eduventure.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpSession;
@@ -33,21 +34,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
-
     private final JwtTokenProvider jwtTokenProvider;
-
-
     private final UserRepository userRepository;
-
-
-    //회원정보 수정후 Authentication 객체의 UserDetails를 변경하기 위해
-    //loadByUsername 호출
-
-
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
+    private final CourseService courseService;
 
     @DeleteMapping("/user/{id}")
     public ResponseEntity<?> deleteBoard(@PathVariable int id) {
@@ -75,13 +66,9 @@ public class UserController {
         ResponseDTO<Map<String, String>> responseDTO =
                 new ResponseDTO<Map<String, String>>();
         try {
-
             for (int i = 0; i < selectedUserIds.size(); i++) {
-
                 System.out.println(selectedUserIds.get(i));
                 userService.deleteUser(selectedUserIds.get(i));
-
-
             }
 
 
@@ -199,26 +186,23 @@ public class UserController {
     public ResponseEntity<?> getstudent(@RequestBody UserDTO student) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
 
-        User userme;
+        User userMe;
 
         if (userRepository.existsById(student.getId())) {
-            userme = userService.findById(student.getId());
+            userMe = userService.findById(student.getId());
         } else {
-            userme = new User();
-            userme.setUserTel("엄마없음");
-            userme.setCourse(new Course().builder().couNo(1).build());
+            userMe = new User();
+            userMe.setUserTel("엄마없음");
+            userMe.setCourse(new Course().builder().couNo(1).build());
         }
 
-        System.out.println(userme);
-        UserDTO userDTO = userme.EntityToDTO();
+        System.out.println(userMe);
+        UserDTO userDTO = userMe.EntityToDTO();
 
+        responseDTO.setItem(userDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
 
-
-
-            responseDTO.setItem(userDTO);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
+        return ResponseEntity.ok().body(responseDTO);
 
     }
 
@@ -245,6 +229,7 @@ public class UserController {
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody JoinDTO joinDTO) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+        int couNo = joinDTO.getUserDTO().getCouNo();
         UserDTO userDTO = joinDTO.getUserDTO();
         UserDTO parentDTO = joinDTO.getParentDTO();
         userDTO.setApproval("o");
@@ -254,7 +239,7 @@ public class UserController {
 
         User parent = parentDTO.DTOToEntity();
         User user = userDTO.DTOToEntity();
-        System.out.println("트라이로는 들어왔음");
+
         user.setUserPw(
                 passwordEncoder.encode(userDTO.getUserPw())
         );
@@ -264,6 +249,11 @@ public class UserController {
         System.out.println(user);
         System.out.println(parent);
         //회원가입처리(화면에서 보내준 내용을 디비에 저장)
+        if (couNo != 0) {
+            Course course = courseService.getCourse(couNo);
+            user.setCourse(course);
+            parent.setCourse(course);
+        }
         User joinUser = userService.join(user);
         parent.setUserJoinId(joinUser.getId());
         User joinParent = userService.join(parent);
@@ -276,12 +266,8 @@ public class UserController {
         responseDTO.setItem(joinParentDTO);
         responseDTO.setItem(joinUserDTO);
         responseDTO.setStatusCode(HttpStatus.OK.value());
+
         return ResponseEntity.ok().body(responseDTO);
-
-
-        //JPA로 저장하기 위해 DTO를 Entity로 변환
-        //화면에서 사용자가 입력한 내용을 가지고 있는 Entity
-
     }
 
 
@@ -293,7 +279,7 @@ public class UserController {
 
 
         User user = memberDTO.DTOToEntity();
-        System.out.println("트라이로는 들어왔음");
+
         user.setUserPw(
                 passwordEncoder.encode(memberDTO.getUserPw())
         );
@@ -319,7 +305,7 @@ public class UserController {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
         System.out.println(userDTO);
         System.out.println("업데이트에 들어왔음");
-
+        Course course = courseService.getCourse(userDTO.getCouNo());
         User user = userDTO.DTOToEntity();
         System.out.println(user);
 //            user.setUserPw(
@@ -330,6 +316,7 @@ public class UserController {
         System.out.println("위에꺼가 userBulk");
         user.setUserPw(userBulk.getUserPw());
         user.setRole("ROLE_USER");
+        user.setCourse(course);
         User joinUser = userService.update(user);
         System.out.println(joinUser);
         System.out.println("위에꺼가 JOinuser");
@@ -405,11 +392,18 @@ public class UserController {
     @GetMapping("/type-list/{userType}")
     public ResponseEntity<?> getTeacherList(@PathVariable String userType) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
-
+        System.out.println("/type-list/{userType}: " + userType);
         List<User> userList = userService.getUserTypeList(userType);
-
         List<UserDTO> userDTOList = userList.stream()
-                .map(user -> user.EntityToDTO())
+                .map(user -> {
+                    UserDTO userDTO = user.EntityToDTO();
+                    if (userType.equals("student")) {
+                        int id = user.getUserJoinId();
+                        UserDTO dto = userService.findById(id).EntityToDTO();
+                        userDTO.setParentDTO(dto);
+                    }
+                    return userDTO;
+                })
                 .collect(Collectors.toList());
 
 
