@@ -56,13 +56,6 @@ public class TimeTableService {
         return returnList;
     }
 
-    public List<String> getTimeWeekByCouNo(int couNo) {
-        List<TimeTableDTO> dtos = getTimetablesByCouNo(couNo);
-        return dtos.stream()
-                .map(TimeTableDTO::getTimeWeek)
-                .collect(Collectors.toList());
-    }
-
 
     /* 시간표 전체 조회 */
     public List<TimeTableDTO> getAllTimetables() {

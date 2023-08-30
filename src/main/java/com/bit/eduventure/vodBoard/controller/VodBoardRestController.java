@@ -1,7 +1,5 @@
 package com.bit.eduventure.vodBoard.controller;
 
-
-import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
@@ -20,7 +18,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.stream.Collectors;
 

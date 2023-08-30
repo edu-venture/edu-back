@@ -2,7 +2,7 @@ package com.bit.eduventure.ES1_User.Controller;
 
 
 import com.bit.eduventure.ES1_User.DTO.JoinDTO;
-import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
+import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
@@ -107,12 +107,13 @@ public class UserController {
                                     .id(user.getId()).userScore(user.getUserScore())
                                     .userId(user.getUserId()).courseDTO(user.getCourse().EntityToDTO())
                                     .userPw(user.getUserPw()).userBus(user.getUserBus())
-//                .userEmail(this.userEmail)
-                                    .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote()).userConsultContent(user.getUserConsultContent()).approval(user.getApproval())
+                                    .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote())
+                                    .userConsultContent(user.getUserConsultContent()).approval(user.getApproval())
                                     .userName(user.getUserName())
                                     .userTel(user.getUserTel()).userAddressDetail(user.getUserAddressDetail())
                                     .userRegdate(user.getUserRegdate())
-                                    .role(user.getRole()).userBirth(user.getUserBirth()).userSchool(user.getUserSchool()).userAddress(user.getUserAddress()).userJoinId(user.getUserJoinId())
+                                    .role(user.getRole()).userBirth(user.getUserBirth()).userSchool(user.getUserSchool())
+                                    .userAddress(user.getUserAddress()).userJoinId(user.getUserJoinId())
                                     .build()
             );
             System.out.println("이게 페이지유저 디티오");
@@ -428,16 +429,6 @@ public class UserController {
                 .collect(Collectors.toList());
 
         responseDTO.setItems(userDTOList);
-        responseDTO.setStatusCode(HttpStatus.OK.value());
-
-        return ResponseEntity.ok().body(responseDTO);
-    }
-
-    @GetMapping("/user-all-list")
-    public ResponseEntity<?> getCourseUserList() {
-        ResponseDTO<User> responseDTO = new ResponseDTO<>();
-
-        responseDTO.setItems(userRepository.findAll());
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
