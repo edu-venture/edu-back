@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostItService {
@@ -44,5 +46,24 @@ public class PostItService {
         } else {
             throw new RuntimeException("보내는 사람 또는 받는 사람을 찾을 수 없습니다.");
         }
+    }
+
+    public List<PostItDTO> getPostItList() {
+        List<PostItEntity> postItEntities = postItRepository.findAll();
+
+        return postItEntities.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private PostItDTO convertToDTO(PostItEntity postItEntity) {
+        return PostItDTO.builder()
+                .id(postItEntity.getId())
+                .senderId(postItEntity.getSender().getId())
+                .receiverId(postItEntity.getReceiver().getId())
+                .message(postItEntity.getMessage())
+                .sentDate(postItEntity.getSentDate())
+                .replied(postItEntity.isReplied())
+                .build();
     }
 }
