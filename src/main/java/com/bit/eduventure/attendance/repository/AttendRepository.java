@@ -12,20 +12,11 @@ import java.util.Optional;
 
 @Repository
 public interface AttendRepository extends JpaRepository<Attend, Integer> {
-
     Optional<Attend> findById(Integer id);
-
     List<Attend> findAllByUserNo(Integer userId);
-
     List<Attend> findByUserNoAndAttStartBetween(Integer userId, LocalDateTime start, LocalDateTime end);
-
     List<Attend> findAllByUserNoAndAttDate(Integer userId, LocalDate attDate);
-
-
     //특정한 달(month)의 출석 기록 조회
     List<Attend> findByUserNoAndAttDateBetween(Integer userId, LocalDate startDate, LocalDate endDate);
-
-
-
 
 }

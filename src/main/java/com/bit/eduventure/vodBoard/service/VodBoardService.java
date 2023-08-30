@@ -18,7 +18,6 @@ import java.util.NoSuchElementException;
 public class VodBoardService {
     private final VodBoardRepository vodBoardRepository;
     private final VodBoardFileRepository vodBoardFileRepository;
-    private final VodBoardCommentService vodBoardCommentService;
 
     //게시글 등록하기 (게시물과 첨부파일 리스틀 받아 생성)
     @Transactional
@@ -96,26 +95,5 @@ public class VodBoardService {
         vodBoardFileRepository.deleteAllByVodBoardNo(vodNo);
     }
 
-    //게시글 수정하기
-    @Transactional
-    public void insertBoardFiles(VodBoard vodBoard, List<VodBoardFile> uploadFileList) {
-    }
 
-//    public List<VodBoardFile> getBoardFileList(int boardNo) {
-//        return vodBoardFileRepository.findAllByVodBoardNo(boardNo);
-//    }
-
-//    public void insertBoard(VodBoard board, List<VodBoardFile> fileList) {
-//        vodBoardRepository.save(board);
-//        vodBoardRepository.flush();
-//
-//        for (VodBoardFile boardFile : fileList) {
-//            boardFile.setVodBoardNo(board.getId());
-//
-//            int boardFilNo = vodBoardFileRepository.save(boardFile).getVodFileNo();
-//            boardFile.setVodFileNo(boardFilNo);
-//
-//            vodBoardFileRepository.save(boardFile);
-//        }
-//    }
 }

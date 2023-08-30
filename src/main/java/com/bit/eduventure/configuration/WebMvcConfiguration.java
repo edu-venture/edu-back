@@ -1,22 +1,14 @@
 package com.bit.eduventure.configuration;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
-public class WebMvcConfiguration   implements WebMvcConfigurer {
+public class WebMvcConfiguration implements WebMvcConfigurer {
 
 //    @Value("${file.resource}")
 //
 //    private String filePath;
-
-
-
-
-
-
 
 //    @Override
 //    public void addResourceHandlers(ResourceHandlerRegistry resourceHandlerRegistry){
@@ -27,7 +19,7 @@ public class WebMvcConfiguration   implements WebMvcConfigurer {
 //    }
 
 
-@Override
+    @Override
     public void addCorsMappings(CorsRegistry registry){
         registry.addMapping("/**")
                 //예외로 동작할 주소 지정
@@ -40,13 +32,6 @@ public class WebMvcConfiguration   implements WebMvcConfigurer {
                 .allowCredentials(true)
                 //타임아웃 시간 설정
                 .maxAge(3600);
-
-
-
-
-
-}
-
-
+    }
 
 }

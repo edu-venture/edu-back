@@ -22,6 +22,7 @@ public class Receipt {
     String productName;  //상품 이름
     int productPrice;   //상품 가격
 
+
     public ReceiptDTO EntityTODTO() {
         ReceiptDTO receiptDTO = ReceiptDTO.builder()
                 .id(this.id)
