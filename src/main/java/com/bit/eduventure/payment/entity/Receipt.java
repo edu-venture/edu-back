@@ -17,9 +17,16 @@ import lombok.NoArgsConstructor;
 public class Receipt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "RECEIPT_NO")
     Integer id;
+
+    @Column(name = "PAY_NO")
     int paymentId;  //결제 PK
+
+    @Column(name = "PRODUCT_NAME")
     String productName;  //상품 이름
+
+    @Column(name = "PRODUCT_PRICE")
     int productPrice;   //상품 가격
 
     public ReceiptDTO EntityTODTO() {

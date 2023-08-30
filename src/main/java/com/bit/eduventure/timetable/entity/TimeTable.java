@@ -19,13 +19,28 @@ public class TimeTable {
     @Column(name = "TIME_NO")
     private Integer timeNo; //아이디
 
+    @Column(name = "TIME_TITLE")
     private String timeTitle;   //수업 제목
+
+    @Column(name = "TIME_PLACE")
     private String timePlace;   //수업 장소
+
+    @Column(name = "TIME_COLOR")
     private String timeColor;   //색상
+
+    @Column(name = "TIME_CLASS")
     private String timeClass;   //수업 ??교시
+
+    @Column(name = "TIME_WEEK")
     private String timeWeek;    //수업 ??요일
+
+    @Column(name = "TIME_TEACHER")
     private String timeTeacher;
+
+    @Column(name = "COU_NO")
     private int couNo;
+
+    @Column(name = "COU_NAME")
     private String claName;      //반 조인 컬럼대체
 
     public TimeTableDTO EntityTODTO() {
