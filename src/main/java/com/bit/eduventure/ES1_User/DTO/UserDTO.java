@@ -20,7 +20,6 @@ public class UserDTO {
     private String userId;
     private String userPw;
     private String userName;
-//    private String userEmail;
     private String userTel;
     private LocalDateTime userRegdate;
     private String role;
@@ -33,15 +32,11 @@ public class UserDTO {
     private Integer userJoinId;
     private String userAddressDetail;
     private String userConsultContent;
-
+    private UserDTO parentDTO;
+    private int couNo;
     private CourseDTO courseDTO;
-
-
-
-private String approval;
-
+    private String approval;
     private String userSpecialNote;
-
     private Integer userBus;
     private Integer userScore;
     public User DTOToEntity() {
@@ -53,17 +48,26 @@ private String approval;
                     .build();
         }
 
-
         User user = User.builder()
-                .id(this.id).course(course)
-                .userId(this.userId).approval(this.approval)
-                .userPw(this.userPw).userBus(this.userBus)
-//                .userEmail(this.userEmail)
-                .userType(this.userType).userSpecialNote(this.userSpecialNote).userConsultContent(this.userConsultContent).userScore(this.userScore)
+                .id(this.id)
+                .course(course)
+                .userId(this.userId)
+                .approval(this.approval)
+                .userPw(this.userPw)
+                .userBus(this.userBus)
+                .userType(this.userType)
+                .userSpecialNote(this.userSpecialNote)
+                .userConsultContent(this.userConsultContent)
+                .userScore(this.userScore)
                 .userName(this.userName)
-                .userTel(this.userTel).userAddressDetail(this.userAddressDetail)
+                .userTel(this.userTel)
+                .userAddressDetail(this.userAddressDetail)
                 .userRegdate(LocalDateTime.now())
-                .role(this.role).userBirth(this.userBirth).userSchool(this.userSchool).userAddress(this.userAddress).userJoinId(this.userJoinId)
+                .role(this.role)
+                .userBirth(this.userBirth)
+                .userSchool(this.userSchool)
+                .userAddress(this.userAddress)
+                .userJoinId(this.userJoinId)
                 .build();
 
         return user;

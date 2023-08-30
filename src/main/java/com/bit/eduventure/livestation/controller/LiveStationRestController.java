@@ -26,5 +26,4 @@ public class LiveStationRestController {
     public ResponseEntity<?> deleteChannel(@PathVariable String channelId) {
         return liveStationService.deleteChannel(channelId);
     }
-
 }

@@ -10,4 +10,5 @@ import java.util.List;
 public interface VodBoardLikeRepository extends JpaRepository<VodBoardLike, Integer> {
     List<VodBoardLike> findByVodNoAndUserNo(int vodNo, int userNo);
     int countAllByVodNo(int vodNo);
+    void deleteAllByVodNo(int vodNo);
 }

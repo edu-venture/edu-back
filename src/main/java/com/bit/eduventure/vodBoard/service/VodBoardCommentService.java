@@ -68,6 +68,7 @@ public class VodBoardCommentService {
     @Transactional
     //댓글 삭제 메소드
     public void deleteComment(int commentNo) {
+        vodBoardCommentRepository.deleteAllByVodCmtParentNo(commentNo);
         vodBoardCommentRepository.deleteById(commentNo);
     }
 
