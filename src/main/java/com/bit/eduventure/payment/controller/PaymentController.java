@@ -42,7 +42,7 @@ public class PaymentController {
     //클라이언트로부터 받은 HTTP POST 요청의 body 부분을 PaymentCreateRequestDTO 타입의 객체로 변환하고, 이를 requestDTO라는 매개변수로 전달
     public ResponseEntity<?> createPayment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                            @RequestBody PaymentRequestDTO requestDTO) {
-        System.out.println("requestDTO: " + requestDTO);
+
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
         List<PaymentResponseDTO> returnList = new ArrayList<>();
 
@@ -71,21 +71,23 @@ public class PaymentController {
     public ResponseEntity<?> modifyPayment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                            @PathVariable int payNo,
                                            @RequestBody PaymentRequestDTO requestDTO) {
-        System.out.println("수정할 payNo: " + payNo);
-        System.out.println("수정할 requestDTO: " + requestDTO);
+
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
+
         List<PaymentResponseDTO> returnList = new ArrayList<>();
 
         int userNo = customUserDetails.getUser().getId();
+        receiptService.deleteReceipt(payNo);
 
         requestDTO.setUserNo(userNo);
-        paymentService.createPayment(payNo, requestDTO);
+        Payment payment = paymentService.createPayment(payNo, requestDTO);
 
-        User user = userService.findById(requestDTO.getPayTo());
+        User user = userService.findById(payment.getPayTo());
 
         PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
                 .userName(user.getUserName())
                 .couNo(user.getCourse().getCouNo())
+                .totalPrice(payment.getTotalPrice())
                 .build();
 
         returnList.add(paymentResponseDTO);
@@ -232,6 +234,7 @@ public class PaymentController {
         List<Integer> payNoIntList = paymentService.jsonTOpayNoList(payNoList);
 
         paymentService.deletePaymentList(payNoIntList);
+
         response.setItem("납부서 삭제 성공");
         response.setStatusCode(HttpStatus.OK.value());
 
@@ -257,6 +260,7 @@ public class PaymentController {
                 .userName(userDTO.getUserName())
                 .issYear(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[0]))
                 .issMonth(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[1]))
+                .totalPrice(paymentDTO.getTotalPrice())
                 .productList(receiptDTOList)
                 .build();
 

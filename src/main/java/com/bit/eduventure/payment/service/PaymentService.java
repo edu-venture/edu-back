@@ -87,15 +87,11 @@ public class PaymentService {
     @Transactional
     //게시물 수정
     public Payment createPayment(int payNo, PaymentRequestDTO requestDTO) {
-
         //수정 하기
         Payment payment = getPayment(payNo);
         payment.setUserNo(requestDTO.getUserNo());
         payment.setTotalPrice(0);
-        payment.setPayTo(requestDTO.getPayTo());
         payment.setIssDate(stringToLocalDateTime(requestDTO.getIssDate()));
-
-        receiptService.deleteReceipt(payNo);
 
         Map<String, Integer> productList = jsonTOProductMap(requestDTO.getProductList());
 
