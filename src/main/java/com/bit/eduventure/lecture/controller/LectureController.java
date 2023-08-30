@@ -11,8 +11,12 @@ import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import com.bit.eduventure.lecture.entity.Lecture;
 import com.bit.eduventure.lecture.service.LectureService;
+import com.bit.eduventure.livestation.dto.RecordVodDTO;
 import com.bit.eduventure.livestation.service.LiveStationService;
+import com.bit.eduventure.objectStorage.service.ObjectStorageService;
 import com.bit.eduventure.vodBoard.dto.VodBoardDTO;
+import com.bit.eduventure.vodBoard.entity.VodBoard;
+import com.bit.eduventure.vodBoard.service.VodBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +37,8 @@ public class LectureController {
     private final LiveStationService liveStationService;
     private final UserService userService;
     private final CourseService courseService;
-//    private final VodBoardService vodBoardService;
+    private final VodBoardService vodBoardService;
+    private final ObjectStorageService objectStorageService;
 
     //강사가 강의 개설
     @PostMapping("/lecture")
@@ -109,6 +114,30 @@ public class LectureController {
     public ResponseEntity<?> removeLecture(@PathVariable int lectureId) {
         ResponseDTO<String> response = new ResponseDTO<>();
 
+        Lecture lecture= lectureService.getLecture(lectureId);
+        Course course = courseService.getCourse(lecture.getCouNo());
+        String channelId = lecture.getLiveStationId();
+
+        RecordVodDTO recordVodDTO = liveStationService.getRecord(channelId);
+        String vodName = recordVodDTO.getFileName();    //녹화된 파일명
+        String thumb = "edu-venture.png";               //기본 썸네일
+
+        //삭제 전 녹화파일 게시글 작성
+        VodBoard vodBoard = VodBoard.builder()
+                .title(lecture.getTitle())
+                .content(lecture.getTitle() + " 으로 자동 생성된 게시글 입니다.")
+                .writer(course.getUser().getUserName())
+                .savePath(objectStorageService.getObjectSrc(vodName)) //영상 주소
+                .originPath(vodName)
+                .objectPath(vodName) //오브젝트에 저장된 영상 파일 명
+                .saveThumb(objectStorageService.getObjectSrc(thumb))
+                .objectThumb(thumb)
+                .user(course.getUser())
+                .build();
+        vodBoardService.insertBoard(vodBoard, null);
+
+
+        liveStationService.deleteChannel(channelId);
         lectureService.deleteLecture(lectureId);
 
         response.setItem("삭제되었습니다.");

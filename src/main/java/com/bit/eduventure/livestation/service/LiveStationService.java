@@ -17,7 +17,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,7 +78,7 @@ public class LiveStationService {
                     .format("MP4")
                     .bucketName(bucket)
                     .filePath("/")
-                    .accessControl("PRIVATE")
+                    .accessControl("PUBLIC_READ")
                     .build();
             LiveStationRequestDTO requestDTO = LiveStationRequestDTO.builder()
                     .channelName(title)
@@ -268,65 +267,52 @@ public class LiveStationService {
         }
     }
 
-//    public ResponseEntity<?> getRecord(String channelID) {
-//        ResponseDTO<RecordVodDTO> responseDTO = new ResponseDTO<>();
-//        try {
-//            StringBuilder urlBuilder = new StringBuilder();
-//            urlBuilder.append(liveStationUrl);
-//            urlBuilder.append("/");
-//            urlBuilder.append(channelID);
-//            urlBuilder.append("/records");
-////            urlBuilder.append("/");
-////            urlBuilder.append(recordID);
-//            String url = urlBuilder.toString();
-//
-//            String signUrl = url.substring(url.indexOf(".com") + 4);
-//
-//            String timestamp = String.valueOf(System.currentTimeMillis());
-//            String method = "GET";
-//            String sig = makeSignature(timestamp, method, signUrl);
-//
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.setContentType(MediaType.APPLICATION_JSON);
-//            headers.set("x-ncp-apigw-timestamp", timestamp);
-//            headers.set("x-ncp-iam-access-key", accessKey);
-//            headers.set("x-ncp-apigw-signature-v2", sig);
-//            headers.set("x-ncp-region_code", "KR");
-//
-//            HttpEntity<String> httpEntity = new HttpEntity<>(headers);
-//
-//            RestTemplate restTemplate = new RestTemplate();
-//            ResponseEntity<RecordResponseDTO> response = restTemplate.exchange(new URI(url), HttpMethod.GET, httpEntity, RecordResponseDTO.class);
-//            RecordVodDTO dto = null;
-//            System.out.println(response.getBody().getContentDTO().getRecordList());
-//            for(String key : response.getBody().getContentDTO().getRecordList().keySet()){
-//                RecordInfoDTO recordInfoDTO = response.getBody().getContentDTO().getRecordList().get(key);
-//                if (recordInfoDTO.getRecordType().equals("MP4")) {
-//                    dto = RecordVodDTO.builder()
-//                            .channelId(recordInfoDTO.getChannelId())
-//                            .fileName(recordInfoDTO.getFileName())
-//                            .uploadPath(recordInfoDTO.getUploadPath())
-//                            .recordType(recordInfoDTO.getRecordType())
-//                            .build();
-//                }
-//            }
-//
-//            System.out.println(dto.toString());
-////            RecordVodDTO dto = RecordVodDTO.builder()
-////                    .
-////                    .build();
-//
-//
-//            responseDTO.setStatusCode(HttpStatus.OK.value());
-////            responseDTO.setItem(dto);
-//
-//            return ResponseEntity.ok().body(responseDTO);
-//        } catch (Exception e) {
-//            responseDTO.setErrorMessage(e.getMessage());
-//            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-//
-//            return ResponseEntity.badRequest().body(responseDTO);
-//
-//        }
-//    }
+    public RecordVodDTO getRecord(String channelID) {
+        try {
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.append(liveStationUrl);
+            urlBuilder.append("/");
+            urlBuilder.append(channelID);
+            urlBuilder.append("/records");
+
+            String url = urlBuilder.toString();
+
+            String signUrl = url.substring(url.indexOf(".com") + 4);
+
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String method = "GET";
+            String sig = makeSignature(timestamp, method, signUrl);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("x-ncp-apigw-timestamp", timestamp);
+            headers.set("x-ncp-iam-access-key", accessKey);
+            headers.set("x-ncp-apigw-signature-v2", sig);
+            headers.set("x-ncp-region_code", "KR");
+
+            HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<RecordResponseDTO> response = restTemplate.exchange(new URI(url), HttpMethod.GET, httpEntity, RecordResponseDTO.class);
+            RecordVodDTO dto = null;
+            System.out.println(response.getBody().getContentDTO().getRecordList());
+            for (String key : response.getBody().getContentDTO().getRecordList().keySet()) {
+                RecordInfoDTO recordInfoDTO = response.getBody().getContentDTO().getRecordList().get(key);
+                if (recordInfoDTO.getRecordType().equals("MP4")) {
+                    dto = RecordVodDTO.builder()
+                            .channelId(recordInfoDTO.getChannelId())
+                            .fileName(recordInfoDTO.getFileName())
+                            .uploadPath(recordInfoDTO.getUploadPath())
+                            .recordType(recordInfoDTO.getRecordType())
+                            .build();
+                }
+            }
+
+            System.out.println("dto.toString(): " + dto.toString());
+
+            return dto;
+        }catch (URISyntaxException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 }
