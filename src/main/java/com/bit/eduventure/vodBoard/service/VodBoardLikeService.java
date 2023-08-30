@@ -13,6 +13,7 @@ public class VodBoardLikeService {
 
     private final VodBoardLikeRepository vodBoardLikeRepository;
 
+    //유저가 좋아요 누르기
     @Transactional
     public void likeVodBoard(int vodNo, int userNo) {
         VodBoardLike vodBoardLike = VodBoardLike.builder()
@@ -23,6 +24,7 @@ public class VodBoardLikeService {
         vodBoardLikeRepository.save(vodBoardLike);
     }
 
+    //유저가 게시물 눌렀는 지 확인
     public int getLikeStatue(int vodNo, int userNo) {
         if (vodBoardLikeRepository.findByVodNoAndUserNo(vodNo, userNo) != null) {
             return 1;
@@ -31,14 +33,22 @@ public class VodBoardLikeService {
         }
     }
 
-    //좋아요 개수 구하기
+    //게시물 좋아요 개수 구하기
     @Transactional
     public int getLikeCount(int vodNo) {
         return vodBoardLikeRepository.countAllByVodNo(vodNo);
     }
 
+    //개별 좋아요 삭제
     @Transactional
-    public void unlikeVodBoard(int likeNo) {
+    public void unlikeVodBoard(int vodNo, int userNo) {
+        int likeNo = vodBoardLikeRepository.findByVodNoAndUserNo(vodNo, userNo).get(0).getId();
         vodBoardLikeRepository.deleteById(likeNo);
+    }
+
+    //게시물 삭제시 좋아요 전체 삭제
+    @Transactional
+    public void deleteVodBoard(int vodNo) {
+        vodBoardLikeRepository.deleteAllByVodNo(vodNo);
     }
 }

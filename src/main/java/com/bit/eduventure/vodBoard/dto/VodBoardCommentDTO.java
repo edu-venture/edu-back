@@ -31,6 +31,7 @@ public class VodBoardCommentDTO {
                 .vodCmtContent(this.vodCmtContent)
                 .vodCmtRegdate(this.vodCmtRegdate)
                 .vodCmtParentNo(this.vodCmtParentNo)
+                .vodNo(this.vodNo)
                 .user(this.userDTO.DTOToEntity())
                 .build();
     }

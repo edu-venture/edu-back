@@ -11,11 +11,7 @@ import org.springframework.web.bind.annotation.*;
 public class LiveStationRestController {
     private final LiveStationService liveStationService;
 
-//    @GetMapping("/create/{channelName}")
-//    public ResponseEntity<?> creatChannel(@PathVariable String channelName) {
-//        return liveStationService.createChannel(channelName);
-//    }
-
+    //채널 아이디가 있지만 강의중 것을 확인할 때
     @GetMapping("/info/{channelId}")
     public ResponseEntity<?> getChannelInfo(@PathVariable String channelId) {
         return liveStationService.getChannelInfo(channelId);
@@ -30,5 +26,4 @@ public class LiveStationRestController {
     public ResponseEntity<?> deleteChannel(@PathVariable String channelId) {
         return liveStationService.deleteChannel(channelId);
     }
-
 }
