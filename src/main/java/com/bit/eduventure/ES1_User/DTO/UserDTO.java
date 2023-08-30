@@ -20,7 +20,6 @@ public class UserDTO {
     private String userId;
     private String userPw;
     private String userName;
-//    private String userEmail;
     private String userTel;
     private LocalDateTime userRegdate;
     private String role;
@@ -33,15 +32,11 @@ public class UserDTO {
     private Integer userJoinId;
     private String userAddressDetail;
     private String userConsultContent;
-
+    private UserDTO parentDTO;
+    private int couNo;
     private CourseDTO courseDTO;
-
-
-
-private String approval;
-
+    private String approval;
     private String userSpecialNote;
-
     private Integer userBus;
     private Integer userScore;
     public User DTOToEntity() {

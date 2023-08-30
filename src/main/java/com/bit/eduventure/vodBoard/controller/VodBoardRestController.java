@@ -212,7 +212,6 @@ public class VodBoardRestController {
     public ResponseEntity<?> deleteVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                             @PathVariable int boardNo) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
-        System.out.println("@DeleteMapping: " + boardNo);
         int userNo= customUserDetails.getUser().getId();
         VodBoard vodBoard = vodBoardService.getBoard(boardNo);
 
@@ -228,9 +227,11 @@ public class VodBoardRestController {
             });
         }
 
+        //DB에 있는 첨부파일 리스트 삭제
         vodBoardService.deleteAllFile(boardNo);
-
+        //게시물에 달려있는 댓글 삭제
         vodBoardCommentService.deleteCommentVodNo(boardNo);
+        //게시물 삭제
         vodBoardService.deleteVodBoard(boardNo);
 
 

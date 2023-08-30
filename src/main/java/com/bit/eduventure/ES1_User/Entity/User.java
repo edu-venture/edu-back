@@ -90,13 +90,20 @@ public class User {
                 .id(this.id)
                 .courseDTO(courseDTO)
                 .userId(this.userId)
-
-                .userId(this.userId).approval(this.approval).userScore(this.userScore)
-
-                .userName(this.userName).userAddressDetail(this.userAddressDetail)
-//                .userEmail(this.userEmail)
-                .userTel(this.userTel).userBus(this.userBus).userSpecialNote(this.userSpecialNote).userConsultContent(this.userConsultContent)
-                .userBirth(this.userBirth).userType(this.userType) .userSchool(this.userSchool).userAddress(this.userAddress).userJoinId(this.userJoinId)    .userRegdate(this.userRegdate)
+                .approval(this.approval)
+                .userScore(this.userScore)
+                .userName(this.userName)
+                .userAddressDetail(this.userAddressDetail)
+                .userTel(this.userTel)
+                .userBus(this.userBus)
+                .userSpecialNote(this.userSpecialNote)
+                .userConsultContent(this.userConsultContent)
+                .userBirth(this.userBirth)
+                .userType(this.userType)
+                .userSchool(this.userSchool)
+                .userAddress(this.userAddress)
+                .userJoinId(this.userJoinId)
+                .userRegdate(this.userRegdate)
                 .role(this.role)
                 .build();
 
