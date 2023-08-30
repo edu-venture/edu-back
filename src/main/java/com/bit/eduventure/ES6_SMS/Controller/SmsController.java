@@ -1,7 +1,7 @@
 package com.bit.eduventure.ES6_SMS.Controller;
 
 
-import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
+import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.ES6_SMS.DTO.MessageDTO;
 import com.bit.eduventure.ES6_SMS.DTO.SmsResponseDTO;
 import com.bit.eduventure.ES6_SMS.Service.SmsService;

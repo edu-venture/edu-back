@@ -2,9 +2,7 @@ package com.bit.eduventure.ES3_Course.DTO;
 
 
 import com.bit.eduventure.ES1_User.DTO.UserDTO;
-import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES3_Course.Entity.Course;
-import jakarta.persistence.Column;
 import lombok.*;
 
 @Getter

@@ -4,7 +4,6 @@ package com.bit.eduventure.ES1_User.DTO;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
-import jakarta.persistence.Column;
 import lombok.*;
 
 import java.time.LocalDateTime;

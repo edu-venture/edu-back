@@ -19,7 +19,6 @@ public class VodBoardLikeService {
         VodBoardLike vodBoardLike = VodBoardLike.builder()
                 .vodNo(vodNo)
                 .userNo(userNo)
-                .likeStatus(1)
                 .build();
         vodBoardLikeRepository.save(vodBoardLike);
     }

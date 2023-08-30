@@ -41,11 +41,6 @@ public class CourseServiceImpl  implements CourseService {
                 .orElseThrow(() -> new NoSuchElementException());
     }
 
-    @Override
-    public Course findByClaName(String claName) {
-        return courseRepository.findByClaName(claName);
-    }
-
     //선생님 이름으로 반 정보 찾기
     @Override
     public List<Course> findByTeacherId(int teacherId) {
@@ -101,26 +96,6 @@ public class CourseServiceImpl  implements CourseService {
             throw new RuntimeException("JSON 처리 오류");
         }
     }
-
-    @Override
-    public List<String> getTimeWeeksByCouNo(int couNo) {
-        // First, find the Course by couNo
-        Course course = courseRepository.findById(couNo).orElse(null);
-
-        if (course == null) {
-            // Handle the error, e.g., throw an exception or return an empty list
-            return Collections.emptyList();
-        }
-
-        // Using the claName from the found Course, find all matching timetables
-        List<TimeTable> timetables = timeTableService.getTimeTableListForClaName(course.getClaName());
-
-        // Extract timeWeek from each timetable and collect to a list
-        return timetables.stream()
-                .map(TimeTable::getTimeWeek)
-                .collect(Collectors.toList());
-    }
-
 
 
 }

@@ -1,11 +1,9 @@
 package com.bit.eduventure.vodBoard.service;
 
-import com.bit.eduventure.ES1_User.Repository.UserRepository;
 import com.bit.eduventure.vodBoard.dto.VodBoardCommentDTO;
 import com.bit.eduventure.vodBoard.entity.VodBoardComment;
 import com.bit.eduventure.vodBoard.repository.VodBoardCommentRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

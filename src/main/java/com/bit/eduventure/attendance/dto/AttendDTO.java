@@ -16,13 +16,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class AttendDTO {
 
-
     private int id;
     private LocalDateTime attStart;
     private LocalDateTime attFinish;
     private LocalDate attDate;
     private String attContent;
     private Boolean isCourse;
+    private String userName;
 
     private int userNo;
 
@@ -35,8 +35,6 @@ public class AttendDTO {
         this.attDate = attend.getAttDate();
         this.attContent = attend.getAttContent();
         this.isCourse = attend.getIsCourse();
-
-
     }
 
     public Attend DTOToEntity() {

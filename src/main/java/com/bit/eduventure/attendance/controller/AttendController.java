@@ -28,24 +28,18 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AttendController {
 
-
     private final AttendService attendService;
-
     private final UserService userService;
-
 
     //가장 최초 화면: 처음 화면은 Null로 하고 수업일 여부를 띄워준다.
     @GetMapping("/main")
     public ResponseEntity<?> getAttendForUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
-        int userId = Integer.parseInt(customUserDetails.getUsername());
-        User user = userService.findById(userId);  // userNo로 사용자 정보를 찾습니다. 해당 메서드는 UserService에서 정의되어 있어야 합니다.
-
-        System.out.println(user.getUserName());
+        int userId = customUserDetails.getUser().getId();
 
         try {
             AttendDTO response = attendService.getIsCourseForUser(userId);
-
+            response.setUserName(userService.findById(userId).getUserName());
 
             responseDTO.setItem(response);
             responseDTO.setStatusCode(HttpStatus.OK.value());
@@ -58,22 +52,18 @@ public class AttendController {
         }
     }
 
-
     // 입실 처리
     @PostMapping("/enter")
     public ResponseEntity<?> registerEnterTime(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
-        int userId = Integer.parseInt(customUserDetails.getUsername());
-        System.out.println(userId);
-        System.out.println("엔터 들어왔다 어텐드");
+        int userId = customUserDetails.getUser().getId();
 
         try {
             LocalDateTime attendTime = LocalDateTime.now(); // 현재 시간으로 입실 시간 설정
 
-
             AttendDTO response = attendService.registerAttendance(userId, attendTime);
-            System.out.println(response);
-            System.out.println("리스폰스를 받아왔다");
+            response.setUserName(userService.findById(userId).getUserName());
+
             responseDTO.setItem(response);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(response);
@@ -89,15 +79,13 @@ public class AttendController {
     @PostMapping("/exit")
     public ResponseEntity<?> registerExitTime(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
-        int userId = Integer.parseInt(customUserDetails.getUsername());
-        System.out.println(userId);
-        System.out.println("엑싯 들어왔다 어텐드");
+        int userId = customUserDetails.getUser().getId();
 
         try {
             LocalDateTime exitTime = LocalDateTime.now(); // 현재 시간으로 퇴실 시간 설정
 
-
             AttendDTO response = attendService.registerExitTime(userId, exitTime);
+            response.setUserName(userService.findById(userId).getUserName());
 
             responseDTO.setItem(response);
             responseDTO.setStatusCode(HttpStatus.OK.value());
@@ -114,10 +102,9 @@ public class AttendController {
     @GetMapping("/attend")
     public ResponseEntity<?> getAttendanceRecordsByUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<List<AttendDTO>> responseDTO = new ResponseDTO<>();
-        int userId = Integer.parseInt(customUserDetails.getUsername());
+        int userId = customUserDetails.getUser().getId();
 
         try {
-
             User user = userService.findById(userId);
             List<AttendDTO> records = attendService.getAttendanceRecordsByUser(user);
 
@@ -136,13 +123,13 @@ public class AttendController {
     // 특정 날짜의 특정 사용자 출석 기록 조회
     @GetMapping("/attend/date/{date}")
     public ResponseEntity<?> getAttendanceRecordsByUserAndDate(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                                             @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+                                                             @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         ResponseDTO<List<AttendDTO>> responseDTO = new ResponseDTO<>();
-        int userId = Integer.parseInt(customUserDetails.getUsername());
+        int userId = customUserDetails.getUser().getId();
 
         try {
-
             User user = userService.findById(userId);
+
             List<AttendDTO> records = attendService.getAttendanceRecordsByUserAndDate(user, date);
 
             responseDTO.setItem(records);
@@ -156,12 +143,13 @@ public class AttendController {
         }
     }
 
+
     // 특정 달에 해당하는 특정 사용자 출석 기록 조회
     @GetMapping("/attend/month/{yearMonth}")
     public ResponseEntity<?> getAttendanceRecordsByUserAndMonth(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                                              @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
+                                                              @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
         ResponseDTO<List<AttendDTO>> responseDTO = new ResponseDTO<>();
-        int userId = Integer.parseInt(customUserDetails.getUsername());
+        int userId = customUserDetails.getUser().getId();
 
         try {
 
@@ -181,13 +169,12 @@ public class AttendController {
 
     }
 
+
     // 출석 기록 수정
     @PutMapping("/admin/attend")
     public ResponseEntity<?> updateAttendRecord(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                 @RequestBody AttendDTO attendDTO) {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
-        System.out.println(attendDTO);
-        System.out.println("update 시작");
 
         try {
             Attend attend = attendDTO.DTOToEntity();
@@ -215,7 +202,6 @@ public class AttendController {
 
         try{
             attendService.deleteAttendList(attList);
-
 
             Map<String, Object> returnMap = new HashMap<>();
             returnMap.put("msg", "Deleted successfully");

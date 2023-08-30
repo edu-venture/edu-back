@@ -41,9 +41,11 @@ public class ImportApiController {
         try {
             return api.paymentByImpUid(imp_uid);
         } catch (IamportResponseException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -61,9 +63,11 @@ public class ImportApiController {
 
             return ResponseEntity.ok().body(responseDTO);
         } catch (IamportResponseException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 

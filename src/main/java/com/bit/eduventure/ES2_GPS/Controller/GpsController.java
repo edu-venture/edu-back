@@ -1,14 +1,6 @@
 package com.bit.eduventure.ES2_GPS.Controller;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-
-import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
+import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.ES2_GPS.Entity.DriverPhoto;
 import com.bit.eduventure.ES2_GPS.Entity.GPS;
 import com.bit.eduventure.ES2_GPS.Repository.DriverPhotoRepository;
@@ -18,21 +10,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.beans.factory.annotation.Value;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @PropertySource("classpath:/application.properties")
@@ -47,7 +33,7 @@ public class GpsController {
 //    private String bucketName;
 
 
-    @PostMapping("/hihi")
+    @PostMapping("/getlocationfromandroid")
     public ResponseEntity<String> receiveLocation(@RequestBody String location) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();

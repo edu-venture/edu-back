@@ -9,16 +9,10 @@ public class GPSService {
 
     private GPSRepository gpsRepository;
 
-@Autowired
+    @Autowired
     public GPSService(GPSRepository gpsRepository){
         this.gpsRepository = gpsRepository;
-
-
     }
-
-
-
-
 
 
 }

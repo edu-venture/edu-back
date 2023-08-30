@@ -39,7 +39,6 @@ public class TimeTableController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response); // 성공적인 응답 반환
     }
 
-
     /* 시간표 목록 조회 */
     @GetMapping("/getTimeTable-list")
     public ResponseEntity<?> getAllTimetables() {
@@ -79,23 +78,23 @@ public class TimeTableController {
 
         ResponseDTO<TimeTableDTO> response = new ResponseDTO<>();
 
-            int userNo = Integer.parseInt(customUserDetails.getUsername());
-            UserDTO userDTO = userService.findById(userNo).EntityToDTO();
+        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        UserDTO userDTO = userService.findById(userNo).EntityToDTO();
 
-            List<TimeTableDTO> timeTableDTOList= timeTableService.getTimetableByStudent(userDTO.getCourseDTO().getCouNo());
+        List<TimeTableDTO> timeTableDTOList= timeTableService.getTimetableByStudent(userDTO.getCourseDTO().getCouNo());
 
-            // timeWeek의 첫 글자만 잘라서 저장.
-            for (TimeTableDTO dto : timeTableDTOList) {
-                String timeWeek = dto.getTimeWeek();
-                if (timeWeek != null && !timeWeek.isEmpty()) {
-                    dto.setTimeWeek(timeWeek.substring(0, 1));
-                }
+        // timeWeek의 첫 글자만 잘라서 저장.
+        for (TimeTableDTO dto : timeTableDTOList) {
+            String timeWeek = dto.getTimeWeek();
+            if (timeWeek != null && !timeWeek.isEmpty()) {
+                dto.setTimeWeek(timeWeek.substring(0, 1));
             }
+        }
 
 
-            response.setItems(timeTableDTOList);
-            response.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(response);
+        response.setItems(timeTableDTOList);
+        response.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(response);
     }
 
 }
