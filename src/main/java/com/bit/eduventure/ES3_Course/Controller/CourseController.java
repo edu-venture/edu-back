@@ -4,6 +4,7 @@ package com.bit.eduventure.ES3_Course.Controller;
 import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
 import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
+import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
@@ -37,6 +38,7 @@ public class CourseController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
+    //반 학생 수를 포함한 반 리스트
     @GetMapping("/course-list")
     public ResponseEntity<?> getCourseList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
@@ -92,24 +94,30 @@ public class CourseController {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
         List<Integer> integerList = courseService.jsonToIntList(couNoList);
-        System.out.println(integerList);
+
         courseService.deleteCourseList(integerList);
 
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    @PutMapping("/course")
+    @PutMapping("/course/{couNo}")
     public ResponseEntity<?> modifyCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                          @PathVariable int couNo,
                                           @RequestBody CourseDTO courseDTO) {
-
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        Course course = courseService.getCourse(couNo);
+        int teacherId = courseDTO.getTeacherId();
+        if (teacherId != 0) {
+            User user = userService.findById(teacherId);
+            course.setUser(user);
+        }
 
-//        List<Integer> integerList = courseService.jsonToIntList(couNoList);
-//        System.out.println(integerList);
-//        courseService.deleteCourseList(integerList);
+        course.setClaName(courseDTO.getClaName());
+        course.setCouMemo(courseDTO.getCouMemo());
+        courseService.createCourse(course.EntityToDTO());
 
-        responseDTO.setItem("반 삭제 완료");
+        responseDTO.setItem("반 수정 완료");
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
     }
