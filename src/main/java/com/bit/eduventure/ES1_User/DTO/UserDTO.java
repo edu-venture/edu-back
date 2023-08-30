@@ -48,17 +48,26 @@ public class UserDTO {
                     .build();
         }
 
-
         User user = User.builder()
-                .id(this.id).course(course)
-                .userId(this.userId).approval(this.approval)
-                .userPw(this.userPw).userBus(this.userBus)
-//                .userEmail(this.userEmail)
-                .userType(this.userType).userSpecialNote(this.userSpecialNote).userConsultContent(this.userConsultContent).userScore(this.userScore)
+                .id(this.id)
+                .course(course)
+                .userId(this.userId)
+                .approval(this.approval)
+                .userPw(this.userPw)
+                .userBus(this.userBus)
+                .userType(this.userType)
+                .userSpecialNote(this.userSpecialNote)
+                .userConsultContent(this.userConsultContent)
+                .userScore(this.userScore)
                 .userName(this.userName)
-                .userTel(this.userTel).userAddressDetail(this.userAddressDetail)
+                .userTel(this.userTel)
+                .userAddressDetail(this.userAddressDetail)
                 .userRegdate(LocalDateTime.now())
-                .role(this.role).userBirth(this.userBirth).userSchool(this.userSchool).userAddress(this.userAddress).userJoinId(this.userJoinId)
+                .role(this.role)
+                .userBirth(this.userBirth)
+                .userSchool(this.userSchool)
+                .userAddress(this.userAddress)
+                .userJoinId(this.userJoinId)
                 .build();
 
         return user;

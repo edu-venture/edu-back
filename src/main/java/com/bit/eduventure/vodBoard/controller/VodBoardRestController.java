@@ -76,11 +76,11 @@ public class VodBoardRestController {
             boardDTO.setSaveThumb(objectStorageService.getObjectSrc(saveName));
             boardDTO.setOriginThumb(saveName);
         }
+
         VodBoard board = boardDTO.DTOTOEntity();
         board.setUser(user);
 
         vodBoardService.insertBoard(board, uploadFileList);
-
 
         responseDTO.setItem("등록되었습니다.");
         responseDTO.setStatusCode(HttpStatus.OK.value());
@@ -151,22 +151,20 @@ public class VodBoardRestController {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
         String saveName;
 
+        //게시글 작성자와 수정자 비교
         int userNo= customUserDetails.getUser().getId();
-        UserDTO userDTO = userService.findById(userNo).EntityToDTO();
-        updatedBoardDTO.setUserDTO(userDTO);
-
         VodBoard vodBoard = vodBoardService.getBoard(boardNo);
-
         if (vodBoard.getUser().getId() != userNo) {
             throw new RuntimeException("수정 권한이 없습니다.");
         }
 
-        if (updatedBoardDTO != null) {
-            vodBoard = updatedBoardDTO.DTOTOEntity();
-        }
-
         // 기존에 등록된 첨부파일 정보 가져오기
         List<VodBoardFile> existingFileList = vodBoardService.getBoardFileList(boardNo);
+        // 기존에 등록된 파일 삭제
+        vodBoardService.deleteAllFile(boardNo);
+        for (VodBoardFile existingFile : existingFileList) {
+            objectStorageService.deleteObject(existingFile.getVodSaveName());
+        }
 
         // 새로 업로드한 파일 저장
         List<VodBoardFile> uploadFileList = new ArrayList<>();
@@ -182,25 +180,28 @@ public class VodBoardRestController {
             }
         }
 
-        // 기존에 등록된 파일 삭제
-        for (VodBoardFile existingFile : existingFileList) {
-            objectStorageService.deleteObject(existingFile.getVodSaveName());
+        //메인 비디오 저장
+        if (videoFile != null) {
+            saveName = objectStorageService.uploadFile(videoFile);
+            updatedBoardDTO.setSavePath(objectStorageService.getObjectSrc(saveName));
+            updatedBoardDTO.setOriginPath(videoFile.getOriginalFilename());
+            updatedBoardDTO.setObjectThumb(saveName);
         }
 
-        // 새로 업로드한 비디오 및 섬네일 파일 저장
-        if (videoFile != null && !videoFile.isEmpty()) {
-            saveName = objectStorageService.uploadFile(videoFile);
-            vodBoard.setOriginPath(videoFile.getOriginalFilename());
-            vodBoard.setSavePath(objectStorageService.getObjectSrc(saveName));
-        }
-        if (thumbnail != null && !thumbnail.isEmpty()) {
+        //섬네일 저장
+        if (thumbnail != null) {
             saveName = objectStorageService.uploadFile(thumbnail);
-            vodBoard.setOriginThumb(objectStorageService.getObjectSrc(saveName));
-            vodBoard.setSaveThumb(objectStorageService.getObjectSrc(saveName));
+            updatedBoardDTO.setSaveThumb(objectStorageService.getObjectSrc(saveName));
+            updatedBoardDTO.setOriginThumb(thumbnail.getOriginalFilename());
+            updatedBoardDTO.setObjectThumb(saveName);
+        } else {
+            saveName = "edu-venture.png";
+            updatedBoardDTO.setSaveThumb(objectStorageService.getObjectSrc(saveName));
+            updatedBoardDTO.setOriginThumb(saveName);
         }
 
         // 새로 업로드한 파일 등록
-        vodBoardService.insertBoard(vodBoard, uploadFileList);
+        vodBoardService.updateVodBoard(boardNo, updatedBoardDTO.DTOTOEntity());
 
         responseDTO.setItem("수정되었습니다.");
         responseDTO.setStatusCode(HttpStatus.OK.value());
