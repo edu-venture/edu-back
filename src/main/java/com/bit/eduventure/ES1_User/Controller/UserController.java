@@ -10,6 +10,7 @@ import com.bit.eduventure.ES1_User.Repository.UserRepository;
 import com.bit.eduventure.ES1_User.Service.UserDetailsServiceImpl;
 import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES3_Course.Entity.Course;
+import com.bit.eduventure.ES3_Course.Service.CourseService;
 import com.bit.eduventure.ES4_Email.Service.EmailService;
 import com.bit.eduventure.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpSession;
@@ -33,14 +34,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
-
     private final JwtTokenProvider jwtTokenProvider;
-
-
     private final UserRepository userRepository;
+    private final CourseService courseService;
 
 
     //회원정보 수정후 Authentication 객체의 UserDetails를 변경하기 위해
@@ -319,7 +317,7 @@ public class UserController {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
         System.out.println(userDTO);
         System.out.println("업데이트에 들어왔음");
-
+        Course course = courseService.getCourse(userDTO.getCouNo());
         User user = userDTO.DTOToEntity();
         System.out.println(user);
 //            user.setUserPw(
@@ -330,6 +328,7 @@ public class UserController {
         System.out.println("위에꺼가 userBulk");
         user.setUserPw(userBulk.getUserPw());
         user.setRole("ROLE_USER");
+        user.setCourse(course);
         User joinUser = userService.update(user);
         System.out.println(joinUser);
         System.out.println("위에꺼가 JOinuser");
@@ -409,7 +408,13 @@ public class UserController {
         List<User> userList = userService.getUserTypeList(userType);
 
         List<UserDTO> userDTOList = userList.stream()
-                .map(user -> user.EntityToDTO())
+                .map(user -> {
+                    UserDTO userDTO = user.EntityToDTO();
+                    int id = user.getUserJoinId();
+                    UserDTO dto = userService.findById(id).EntityToDTO();
+                    userDTO.setParentDTO(dto);
+                    return userDTO;
+                })
                 .collect(Collectors.toList());
 
 
