@@ -11,10 +11,6 @@ public interface CourseService {
 
     Course getCourse(int id);
 
-    List<String> getTimeWeeksByCouNo(int couNo);
-
-    Course findByClaName(String claName);
-
     List<Course> findByTeacherId(int teacherId);
 
     void createCourse(CourseDTO courseDTO);

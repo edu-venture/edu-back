@@ -1,6 +1,5 @@
 package com.bit.eduventure.payment.service;
 
-import com.bit.eduventure.payment.dto.PaymentDTO;
 import com.bit.eduventure.payment.dto.PaymentRequestDTO;
 import com.bit.eduventure.payment.entity.Payment;
 import com.bit.eduventure.payment.entity.Receipt;
@@ -118,6 +117,7 @@ public class PaymentService {
         //디비에 다시 저장
         return savePayment(payment);
     }
+
     //개별 납부서 조회
     public Payment getPayment(int payNo) {
         return paymentRepository.findById(payNo)
@@ -161,7 +161,7 @@ public class PaymentService {
                 });
     }
 
-    //한 개의 납부서 일괄 삭제
+    //한 개의 납부서 삭제
     public void deletePayment(int payNo) {
         receiptService.deleteReceipt(payNo);
         paymentRepository.deleteById(payNo);
@@ -232,6 +232,7 @@ public class PaymentService {
             throw new RuntimeException("JSON 처리 오류");
         }
     }
+
     // 결제 성공 후 uid db 업데이트
     public void updatePayment(int payNo, com.siot.IamportRestClient.response.Payment iamPayment) {
         Payment dbPayment = paymentRepository.findById(payNo)

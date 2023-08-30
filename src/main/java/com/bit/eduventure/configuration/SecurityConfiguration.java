@@ -15,7 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
-//Security filterchain을 구성하기 위한 어노테이션
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {

@@ -1,6 +1,6 @@
 package com.bit.eduventure.ES8_Quiz;
 
-import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
+import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;

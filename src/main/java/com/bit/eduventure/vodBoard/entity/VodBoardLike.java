@@ -24,15 +24,11 @@ public class VodBoardLike {
     @Column(name = "VOD_BOARD_NO")
     private int vodNo; // VodBoard 인덱스
 
-    @Column(name = "VOD_LIKE_STATUS")
-    private int likeStatus; // 좋아요 상태
-
     public VodBoardLikeDTO EntityTODTO() {
         return VodBoardLikeDTO.builder()
                 .id(this.id)
                 .userNo(this.userNo)
                 .vodNo(this.vodNo)
-                .likeStatus(this.likeStatus)
                 .build();
     }
 }

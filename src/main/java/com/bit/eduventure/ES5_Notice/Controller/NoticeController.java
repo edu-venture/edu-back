@@ -1,7 +1,7 @@
 package com.bit.eduventure.ES5_Notice.Controller;
 
 
-import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
+import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES5_Notice.DTO.NoticeDTO;
 import com.bit.eduventure.ES5_Notice.Entity.Notice;

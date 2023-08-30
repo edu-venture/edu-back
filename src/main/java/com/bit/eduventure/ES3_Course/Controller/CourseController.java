@@ -1,7 +1,5 @@
 package com.bit.eduventure.ES3_Course.Controller;
 
-
-import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
 import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
@@ -9,6 +7,7 @@ import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Service.CourseService;
+import com.bit.eduventure.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
