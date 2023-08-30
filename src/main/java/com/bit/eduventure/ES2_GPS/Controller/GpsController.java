@@ -47,7 +47,7 @@ public class GpsController {
 //    private String bucketName;
 
 
-    @PostMapping("/hihi")
+    @PostMapping("/getlocationfromandroid")
     public ResponseEntity<String> receiveLocation(@RequestBody String location) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
