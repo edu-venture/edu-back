@@ -23,8 +23,7 @@ public class VodBoardFile {
     private String vodOriginName;
     @Column(name = "VOD_SAVE_NAME")
     private String vodSaveName;
-    @Column(name = "VOD_FILE_OBJECT")
-    private String vodFileObject;
+
     @Column(name = "VOD_NO") // 게시판 식별자 fk
     private int vodBoardNo;
     public VodBoardFileDTO EntityToDTO() {

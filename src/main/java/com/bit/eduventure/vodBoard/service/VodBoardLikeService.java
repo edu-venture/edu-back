@@ -41,7 +41,8 @@ public class VodBoardLikeService {
 
     //개별 좋아요 삭제
     @Transactional
-    public void unlikeVodBoard(int likeNo) {
+    public void unlikeVodBoard(int vodNo, int userNo) {
+        int likeNo = vodBoardLikeRepository.findByVodNoAndUserNo(vodNo, userNo).get(0).getId();
         vodBoardLikeRepository.deleteById(likeNo);
     }
 

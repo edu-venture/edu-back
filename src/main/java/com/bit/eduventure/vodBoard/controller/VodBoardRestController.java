@@ -64,6 +64,7 @@ public class VodBoardRestController {
             saveName = objectStorageService.uploadFile(videoFile);
             boardDTO.setSavePath(objectStorageService.getObjectSrc(saveName));
             boardDTO.setOriginPath(videoFile.getOriginalFilename());
+            boardDTO.setObjectPath(saveName);
         }
 
         //섬네일 저장
@@ -71,6 +72,7 @@ public class VodBoardRestController {
             saveName = objectStorageService.uploadFile(thumbnail);
             boardDTO.setSaveThumb(objectStorageService.getObjectSrc(saveName));
             boardDTO.setOriginThumb(thumbnail.getOriginalFilename());
+            boardDTO.setObjectThumb(saveName);
         } else {
             saveName = "edu-venture.png";
             boardDTO.setSaveThumb(objectStorageService.getObjectSrc(saveName));
@@ -232,6 +234,11 @@ public class VodBoardRestController {
         vodBoardService.deleteAllFile(boardNo);
         //게시물에 달려있는 댓글 삭제
         vodBoardCommentService.deleteCommentVodNo(boardNo);
+        //게시물 좋아요 삭제
+        vodBoardLikeService.deleteVodBoard(boardNo);
+        //오브젝트 스토리지 파일 삭제
+        objectStorageService.deleteObject(vodBoard.getObjectPath());
+        objectStorageService.deleteObject(vodBoard.getObjectThumb());
         //게시물 삭제
         vodBoardService.deleteVodBoard(boardNo);
 
@@ -255,6 +262,7 @@ public class VodBoardRestController {
 
         List<VodBoardCommentDTO> commentList =
                 vodBoardCommentService.getAllCommentList(vodBoardCommentDTO.getVodNo());
+
         Map<String, Object> returnMap = new HashMap<>();
 
         returnMap.put("commentList", commentList);
@@ -312,20 +320,22 @@ public class VodBoardRestController {
 
         vodBoardLikeService.likeVodBoard(vodNo, userNo);
 
-        responseDTO.setItem("등록 성공");
+        responseDTO.setItem("좋아요 등록");
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
     }
 
     // 좋아요 취소
-    @DeleteMapping("/like/{likeNo}")
+    @GetMapping("/unlike/{vodNo}")
     public ResponseEntity<?> unlikeVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                               @PathVariable int likeNo) {
+                                               @PathVariable int vodNo) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        int userNo = Integer.parseInt(customUserDetails.getUsername());
 
-        vodBoardLikeService.unlikeVodBoard(likeNo);
-        responseDTO.setItem("삭제 성공");
+        vodBoardLikeService.unlikeVodBoard(vodNo, userNo);
+
+        responseDTO.setItem("좋아요 취소");
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
