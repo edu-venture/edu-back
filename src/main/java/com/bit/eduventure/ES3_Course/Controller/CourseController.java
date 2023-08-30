@@ -60,7 +60,8 @@ public class CourseController {
     }
 
     @GetMapping("/course/{teacherId}")
-    public ResponseEntity<?> getCourse(@PathVariable int teacherId) {
+    public ResponseEntity<?> getCourse(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                       @PathVariable int teacherId) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
         List<Course> courseList = courseService.findByTeacherId(teacherId);
         List<CourseDTO> courseDTOList = courseList.stream()
