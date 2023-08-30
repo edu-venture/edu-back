@@ -23,17 +23,15 @@ public class Lecture {
     @Column(name = "LEC_LIVE_ID")
     private String liveStationId;
 
-
-    @ManyToOne
-    @JoinColumn(name = "COU_NO")
-    private Course course;
+    @Column(name = "COU_NO")
+    private int couNo;
 
     public LectureDTO EntityTODTO() {
         LectureDTO dto = LectureDTO.builder()
                 .id(this.id)
                 .title(this.title)
                 .liveStationId(this.liveStationId)
-                .courseDTO(this.course.EntityToDTO())
+                .couNo(this.couNo)
                 .build();
 
         return dto;
