@@ -49,11 +49,17 @@ public class VodBoard {
     @Column(name = "VOD_ORIGIN_PATH")
     private String originPath;
 
+    @Column(name = "VOD_OBJECT_PATH")
+    private String objectPath;
+
     @Column(name = "VOD_SAVE_THUMB")
     private String saveThumb;
 
     @Column(name = "VOD_ORIGIN_THUMB")
     private String originThumb;
+
+    @Column(name = "VOD_OBJECT_THUMB")
+    private String objectThumb;
 
     @ManyToOne
     @JoinColumn(name = "USER_NO")
@@ -67,11 +73,17 @@ public class VodBoard {
                 .writer(this.writer)
                 .regDate(this.regDate)
                 .modDate(this.modDate)
-                .originThumb(this.originThumb)
-                .saveThumb(this.saveThumb)
-                .hits(this.hits)
-                .originPath(this.originPath)
+
                 .savePath(this.savePath)
+                .originPath(this.originPath)
+                .objectPath(this.objectPath)
+
+                .saveThumb(this.saveThumb)
+                .originThumb(this.originThumb)
+                .objectThumb(this.objectThumb)
+
+                .hits(this.hits)
+
                 .userDTO(this.user.EntityToDTO())
                 .build();
         return vodBoardDTO;

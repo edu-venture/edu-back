@@ -40,13 +40,6 @@ public class UserController {
     private final UserRepository userRepository;
     private final CourseService courseService;
 
-
-    //회원정보 수정후 Authentication 객체의 UserDetails를 변경하기 위해
-    //loadByUsername 호출
-
-
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
-
     @DeleteMapping("/user/{id}")
     public ResponseEntity<?> deleteBoard(@PathVariable int id) {
         ResponseDTO<Map<String, String>> responseDTO =
@@ -193,26 +186,23 @@ public class UserController {
     public ResponseEntity<?> getstudent(@RequestBody UserDTO student) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
 
-        User userme;
+        User userMe;
 
         if (userRepository.existsById(student.getId())) {
-            userme = userService.findById(student.getId());
+            userMe = userService.findById(student.getId());
         } else {
-            userme = new User();
-            userme.setUserTel("엄마없음");
-            userme.setCourse(new Course().builder().couNo(1).build());
+            userMe = new User();
+            userMe.setUserTel("엄마없음");
+            userMe.setCourse(new Course().builder().couNo(1).build());
         }
 
-        System.out.println(userme);
-        UserDTO userDTO = userme.EntityToDTO();
+        System.out.println(userMe);
+        UserDTO userDTO = userMe.EntityToDTO();
 
+        responseDTO.setItem(userDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
 
-
-
-            responseDTO.setItem(userDTO);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
+        return ResponseEntity.ok().body(responseDTO);
 
     }
 
@@ -249,7 +239,7 @@ public class UserController {
 
         User parent = parentDTO.DTOToEntity();
         User user = userDTO.DTOToEntity();
-        System.out.println("트라이로는 들어왔음");
+
         user.setUserPw(
                 passwordEncoder.encode(userDTO.getUserPw())
         );
@@ -276,12 +266,8 @@ public class UserController {
         responseDTO.setItem(joinParentDTO);
         responseDTO.setItem(joinUserDTO);
         responseDTO.setStatusCode(HttpStatus.OK.value());
+
         return ResponseEntity.ok().body(responseDTO);
-
-
-        //JPA로 저장하기 위해 DTO를 Entity로 변환
-        //화면에서 사용자가 입력한 내용을 가지고 있는 Entity
-
     }
 
 
@@ -293,7 +279,7 @@ public class UserController {
 
 
         User user = memberDTO.DTOToEntity();
-        System.out.println("트라이로는 들어왔음");
+
         user.setUserPw(
                 passwordEncoder.encode(memberDTO.getUserPw())
         );

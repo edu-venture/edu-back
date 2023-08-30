@@ -29,8 +29,6 @@ public class User {
     private String userPw;
     @Column(name = "USER_NAME")
     private String userName;
-//    @Column(name = "USER_EMAIL")
-//    private String userEmail;
     @Column(name = "USER_TEL")
     private String userTel;
     @Column(name = "USER_BIRTH")
@@ -48,12 +46,7 @@ public class User {
 
     @Column(name = "USER_SCORE")
     @ColumnDefault("0")
-
     private Integer userScore;
-
-
-
-
     @Column(name = "USER_TYPE")
     private String userType;
     @Column(name = "USER_CONSULTCONTENT")
@@ -62,9 +55,11 @@ public class User {
     private String userSpecialNote;
     @Builder.Default
     private LocalDateTime userRegdate = LocalDateTime.now();
-
     @Column(name = "USER_APPROVAL")
     private String approval="x";
+    @Column
+    @ColumnDefault("'ROLE_USER'")
+    private String role;
 
 
     @ManyToOne
@@ -74,9 +69,6 @@ public class User {
     private Course course;
 
 
-    @Column
-    @ColumnDefault("'ROLE_USER'")
-    private String role;
     public UserDTO EntityToDTO() {
         CourseDTO courseDTO = null;
         if (this.course != null) {
