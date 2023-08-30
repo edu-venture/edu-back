@@ -59,7 +59,6 @@ public class Payment {
     private String impUid;  //실제로 결제를 할경우 아임포트 아이디 값
 
 
-
     public PaymentDTO EntityTODTO() {
         PaymentDTO paymentDTO = PaymentDTO.builder()
                 .payNo(this.payNo)

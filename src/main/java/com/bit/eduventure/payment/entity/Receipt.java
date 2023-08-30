@@ -29,6 +29,7 @@ public class Receipt {
     @Column(name = "PRODUCT_PRICE")
     int productPrice;   //상품 가격
 
+
     public ReceiptDTO EntityTODTO() {
         ReceiptDTO receiptDTO = ReceiptDTO.builder()
                 .id(this.id)

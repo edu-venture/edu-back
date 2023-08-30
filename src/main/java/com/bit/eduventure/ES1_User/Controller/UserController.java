@@ -2,12 +2,11 @@ package com.bit.eduventure.ES1_User.Controller;
 
 
 import com.bit.eduventure.ES1_User.DTO.JoinDTO;
-import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
+import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Repository.UserRepository;
-import com.bit.eduventure.ES1_User.Service.UserDetailsServiceImpl;
 import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Service.CourseService;
@@ -108,12 +107,13 @@ public class UserController {
                                     .id(user.getId()).userScore(user.getUserScore())
                                     .userId(user.getUserId()).courseDTO(user.getCourse().EntityToDTO())
                                     .userPw(user.getUserPw()).userBus(user.getUserBus())
-//                .userEmail(this.userEmail)
-                                    .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote()).userConsultContent(user.getUserConsultContent()).approval(user.getApproval())
+                                    .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote())
+                                    .userConsultContent(user.getUserConsultContent()).approval(user.getApproval())
                                     .userName(user.getUserName())
                                     .userTel(user.getUserTel()).userAddressDetail(user.getUserAddressDetail())
                                     .userRegdate(user.getUserRegdate())
-                                    .role(user.getRole()).userBirth(user.getUserBirth()).userSchool(user.getUserSchool()).userAddress(user.getUserAddress()).userJoinId(user.getUserJoinId())
+                                    .role(user.getRole()).userBirth(user.getUserBirth()).userSchool(user.getUserSchool())
+                                    .userAddress(user.getUserAddress()).userJoinId(user.getUserJoinId())
                                     .build()
             );
             System.out.println("이게 페이지유저 디티오");
@@ -164,7 +164,7 @@ public class UserController {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
         User userme;
 
-            userme = userService.findByUserId(customUserDetails.getUser().getUserId());
+        userme = userService.findByUserId(customUserDetails.getUser().getUserId());
 
         UserDTO userDTO = userme.EntityToDTO();
         userDTO.setUserPw(userDTO.getUserPw());
@@ -392,7 +392,7 @@ public class UserController {
     @GetMapping("/type-list/{userType}")
     public ResponseEntity<?> getTeacherList(@PathVariable String userType) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
-        System.out.println("/type-list/{userType}: " + userType);
+
         List<User> userList = userService.getUserTypeList(userType);
         List<UserDTO> userDTOList = userList.stream()
                 .map(user -> {
@@ -434,13 +434,20 @@ public class UserController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    @GetMapping("/user-all-list")
-    public ResponseEntity<?> getCourseUserList(){
-        ResponseDTO<User> responseDTO = new ResponseDTO<>();
+    @GetMapping("/user/{id}")
+    public ResponseEntity<?> getStudentUser(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                            @PathVariable int id) {
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
 
-        responseDTO.setItems(userRepository.findAll());
+        UserDTO userDTO = userService.findById(id).EntityToDTO();
+        if (userDTO.getUserJoinId() != 0) {
+            UserDTO parentDTO = userService.findById(userDTO.getUserJoinId()).EntityToDTO();
+            userDTO.setParentDTO(parentDTO);
+        }
+        responseDTO.setItem(userDTO);
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
     }
+
 }

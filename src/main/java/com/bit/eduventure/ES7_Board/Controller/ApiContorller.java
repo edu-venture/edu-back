@@ -1,7 +1,7 @@
 package com.bit.eduventure.ES7_Board.Controller;
 
 
-import com.bit.eduventure.ES1_User.DTO.ResponseDTO;
+import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.ES7_Board.DTO.BoardDTO;
 import com.bit.eduventure.ES7_Board.Entity.Board;
 import com.bit.eduventure.ES7_Board.Service.BoardService;

@@ -20,8 +20,6 @@ import java.time.LocalDateTime;
 @Table(name = "T_ATTENDANCE")
 public class Attend {
     //컬럼 정의
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -56,7 +54,5 @@ public class Attend {
                 .build();
         return attendDTO;
     }
-
-
 
 }

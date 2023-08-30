@@ -6,7 +6,7 @@ function connect() {
 
     stompClient.connect({}, function(frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/public', function(chatMessage) {
+        stompClient.subscribe('/topic/lecture/123', function(chatMessage) {
             showMessage(JSON.parse(chatMessage.body).content);
         });
     });
@@ -17,17 +17,23 @@ function disconnect() {
         stompClient.disconnect();
     }
     console.log("Disconnected");
+
+    // Reset the buttons
+    document.getElementById('connect').disabled = false;
+    document.getElementById('send').disabled = true;
 }
 
+
 function sendMessage() {
-    var messageContent = document.getElementById('message-input').value.trim();
+    var messageContent = document.getElementById('msg').value.trim();
 
     if(messageContent && stompClient) {
         var chatMessage = {
             content: messageContent,
-            sender: "anonymous" // For simplicity, using "anonymous" as sender
+            sender: "김민제" // For simplicity, using "anonymous" as sender
         };
-        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+        stompClient.send("/app/sendMsg/123", {}, JSON.stringify(chatMessage));
+        // lectureId, userId
     }
 }
 
@@ -39,4 +45,11 @@ function showMessage(message) {
 }
 
 // Connect to the websocket upon page load
-connect();
+
+function handleConnectClick() {
+    connect();
+
+    // Disable the "연결" button and enable the "보내기" button after connection.
+    document.getElementById('connect').disabled = true;
+    document.getElementById('send').disabled = false;
+}
