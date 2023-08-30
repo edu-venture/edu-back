@@ -1,5 +1,6 @@
 package com.bit.eduventure.payment.service;
 
+import com.bit.eduventure.payment.dto.PaymentDTO;
 import com.bit.eduventure.payment.dto.PaymentRequestDTO;
 import com.bit.eduventure.payment.entity.Payment;
 import com.bit.eduventure.payment.entity.Receipt;
@@ -79,6 +80,45 @@ public class PaymentService {
         //상품의 총합을 구해서
         payment.setTotalPrice(totalPrice);
 
+        //디비에 다시 저장
+        return savePayment(payment);
+    }
+
+    @Transactional
+    //게시물 수정
+    public Payment createPayment(int payNo, PaymentRequestDTO requestDTO) {
+
+        //수정 하기
+        Payment payment = getPayment(payNo);
+        payment.setUserNo(requestDTO.getUserNo());
+        payment.setTotalPrice(0);
+        payment.setPayTo(requestDTO.getPayTo());
+        payment.setIssDate(stringToLocalDateTime(requestDTO.getIssDate()));
+
+        receiptService.deleteReceipt(payNo);
+
+        Map<String, Integer> productList = jsonTOProductMap(requestDTO.getProductList());
+
+        //상품과 가격 디비에 저장하면서 총합 구하기
+        int totalPrice = productList.entrySet().stream()
+                .peek(entry -> {
+                    String productName = entry.getKey();
+                    int productPrice = entry.getValue();
+
+                    Receipt receipt = Receipt.builder()
+                            .paymentId(payNo)
+                            .productName(productName)
+                            .productPrice(productPrice)
+                            .build();
+                    receiptService.saveReceipt(receipt);
+                })
+                .mapToInt(Map.Entry::getValue)
+                .sum();
+
+        //상품의 총합을 구해서
+        payment.setTotalPrice(totalPrice);
+
+        paymentRepository.save(payment);
         //디비에 다시 저장
         return savePayment(payment);
     }

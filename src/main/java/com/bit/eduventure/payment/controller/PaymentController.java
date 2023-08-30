@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import retrofit2.http.Path;
 
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -50,6 +51,37 @@ public class PaymentController {
 
         PaymentDTO paymentDTO = paymentService.createPayment(requestDTO).EntityTODTO();  // 서비스 메서드 호출
         User user = userService.findById(paymentDTO.getPayTo());
+
+        PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
+                .userName(user.getUserName())
+                .couNo(user.getCourse().getCouNo())
+                .build();
+
+        returnList.add(paymentResponseDTO);
+
+        responseDTO.setItems(returnList); // 응답 DTO 설정
+        responseDTO.setStatusCode(HttpStatus.OK.value()); // 상태 코드 설정
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    //납부서 수정
+    @PostMapping("/admin/bill/{payNo}")
+    //클라이언트로부터 받은 HTTP POST 요청의 body 부분을 PaymentCreateRequestDTO 타입의 객체로 변환하고, 이를 requestDTO라는 매개변수로 전달
+    public ResponseEntity<?> modifyPayment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                           @PathVariable int payNo,
+                                           @RequestBody PaymentRequestDTO requestDTO) {
+        System.out.println("수정할 payNo: " + payNo);
+        System.out.println("수정할 requestDTO: " + requestDTO);
+        ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
+        List<PaymentResponseDTO> returnList = new ArrayList<>();
+
+        int userNo = customUserDetails.getUser().getId();
+
+        requestDTO.setUserNo(userNo);
+        paymentService.createPayment(payNo, requestDTO);
+
+        User user = userService.findById(requestDTO.getPayTo());
 
         PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
                 .userName(user.getUserName())
@@ -233,33 +265,4 @@ public class PaymentController {
 
         return ResponseEntity.ok().body(response);
     }
-//
-//    /* 납부서 수정 */
-//    @PutMapping("/{userNo}/bill/{issDate}")
-//    public ResponseEntity<?> updatePayment(@PathVariable int userNo, @PathVariable String issDate, @RequestBody PaymentCreateRequestDTO requestDTO) {
-//        // 클라이언트에게 전달할 최종응답 객체 생성
-//        ResponseDTO<PaymentCreateResponseDTO> response = new ResponseDTO<>();
-//
-//        try {
-//            LocalDateTime dateTime = LocalDateTime.of(Integer.parseInt(issDate.substring(0, 4)), Integer.parseInt(issDate.substring(4, 6)), 1, 0, 0);
-//
-//            // 기존의 Payment 정보 가져오기
-//            List<Payment> existingPayments = paymentService.getPayment(userNo, dateTime);
-//
-//            if (existingPayments == null || existingPayments.isEmpty()) {
-//                throw new IllegalArgumentException("해당 결제 정보가 없습니다.");
-//            }
-//
-//            // 납부서 정보 수정 로직 (서비스 메서드 호출)
-//            PaymentCreateResponseDTO res = paymentService.modifyPayment(existingPayments, requestDTO);
-//            response.setItem(res); // 응답 DTO 설정
-//            response.setStatusCode(HttpStatus.OK.value()); // 상태 코드 설정
-//            return ResponseEntity.ok().body(response); // 성공적인 응답 반환
-//        } catch (Exception e) {
-//            response.setErrorMessage(e.getMessage()); // 에러 메시지 설정
-//            response.setStatusCode(HttpStatus.BAD_REQUEST.value()); // 상태 코드 설정
-//            return ResponseEntity.badRequest().body(response); // 에러 발생시 응답 반환
-//        }
-//    }
-
 }
