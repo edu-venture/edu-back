@@ -15,7 +15,7 @@ public interface CourseService {
 
     Course findByClaName(String claName);
 
-    Course findByTeacherId(int teacherId);
+    List<Course> findByTeacherId(int teacherId);
 
     void createCourse(CourseDTO courseDTO);
 

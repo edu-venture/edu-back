@@ -48,7 +48,7 @@ public class CourseServiceImpl  implements CourseService {
 
     //선생님 이름으로 반 정보 찾기
     @Override
-    public Course findByTeacherId(int teacherId) {
+    public List<Course> findByTeacherId(int teacherId) {
         return courseRepository.findByUserId(teacherId);
     }
 

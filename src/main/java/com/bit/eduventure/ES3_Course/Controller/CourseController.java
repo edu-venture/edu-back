@@ -60,9 +60,12 @@ public class CourseController {
     @GetMapping("/course/{teacherId}")
     public ResponseEntity<?> getCourse(@PathVariable int teacherId) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
-        CourseDTO courseDTO = courseService.findByTeacherId(teacherId).EntityToDTO();
+        List<Course> courseList = courseService.findByTeacherId(teacherId);
+        List<CourseDTO> courseDTOList = courseList.stream()
+                .map(Course::EntityToDTO)
+                .collect(Collectors.toList());
 
-        responseDTO.setItem(courseDTO);
+        responseDTO.setItems(courseDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
     }
