@@ -7,7 +7,6 @@ import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Repository.UserRepository;
-import com.bit.eduventure.ES1_User.Service.UserDetailsServiceImpl;
 import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Service.CourseService;
@@ -164,7 +163,7 @@ public class UserController {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
         User userme;
 
-            userme = userService.findByUserId(customUserDetails.getUser().getUserId());
+        userme = userService.findByUserId(customUserDetails.getUser().getUserId());
 
         UserDTO userDTO = userme.EntityToDTO();
         userDTO.setUserPw(userDTO.getUserPw());
@@ -392,7 +391,7 @@ public class UserController {
     @GetMapping("/type-list/{userType}")
     public ResponseEntity<?> getTeacherList(@PathVariable String userType) {
         ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
-        System.out.println("/type-list/{userType}: " + userType);
+
         List<User> userList = userService.getUserTypeList(userType);
         List<UserDTO> userDTOList = userList.stream()
                 .map(user -> {
@@ -435,7 +434,7 @@ public class UserController {
     }
 
     @GetMapping("/user-all-list")
-    public ResponseEntity<?> getCourseUserList(){
+    public ResponseEntity<?> getCourseUserList() {
         ResponseDTO<User> responseDTO = new ResponseDTO<>();
 
         responseDTO.setItems(userRepository.findAll());
@@ -443,4 +442,21 @@ public class UserController {
 
         return ResponseEntity.ok().body(responseDTO);
     }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<?> getStudentUser(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                            @PathVariable int id) {
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+
+        UserDTO userDTO = userService.findById(id).EntityToDTO();
+        if (userDTO.getUserJoinId() != 0) {
+            UserDTO parentDTO = userService.findById(userDTO.getUserJoinId()).EntityToDTO();
+            userDTO.setParentDTO(parentDTO);
+        }
+        responseDTO.setItem(userDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
 }
