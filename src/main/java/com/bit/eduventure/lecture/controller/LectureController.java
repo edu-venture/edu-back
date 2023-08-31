@@ -4,7 +4,6 @@ package com.bit.eduventure.lecture.controller;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
-import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
 import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.ES3_Course.Service.CourseService;
 import com.bit.eduventure.dto.ResponseDTO;
@@ -15,7 +14,6 @@ import com.bit.eduventure.livestation.dto.LiveStationInfoDTO;
 import com.bit.eduventure.livestation.dto.RecordVodDTO;
 import com.bit.eduventure.livestation.service.LiveStationService;
 import com.bit.eduventure.objectStorage.service.ObjectStorageService;
-import com.bit.eduventure.vodBoard.dto.VodBoardDTO;
 import com.bit.eduventure.vodBoard.entity.VodBoard;
 import com.bit.eduventure.vodBoard.service.VodBoardService;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +21,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import retrofit2.http.Path;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @RequestMapping("/lecture")
 @RequiredArgsConstructor
@@ -48,12 +43,10 @@ public class LectureController {
                                            @RequestBody LectureDTO lectureDTO) {
         ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
 
+        //권한 확인
         int userNo = customUserDetails.getUser().getId();
         User user = userService.findById(userNo);
-
-        if (!user.getUserType().equals("teacher")) {
-            throw new RuntimeException("선생님이 아닙니다.");
-        }
+        lectureService.validateLecture(user);
 
         String title = lectureDTO.getTitle();
 
@@ -127,15 +120,23 @@ public class LectureController {
 
     @DeleteMapping("/lecture/{liveStationId}")
     public ResponseEntity<?> deleteLiveStation(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                            @PathVariable String liveStationId) {
+                                               @PathVariable String liveStationId) {
         ResponseDTO<String> response = new ResponseDTO<>();
+
+        //권한 확인
+        int userNo = customUserDetails.getUser().getId();
+        User user = userService.findById(userNo);
+        lectureService.validateLecture(user);
 
         Lecture lecture = lectureService.getLectureLiveStationId(liveStationId);
         int lectureId = lecture.getId();
-        Course course = courseService.getCourse(lecture.getCouNo());
 
         RecordVodDTO recordVodDTO = liveStationService.getRecord(liveStationId);
+
         if (recordVodDTO != null) {
+
+            Course course = courseService.getCourse(lecture.getCouNo());
+
             String vodName = recordVodDTO.getFileName();    //녹화된 파일명
 
             String thumb = "edu-venture.png";               //기본 썸네일

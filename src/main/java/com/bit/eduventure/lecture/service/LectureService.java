@@ -1,5 +1,6 @@
 package com.bit.eduventure.lecture.service;
 
+import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import com.bit.eduventure.lecture.entity.Lecture;
 import com.bit.eduventure.lecture.repository.LectureRepository;
@@ -28,12 +29,8 @@ public class LectureService {
     }
 
     public Lecture getLectureLiveStationId(String liveStationId) {
-        Lecture lecture = lectureRepository.findByLiveStationId(liveStationId);
-        if (lecture != null) {
-            return lecture;
-        } else {
-            throw new NoSuchElementException();
-        }
+        return lectureRepository.findByLiveStationId(liveStationId)
+                .orElseThrow(() -> new NoSuchElementException());
     }
 
     public List<LectureDTO> getAllLecture() {
@@ -82,5 +79,11 @@ public class LectureService {
         lectureRepository.deleteById(lecId);
     }
 
+    public void validateLecture(User user) {
+        if (!user.getUserType().equals("teacher")
+                || !user.getUserType().equals("admin")) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+    }
 
 }
