@@ -101,14 +101,14 @@ public class AttendController {
     // 특정 사용자의 출석 기록 조회
     @GetMapping("/attend")
     public ResponseEntity<?> getAttendanceRecordsByUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        ResponseDTO<List<AttendDTO>> responseDTO = new ResponseDTO<>();
+        ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = customUserDetails.getUser().getId();
 
         try {
             User user = userService.findById(userId);
             List<AttendDTO> records = attendService.getAttendanceRecordsByUser(user);
 
-            responseDTO.setItem(records);
+            responseDTO.setItems(records);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
@@ -123,8 +123,8 @@ public class AttendController {
     // 특정 날짜의 특정 사용자 출석 기록 조회
     @GetMapping("/attend/date/{date}")
     public ResponseEntity<?> getAttendanceRecordsByUserAndDate(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                             @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
-        ResponseDTO<List<AttendDTO>> responseDTO = new ResponseDTO<>();
+                                                               @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = customUserDetails.getUser().getId();
 
         try {
@@ -132,7 +132,7 @@ public class AttendController {
 
             List<AttendDTO> records = attendService.getAttendanceRecordsByUserAndDate(user, date);
 
-            responseDTO.setItem(records);
+            responseDTO.setItems(records);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
@@ -144,19 +144,27 @@ public class AttendController {
     }
 
 
-    // 특정 달에 해당하는 특정 사용자 출석 기록 조회
+    // 특정 달에 해당하는 특정 사용자 출석 기록 조회, 반환시에는 현재와 직전 month 반환해보기.
     @GetMapping("/attend/month/{yearMonth}")
     public ResponseEntity<?> getAttendanceRecordsByUserAndMonth(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                              @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
-        ResponseDTO<List<AttendDTO>> responseDTO = new ResponseDTO<>();
+                                                                @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
+        ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = customUserDetails.getUser().getId();
 
         try {
 
             User user = userService.findById(userId);
+            //현재 달의 값 반환
             List<AttendDTO> records = attendService.getAttendanceRecordsByUserAndMonth(user, yearMonth);
+            //직전 달의 값 반환
+            List<AttendDTO> records_prev = attendService.getAttendanceRecordsByUserAndMonth(user, yearMonth.minusMonths(1));
 
-            responseDTO.setItem(records);
+            //합쳐주겠다.
+            for(AttendDTO record : records_prev) {
+                records.add(record);
+            }
+
+            responseDTO.setItems(records);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
 
