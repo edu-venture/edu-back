@@ -8,10 +8,9 @@ import java.util.Optional;
 
 public interface LectureRepository extends JpaRepository<Lecture, Integer> {
 
-    List<Lecture> findAllByCouNo(Integer couNo);
-    Optional<Lecture> findById(Integer lecId);
-
-    Lecture findByLiveStationId(String liveStationId);
+    List<Lecture> findAllByCouNo(int couNo);
+    Optional<Lecture> findById(int lecId);
+    Optional<Lecture> findByLiveStationId(String liveStationId);
 
 
 

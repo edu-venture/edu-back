@@ -2,11 +2,14 @@ package com.bit.eduventure.livestation.controller;
 
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.livestation.dto.LiveStationInfoDTO;
+import com.bit.eduventure.livestation.dto.LiveStationUrlDTO;
 import com.bit.eduventure.livestation.service.LiveStationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("/live")
 @RequiredArgsConstructor
@@ -29,7 +32,14 @@ public class LiveStationRestController {
 
     @GetMapping("/url/{channelId}")
     public ResponseEntity<?> getServiceURL(@PathVariable String channelId) {
-        return liveStationService.getServiceURL(channelId);
+        ResponseDTO<LiveStationUrlDTO> responseDTO = new ResponseDTO<>();
+
+        List<LiveStationUrlDTO> dtoList = liveStationService.getServiceURL(channelId);
+
+        responseDTO.setItems(dtoList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     @DeleteMapping("/delete/{channelId}")

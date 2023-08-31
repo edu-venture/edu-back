@@ -7,6 +7,7 @@ import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.timetable.dto.TimeTableDTO;
 import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.service.TimeTableService;
+import com.bit.eduventure.validate.ValidateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +25,15 @@ public class TimeTableController {
 
     private final TimeTableService timeTableService;
     private final UserService userService;
+    private final ValidateService validateService;
 
     /* 시간표 등록 */
     @PostMapping("/regist")
-    public ResponseEntity<?> registTimeTable(@RequestBody TimeTableDTO requestDTO) {
+    public ResponseEntity<?> registTimeTable(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                             @RequestBody TimeTableDTO requestDTO) {
+        int userNo = customUserDetails.getUser().getId();
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
+
         System.out.println("requestDTO: " + requestDTO);
 
         // 클라이언트에게 전달할 최종 응답 객체 생성
@@ -56,8 +62,11 @@ public class TimeTableController {
 
     /* 시간표 삭제 */
     @DeleteMapping("/deleteTimeTable")
-    public ResponseEntity<?> deleteTimeTable(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> deleteTimeTable(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                             @RequestBody Map<String, String> request) {
         ResponseDTO<Map<String, String>> responseDTO = new ResponseDTO<Map<String, String>>();
+        int userNo = customUserDetails.getUser().getId();
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
 
         String claName = request.get("claName");
         String timeWeek = request.get("timeWeek");

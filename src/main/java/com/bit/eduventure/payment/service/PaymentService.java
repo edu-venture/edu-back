@@ -1,5 +1,6 @@
 package com.bit.eduventure.payment.service;
 
+import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.payment.dto.PaymentRequestDTO;
 import com.bit.eduventure.payment.entity.Payment;
 import com.bit.eduventure.payment.entity.Receipt;

@@ -6,9 +6,7 @@ import com.bit.eduventure.ES3_Course.Entity.Course;
 import java.util.List;
 
 public interface CourseService {
-
     List<Course> getCourseList();
-
     Course getCourse(int id);
 
     List<Course> findByTeacherId(int teacherId);
@@ -16,6 +14,8 @@ public interface CourseService {
     void createCourse(CourseDTO courseDTO);
 
     void deleteCourseList(List<Integer> couNoList);
+
+    void deleteCourseAndAdjustUsers(int couNo);
 
     List<Integer> jsonToIntList(String couNoList);
 }

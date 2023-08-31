@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CourseRepository extends JpaRepository<Course, Integer> {
-    Course findByClaName(String claName);
+    Optional<Course> findByClaName(String claName);
 
     List<Course> findByUserId(int userId);
 

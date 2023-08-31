@@ -119,12 +119,13 @@ public class LiveStationService {
             throw new RuntimeException(e.getMessage());
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
     public LiveStationInfoDTO getChannelInfo(String channelID) {
         try {
-            ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(liveStationUrl);
             urlBuilder.append("/");
@@ -161,19 +162,18 @@ public class LiveStationService {
                     .publishUrl(response.getBody().getContent().getPublishUrl())
                     .streamKey(response.getBody().getContent().getStreamKey())
                     .build();
-            return  dto;
-//            responseDTO.setItem(dto);
-//            responseDTO.setStatusCode(HttpStatus.OK.value());
-//
-//            return ResponseEntity.ok().body(responseDTO);
+            return dto;
+
         } catch (URISyntaxException e) {
+            throw new RuntimeException(e.getMessage());
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
 
     }
 
-    public ResponseEntity<?> getServiceURL(String channelID) {
-        ResponseDTO<LiveStationUrlDTO> responseDTO = new ResponseDTO<>();
+    public List<LiveStationUrlDTO> getServiceURL(String channelID) {
+
         try {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(liveStationUrl);
@@ -213,11 +213,10 @@ public class LiveStationService {
                             .build())
                     .collect(Collectors.toList());
 
-            responseDTO.setItems(dtoList);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
+            return dtoList;
         } catch (URISyntaxException e) {
+            throw new RuntimeException(e.getMessage());
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
 
@@ -296,6 +295,7 @@ public class LiveStationService {
             ResponseEntity<RecordResponseDTO> response = restTemplate.exchange(new URI(url), HttpMethod.GET, httpEntity, RecordResponseDTO.class);
             RecordVodDTO dto = null;
             System.out.println(response.getBody().getContentDTO().getRecordList());
+
             for (String key : response.getBody().getContentDTO().getRecordList().keySet()) {
                 RecordInfoDTO recordInfoDTO = response.getBody().getContentDTO().getRecordList().get(key);
                 if (recordInfoDTO.getRecordType().equals("MP4")) {
