@@ -1,5 +1,6 @@
 package com.bit.eduventure.payment.service;
 
+import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.payment.dto.PaymentRequestDTO;
 import com.bit.eduventure.payment.entity.Payment;
 import com.bit.eduventure.payment.entity.Receipt;
@@ -247,6 +248,13 @@ public class PaymentService {
         dbPayment.setPay(true);
 
         paymentRepository.save(dbPayment);
+    }
+
+    public void validatePayment(User user) {
+        if (!user.getUserType().equals("teacher")
+                || !user.getUserType().equals("admin")) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
     }
 
 }
