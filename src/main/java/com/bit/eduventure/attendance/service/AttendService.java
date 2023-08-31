@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class AttendService {
 
     private final AttendRepository attendRepository;
-    private final CourseService courseService;
     private final UserService userService;
     private final TimeTableRepository timeTableRepository;
 
