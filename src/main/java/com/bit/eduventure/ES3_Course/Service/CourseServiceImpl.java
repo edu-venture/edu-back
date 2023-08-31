@@ -70,7 +70,7 @@ public class CourseServiceImpl  implements CourseService {
             List<User> userList = userService.getUserListForCouNo(couNo);
             for (User user : userList) {
                 user.setCourse(null);
-                userService.update(user);
+                userService.createUser(user);
             }
             timeTableService.deleteAllCourse(couNo);
             // t_course 레코드 삭제

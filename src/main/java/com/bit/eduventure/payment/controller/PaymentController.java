@@ -121,6 +121,7 @@ public class PaymentController {
 
         //리턴할 데이터 가공
         PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
+                .payNo(paymentDTO.getPayNo())
                 .userNo(paymentDTO.getUserNo())
                 .payFrom(paymentDTO.getPayFrom())
                 .totalPrice(paymentDTO.getTotalPrice())
