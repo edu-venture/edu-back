@@ -20,7 +20,7 @@ public class Course {
     @Column(name = "COU_NO")
     private Integer couNo;      //아이디값
 
-    @Column(name = "COU_NAME", unique = true)
+    @Column(name = "COU_NAME", unique = true, nullable = false)
     private String claName;     //반 이름
 
     @Column(name = "COU_MEMO")
