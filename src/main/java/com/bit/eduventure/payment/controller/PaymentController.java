@@ -13,6 +13,7 @@ import com.bit.eduventure.payment.entity.Payment;
 import com.bit.eduventure.payment.entity.Receipt;
 import com.bit.eduventure.payment.service.PaymentService;
 import com.bit.eduventure.payment.service.ReceiptService;
+import com.bit.eduventure.validate.ValidateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,7 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final ReceiptService receiptService;
     private final UserService userService;
+    private final ValidateService validateService;
 
     private String[] issDateArray = {"year", "month", "day"};
 
@@ -42,11 +44,12 @@ public class PaymentController {
     //클라이언트로부터 받은 HTTP POST 요청의 body 부분을 PaymentCreateRequestDTO 타입의 객체로 변환하고, 이를 requestDTO라는 매개변수로 전달
     public ResponseEntity<?> createPayment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                            @RequestBody PaymentRequestDTO requestDTO) {
-
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
+        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
+
         List<PaymentResponseDTO> returnList = new ArrayList<>();
 
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
         requestDTO.setUserNo(userNo);
 
         PaymentDTO paymentDTO = paymentService.createPayment(requestDTO).EntityTODTO();  // 서비스 메서드 호출
@@ -71,12 +74,13 @@ public class PaymentController {
     public ResponseEntity<?> modifyPayment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                            @PathVariable int payNo,
                                            @RequestBody PaymentRequestDTO requestDTO) {
-
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
+        int userNo = customUserDetails.getUser().getId();
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
 
         List<PaymentResponseDTO> returnList = new ArrayList<>();
 
-        int userNo = customUserDetails.getUser().getId();
+
         receiptService.deleteReceipt(payNo);
 
         requestDTO.setUserNo(userNo);
@@ -121,6 +125,7 @@ public class PaymentController {
 
         //리턴할 데이터 가공
         PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
+                .payNo(paymentDTO.getPayNo())
                 .userNo(paymentDTO.getUserNo())
                 .payFrom(paymentDTO.getPayFrom())
                 .totalPrice(paymentDTO.getTotalPrice())
@@ -140,7 +145,7 @@ public class PaymentController {
 
     //납부서 리스트 보기 (학생)
     @GetMapping("/student/bill-list")
-    public ResponseEntity<?> getPaymentList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> getStudentPaymentList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
 
         //요청을 보낸 유저 데이터 확인하기
@@ -185,8 +190,10 @@ public class PaymentController {
 
     //납부서 리스트
     @GetMapping("/admin/bill-list")
-    public ResponseEntity<?> getPaymentList() {
+    public ResponseEntity<?> getPaymentList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
+        int userNo = customUserDetails.getUser().getId();
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
 
         //모든 결제 정보 리스트
         List<Payment> paymentList = paymentService.getPaymentList();
@@ -228,9 +235,12 @@ public class PaymentController {
 
     //납부서 삭제
     @PostMapping("/admin/bill/delete")
-    public ResponseEntity<?> deletePayment(@RequestBody String payNoList) {
-
+    public ResponseEntity<?> deletePayment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                           @RequestBody String payNoList) {
         ResponseDTO<String> response = new ResponseDTO<>();
+        int userNo = customUserDetails.getUser().getId();
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
+
         List<Integer> payNoIntList = paymentService.jsonTOpayNoList(payNoList);
 
         paymentService.deletePaymentList(payNoIntList);
@@ -243,8 +253,11 @@ public class PaymentController {
 
     //개별 납부서 보기
     @GetMapping("/admin/{payNo}")
-    public ResponseEntity<?> getPayment(@PathVariable int payNo) {
+    public ResponseEntity<?> getPayment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                        @PathVariable int payNo) {
         ResponseDTO<PaymentResponseDTO> response = new ResponseDTO<>();
+        int userNo = customUserDetails.getUser().getId();
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
 
         PaymentDTO paymentDTO = paymentService.getPayment(payNo).EntityTODTO();
         UserDTO userDTO = userService.findById(paymentDTO.getPayTo()).EntityToDTO();

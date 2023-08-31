@@ -36,6 +36,9 @@ public class Attend {
     @Column(name = "ATT_CONTENT")
     private String attContent;
 
+    @Column(name = "ATT_REG_DATE", unique = true, nullable = false)
+    private LocalDate attRegDate;
+
     @Column(name = "USER_NO")
     private int userNo;
 

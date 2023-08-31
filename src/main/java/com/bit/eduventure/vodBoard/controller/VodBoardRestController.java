@@ -5,6 +5,7 @@ import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.objectStorage.service.ObjectStorageService;
+import com.bit.eduventure.validate.ValidateService;
 import com.bit.eduventure.vodBoard.dto.*;
 import com.bit.eduventure.vodBoard.entity.VodBoard;
 import com.bit.eduventure.vodBoard.entity.VodBoardFile;
@@ -30,8 +31,9 @@ public class VodBoardRestController {
     private final VodBoardCommentService vodBoardCommentService;
     private final VodBoardLikeService vodBoardLikeService;
     private final UserService userService;
+    private final ValidateService validateService;
 
-    @PostMapping(value = "/board")
+    @PostMapping("/board")
     public ResponseEntity<?> insertBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                         @RequestPart(value = "boardDTO", required = false) VodBoardDTO boardDTO,
                                         @RequestPart(value = "videoFile", required = false) MultipartFile videoFile,
@@ -42,8 +44,9 @@ public class VodBoardRestController {
         String saveName;
 
         int userNo = customUserDetails.getUser().getId();
-
         User user = userService.findById(userNo);
+        validateService.validateTeacherAndAdmin(user);
+
         boardDTO.setUserDTO(user.EntityToDTO());
 
         if (fileList != null) {
@@ -152,6 +155,8 @@ public class VodBoardRestController {
 
         //게시글 작성자와 수정자 비교
         int userNo= customUserDetails.getUser().getId();
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
+
         VodBoard vodBoard = vodBoardService.getBoard(boardNo);
         if (vodBoard.getUser().getId() != userNo) {
             throw new RuntimeException("수정 권한이 없습니다.");
@@ -213,8 +218,8 @@ public class VodBoardRestController {
                                             @PathVariable int boardNo) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
         int userNo= customUserDetails.getUser().getId();
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
         VodBoard vodBoard = vodBoardService.getBoard(boardNo);
-
         if (vodBoard.getUser().getId() != userNo) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
@@ -274,7 +279,7 @@ public class VodBoardRestController {
                                            @RequestBody VodBoardCommentDTO vodBoardCommentDTO) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        int userNo = customUserDetails.getUser().getId();
 
         if (userNo != vodBoardCommentService.getComment(vodBoardCommentDTO.getId()).getUser().getId()) {
             throw new RuntimeException("수정 권한이 없습니다.");
@@ -293,7 +298,7 @@ public class VodBoardRestController {
                                            @PathVariable int commentNo) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        int userNo = customUserDetails.getUser().getId();
 
         if (userNo != vodBoardCommentService.getComment(commentNo).getUser().getId()) {
             throw new RuntimeException("삭제 권한이 없습니다.");
@@ -313,7 +318,7 @@ public class VodBoardRestController {
                                           @PathVariable int vodNo) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
 
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        int userNo = customUserDetails.getUser().getId();
 
         vodBoardLikeService.likeVodBoard(vodNo, userNo);
 
@@ -328,7 +333,7 @@ public class VodBoardRestController {
     public ResponseEntity<?> unlikeVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                @PathVariable int vodNo) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
-        int userNo = Integer.parseInt(customUserDetails.getUsername());
+        int userNo = customUserDetails.getUser().getId();
 
         vodBoardLikeService.unlikeVodBoard(vodNo, userNo);
 

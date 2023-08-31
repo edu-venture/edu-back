@@ -14,6 +14,7 @@ import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.repository.TimeTableRepository;
 import com.google.gson.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
@@ -53,17 +54,27 @@ public class AttendService {
             "3교시", LocalTime.of(16, 0),
             "4교시", LocalTime.of(17, 0),
             "5교시", LocalTime.of(18, 0),
-            "6교시", LocalTime.of(20, 0),
+            "6교시", LocalTime.of(19, 0),
             "7교시", LocalTime.of(21, 0),
             "8교시", LocalTime.of(22, 0)
     );
 
-    //수업일 여부 확인 서비스
+
     public AttendDTO getIsCourseForUser(int userId) {
-        // 오늘 날짜를 기준으로 해당 사용자의 모든 Attend 기록을 조회합니다.
         LocalDate today = LocalDate.now();
 
         User user = userService.findById(userId);
+
+        // 오늘 날짜와 해당 사용자의 Attend 기록을 바로 조회합니다.
+        Attend attend = attendRepository.findByUserNoAndAttRegDate(userId, today);
+
+        // 오늘 날짜의 Attend 기록이 없으면 새로 만들어줍니다.
+        if (attend == null) {
+            attend = Attend.builder()
+                    .attRegDate(today)
+                    .userNo(userId)
+                    .build();
+        }
 
         List<TimeTable> timeTableList = timeTableRepository.findAllByCouNo(user.getCourse().getCouNo());
 
@@ -74,30 +85,29 @@ public class AttendService {
                 .sorted(Comparator.comparing(TimeTable::getTimeClass))
                 .findFirst();
 
-        Boolean isClass = false;
-
         if (!firstTimeTableOfDay.isPresent()) {
             System.out.println("오늘은 수업날이 아니다.");
-            isClass = false;
+            attend.setIsCourse(false);
         } else {
-            isClass = true;
+            attend.setIsCourse(true);
         }
 
-        AttendDTO record = new AttendDTO();
-        record.setUserNo(userId);
-        record.setIsCourse(isClass);
-
-        return record;
+        return attendRepository.save(attend).EntityToDTO();
     }
+
 
 
     public AttendDTO registerAttendance(int userId, LocalDateTime attendTime) {
         // 1. Validate the attendance
         validateAttendance(userId, attendTime);
 
+        LocalDate today = LocalDate.now();
+        Attend attend = attendRepository.findByUserNoAndAttRegDate(userId, today);
+
         // 2. Create and save the attendance record
-        Attend record = createAttendanceRecord(userId, attendTime);
-        AttendDTO attendDTO = attendRepository.save(record).EntityToDTO();
+        attend.setAttStart(createAttendanceRecord(userId, attendTime).getAttStart());
+        attend.setAttContent(createAttendanceRecord(userId, attendTime).getAttContent());
+        AttendDTO attendDTO = attendRepository.save(attend).EntityToDTO();
 
         return attendDTO;
     }
@@ -110,12 +120,12 @@ public class AttendService {
             throw new IllegalArgumentException("User is not registered for any course.");
         }
 
-        LocalDate today = LocalDate.now();
-        List<Attend> existAttendance = attendRepository.findAllByUserNoAndAttDate(userId, today);
+        LocalDate today = attendTime.toLocalDate(); // use the given attendTime's date for consistency
+        Attend attend = attendRepository.findByUserNoAndAttRegDate(userId, today);
 
-        if(!existAttendance.isEmpty()) {
-            throw new IllegalArgumentException("You've already registered your attendance for today.");
-        }
+//        if (attend != null) {
+//            throw new IllegalArgumentException("You've already registered your attendance for today.");
+//        }
 
         List<TimeTable> timeTableList = timeTableRepository.findAllByCouNo(user.getCourse().getCouNo());
         String currentDayOfWeek = DayOfWeekMapping.toKorean(attendTime.getDayOfWeek());
@@ -123,7 +133,6 @@ public class AttendService {
                 .filter(timeTable -> timeTable.getTimeWeek().equals(currentDayOfWeek))
                 .sorted(Comparator.comparing(TimeTable::getTimeClass))
                 .findFirst();
-
 
         if (!firstTimeTableOfDay.isPresent()) {
             throw new IllegalArgumentException("오늘은 수업시간이 아닙니다.");
@@ -137,11 +146,12 @@ public class AttendService {
 
         LocalTime courseEnd = courseStart.plusMinutes(50);
 
-        if(attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart))
+        if (attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart).minusMinutes(20))
                 || attendTime.isAfter(LocalDateTime.of(attendTime.toLocalDate(), courseEnd))) {
-            throw new IllegalArgumentException("입실은 수업시간 내에서만 가능합니다.");
+            throw new IllegalArgumentException("입실은 수업시간 20분전부터 수업시간 내에서만 가능합니다.");
         }
     }
+
 
 
     private Attend createAttendanceRecord(int userId, LocalDateTime attendTime) {
@@ -167,21 +177,22 @@ public class AttendService {
                 hasMatchingDay = true;  // true가 발견되면 변수를 true로 설정합니다.
             }
         }
-//        System.out.println("hasMatchingDay : " + hasMatchingDay);
+
         record.setIsCourse(hasMatchingDay);
 
         String timeClass = firstTimeTableOfDay.get().getTimeClass();
         LocalTime courseStart = COURSE_START_TIMES.get(timeClass);
 
         LocalDateTime classTime = LocalDateTime.of(attendTime.toLocalDate(), courseStart);
-        System.out.println("LocalDateTime: "+ classTime);
-        if (attendTime.isBefore(classTime)) {
+
+        if (attendTime.isBefore(classTime.plusMinutes(5))) {
             record.setAttContent("출석중");
         } else if (attendTime.isBefore(classTime.plusMinutes(10))) {
             record.setAttContent("1");
         } else {
             record.setAttContent("2");
         }
+
 
         return record;
     }
@@ -229,15 +240,20 @@ public class AttendService {
         record.setAttDate(exitTime.toLocalDate());
 
         String currentStatus = record.getAttContent();
-        if (!"출석중".equals(currentStatus)) {
-            return record;
-        }
+        System.out.println(currentStatus);
 
-        if (exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
+        if (currentStatus.equals("출석중") &&
+                exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
             record.setAttContent("0");
-        } else {
-            record.setAttContent("2");
+
         }
+//        if (exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
+//            record.setAttContent("0");
+//        }
+//        else {
+//            record.setAttContent("2");
+//        }
+
 
         return record;
     }

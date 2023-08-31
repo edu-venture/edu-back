@@ -19,4 +19,6 @@ public interface AttendRepository extends JpaRepository<Attend, Integer> {
     //특정한 달(month)의 출석 기록 조회
     List<Attend> findByUserNoAndAttDateBetween(Integer userId, LocalDate startDate, LocalDate endDate);
 
+    Attend findByUserNoAndAttRegDate(int userNo, LocalDate today);
+
 }
