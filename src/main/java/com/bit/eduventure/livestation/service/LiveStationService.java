@@ -122,7 +122,7 @@ public class LiveStationService {
         }
     }
 
-    public ResponseEntity<?> getChannelInfo(String channelID) {
+    public LiveStationInfoDTO getChannelInfo(String channelID) {
         try {
             ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
             StringBuilder urlBuilder = new StringBuilder();
@@ -161,11 +161,11 @@ public class LiveStationService {
                     .publishUrl(response.getBody().getContent().getPublishUrl())
                     .streamKey(response.getBody().getContent().getStreamKey())
                     .build();
-
-            responseDTO.setItem(dto);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(responseDTO);
+            return  dto;
+//            responseDTO.setItem(dto);
+//            responseDTO.setStatusCode(HttpStatus.OK.value());
+//
+//            return ResponseEntity.ok().body(responseDTO);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -307,8 +307,6 @@ public class LiveStationService {
                             .build();
                 }
             }
-
-            System.out.println("dto.toString(): " + dto.toString());
 
             return dto;
         }catch (URISyntaxException e) {
