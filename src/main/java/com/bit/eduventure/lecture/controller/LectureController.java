@@ -11,6 +11,7 @@ import com.bit.eduventure.lecture.dto.LectureDTO;
 import com.bit.eduventure.lecture.entity.Lecture;
 import com.bit.eduventure.lecture.service.LectureService;
 import com.bit.eduventure.livestation.dto.LiveStationInfoDTO;
+import com.bit.eduventure.livestation.dto.LiveStationUrlDTO;
 import com.bit.eduventure.livestation.dto.RecordVodDTO;
 import com.bit.eduventure.livestation.service.LiveStationService;
 import com.bit.eduventure.objectStorage.service.ObjectStorageService;
@@ -68,42 +69,6 @@ public class LectureController {
 
     }
 
-    @GetMapping("/lecture-list")
-    public ResponseEntity<?> getAllLectures() {
-        ResponseDTO<LectureDTO> response = new ResponseDTO<>();
-
-        try {
-            List<LectureDTO> res = lectureService.getAllLecture();
-
-            response.setItems(res);
-            response.setStatusCode(HttpStatus.OK.value());
-
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            response.setErrorMessage(e.getMessage());
-
-            return ResponseEntity.badRequest().body(response);
-        }
-
-    }
-
-    @GetMapping("/student/lecture")
-    public ResponseEntity<?> getLecture(@AuthenticationPrincipal CustomUserDetails customUserDetails){
-        ResponseDTO<LectureDTO> response = new ResponseDTO<>();
-        int userId = customUserDetails.getUser().getId();
-        User user = userService.findById(userId);
-        if (user.getCourse() != null) {
-            int couNo = user.getCourse().getCouNo();
-            LectureDTO lectureDTO = lectureService.getCouLecture(couNo).EntityTODTO();
-            response.setItem(lectureDTO);
-            response.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(response);
-        } else {
-            throw new NoSuchElementException();
-        }
-    }
-
     @GetMapping("/lecture/{liveStationId}")
     public ResponseEntity<?> getLiveStation(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                             @PathVariable String liveStationId) {
@@ -135,12 +100,11 @@ public class LectureController {
 
         RecordVodDTO recordVodDTO = liveStationService.getRecord(liveStationId);
 
+        //녹화된 파일이 있다면 게시글 작성
         if (recordVodDTO != null) {
-
             Course course = courseService.getCourse(lecture.getCouNo());
 
             String vodName = recordVodDTO.getFileName();    //녹화된 파일명
-
             String thumb = "edu-venture.png";               //기본 썸네일
 
             //삭제 전 녹화파일 게시글 작성
@@ -161,9 +125,64 @@ public class LectureController {
         liveStationService.deleteChannel(liveStationId);
         lectureService.deleteLecture(lectureId);
 
-        response.setItem("삭제되었습니다.");
+        if (recordVodDTO != null) {
+            response.setItem("녹화된 강의가 게시되었습니다.");
+        } else if (recordVodDTO == null) {
+            response.setItem("녹화된 강의가 없어 게시글 없이 삭제되었습니다.");
+        }
         response.setStatusCode(HttpStatus.OK.value());
+
         return ResponseEntity.ok().body(response);
     }
 
+    @GetMapping("/student/lecture")
+    public ResponseEntity<?> getLecture(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        ResponseDTO<LiveStationUrlDTO> response = new ResponseDTO<>();
+
+        int userId = customUserDetails.getUser().getId();
+        User user = userService.findById(userId);
+
+        if (user.getCourse() != null) {
+            int couNo = user.getCourse().getCouNo();
+            LectureDTO lectureDTO = lectureService.getCouLecture(couNo).EntityTODTO();
+            String channelID = lectureDTO.getLiveStationId();
+            LiveStationInfoDTO dto = liveStationService.getChannelInfo(channelID);
+
+            if (!dto.getChannelStatus().equals("PUBLISH")) {
+                response.setErrorMessage("진행 중인 강의가 없습니다.");
+                response.setStatusCode(HttpStatus.BAD_REQUEST.value());
+                return ResponseEntity.ok().body(response);
+            }
+
+            List<LiveStationUrlDTO> urlList = liveStationService.getServiceURL(channelID);
+
+            response.setItems(urlList);
+            response.setStatusCode(HttpStatus.OK.value());
+
+            return ResponseEntity.ok().body(response);
+
+        } else {
+            throw new NoSuchElementException();
+        }
+    }
+
+    @GetMapping("/lecture-list")
+    public ResponseEntity<?> getAllLectures() {
+        ResponseDTO<LectureDTO> response = new ResponseDTO<>();
+
+        try {
+            List<LectureDTO> res = lectureService.getAllLecture();
+
+            response.setItems(res);
+            response.setStatusCode(HttpStatus.OK.value());
+
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            response.setErrorMessage(e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+
+    }
 }
