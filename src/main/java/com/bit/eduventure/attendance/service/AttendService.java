@@ -125,6 +125,7 @@ public class AttendService {
                 .sorted(Comparator.comparing(TimeTable::getTimeClass))
                 .findFirst();
 
+
         if (!firstTimeTableOfDay.isPresent()) {
             throw new IllegalArgumentException("오늘은 수업시간이 아닙니다.");
         }
@@ -149,12 +150,35 @@ public class AttendService {
         record.setUserNo(userId);
         record.setAttStart(attendTime);
 
-        String timeClass = DayOfWeekMapping.toKorean(attendTime.getDayOfWeek());
+        User user = userService.findById(userId);
+        List<TimeTable> timeTableList = timeTableRepository.findAllByCouNo(user.getCourse().getCouNo());
+        String currentDayOfWeek = DayOfWeekMapping.toKorean(attendTime.getDayOfWeek());
+        Optional<TimeTable> firstTimeTableOfDay = timeTableList.stream()
+                .filter(timeTable -> timeTable.getTimeWeek().equals(currentDayOfWeek))
+                .sorted(Comparator.comparing(TimeTable::getTimeClass))
+                .findFirst();
+
+        boolean hasMatchingDay = false;
+
+        for(TimeTable timeTable : timeTableList) {
+
+            boolean isCourse = timeTable.getTimeWeek().equals(currentDayOfWeek);
+
+            if(isCourse) {
+                hasMatchingDay = true;  // true가 발견되면 변수를 true로 설정합니다.
+            }
+        }
+//        System.out.println("hasMatchingDay : " + hasMatchingDay);
+        record.setIsCourse(hasMatchingDay);
+
+        String timeClass = firstTimeTableOfDay.get().getTimeClass();
         LocalTime courseStart = COURSE_START_TIMES.get(timeClass);
 
-        if (attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart))) {
+        LocalDateTime classTime = LocalDateTime.of(attendTime.toLocalDate(), courseStart);
+        System.out.println("LocalDateTime: "+ classTime);
+        if (attendTime.isBefore(classTime)) {
             record.setAttContent("출석중");
-        } else if (attendTime.isBefore(LocalDateTime.of(attendTime.toLocalDate(), courseStart).plusMinutes(10))) {
+        } else if (attendTime.isBefore(classTime.plusMinutes(10))) {
             record.setAttContent("1");
         } else {
             record.setAttContent("2");
@@ -286,7 +310,7 @@ public class AttendService {
         for (int i = 0; i < jsonArray.size(); i++) {
             list.add(jsonArray.get(i).getAsInt());
         }
-//        System.out.println("list.toString(): " + list.toString());
+
         return list;
     }
 
