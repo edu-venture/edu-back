@@ -39,6 +39,7 @@ public class LectureChatController {
 
     }
 
+
 //    @MessageMapping("/newUser")
 //    @SendTo("/topic/public")
 //    public ChatMessage newUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
