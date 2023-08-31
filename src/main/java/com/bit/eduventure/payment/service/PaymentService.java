@@ -53,6 +53,8 @@ public class PaymentService {
                 .createDate(now)
                 .issDate(stringToLocalDateTime(requestDTO.getIssDate()))
                 .isPay(false)
+                .isCancel(false)
+                .impUid("")
                 .build();
 
         //영수증에 저장할 결제PK

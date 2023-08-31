@@ -27,6 +27,15 @@ public class LectureService {
                 .orElseThrow(() -> new NoSuchElementException());
     }
 
+    public Lecture getLectureLiveStationId(String liveStationId) {
+        Lecture lecture = lectureRepository.findByLiveStationId(liveStationId);
+        if (lecture != null) {
+            return lecture;
+        } else {
+            throw new NoSuchElementException();
+        }
+    }
+
     public List<LectureDTO> getAllLecture() {
         List<Lecture> lectureList = lectureRepository.findAll();
         List<LectureDTO> returnList = new ArrayList<>();
