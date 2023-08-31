@@ -46,6 +46,7 @@ public class LectureController {
                                            @RequestBody LectureDTO lectureDTO) {
         ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
 
+        System.out.println("강의 생성 시 couNo 들어오는 지 확인 lectureDTO.getCouNo(): " + lectureDTO.getCouNo());
         //권한 확인
         int userNo = customUserDetails.getUser().getId();
         User user = userService.findById(userNo);
