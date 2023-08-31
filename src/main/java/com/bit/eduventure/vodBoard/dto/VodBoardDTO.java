@@ -45,11 +45,13 @@ public class VodBoardDTO { // 보드 dto에 원래 이름, 저장이름, 오브�
                 .regDate(this.regDate)
                 .modDate(this.modDate)
 
-                .originPath(this.originPath)
                 .savePath(this.savePath)
+                .originPath(this.originPath)
+                .objectPath(this.objectPath)
 
-                .originThumb(this.originThumb)
                 .saveThumb(this.saveThumb)
+                .originThumb(this.originThumb)
+                .objectThumb(this.objectThumb)
 
                 .hits(this.hits)
 

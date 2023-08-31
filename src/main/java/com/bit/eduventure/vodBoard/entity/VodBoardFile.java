@@ -26,6 +26,7 @@ public class VodBoardFile {
 
     @Column(name = "VOD_NO") // 게시판 식별자 fk
     private int vodBoardNo;
+
     public VodBoardFileDTO EntityToDTO() {
         VodBoardFileDTO vodBoardFileDTO = VodBoardFileDTO.builder()
                 .vodFileNo(this.vodFileNo)
