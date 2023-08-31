@@ -108,6 +108,11 @@ public class AttendController {
             User user = userService.findById(userId);
             List<AttendDTO> records = attendService.getAttendanceRecordsByUser(user);
 
+            for(AttendDTO dto : records) {
+                dto.setUserName(userService.findById(userId).getUserName());
+            }
+
+
             responseDTO.setItems(records);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
@@ -131,7 +136,9 @@ public class AttendController {
             User user = userService.findById(userId);
 
             List<AttendDTO> records = attendService.getAttendanceRecordsByUserAndDate(user, date);
-
+            for(AttendDTO dto : records) {
+                dto.setUserName(userService.findById(userId).getUserName());
+            }
             responseDTO.setItems(records);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
@@ -162,6 +169,10 @@ public class AttendController {
             //합쳐주겠다.
             for(AttendDTO record : records_prev) {
                 records.add(record);
+            }
+
+            for(AttendDTO dto : records) {
+                dto.setUserName(userService.findById(userId).getUserName());
             }
 
             responseDTO.setItems(records);
@@ -212,7 +223,7 @@ public class AttendController {
             attendService.deleteAttendList(attList);
 
             Map<String, Object> returnMap = new HashMap<>();
-            returnMap.put("msg", "Deleted successfully");
+            returnMap.put("msg", "정상적으로 삭제되었습니다.");
             responseDTO.setItem(returnMap);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
