@@ -14,6 +14,7 @@ import com.bit.eduventure.livestation.dto.LiveStationInfoDTO;
 import com.bit.eduventure.livestation.dto.RecordVodDTO;
 import com.bit.eduventure.livestation.service.LiveStationService;
 import com.bit.eduventure.objectStorage.service.ObjectStorageService;
+import com.bit.eduventure.validate.ValidateService;
 import com.bit.eduventure.vodBoard.entity.VodBoard;
 import com.bit.eduventure.vodBoard.service.VodBoardService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class LectureController {
     private final CourseService courseService;
     private final VodBoardService vodBoardService;
     private final ObjectStorageService objectStorageService;
+    private final ValidateService validateService;
 
     //강사가 강의 개설
     @PostMapping("/lecture")
@@ -46,7 +48,7 @@ public class LectureController {
         //권한 확인
         int userNo = customUserDetails.getUser().getId();
         User user = userService.findById(userNo);
-        lectureService.validateLecture(user);
+        validateService.validateTeacherAndAdmin(user);
 
         String title = lectureDTO.getTitle();
 
@@ -126,7 +128,7 @@ public class LectureController {
         //권한 확인
         int userNo = customUserDetails.getUser().getId();
         User user = userService.findById(userNo);
-        lectureService.validateLecture(user);
+        validateService.validateTeacherAndAdmin(user);
 
         Lecture lecture = lectureService.getLectureLiveStationId(liveStationId);
         int lectureId = lecture.getId();

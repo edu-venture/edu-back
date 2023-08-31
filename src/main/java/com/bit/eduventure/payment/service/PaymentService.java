@@ -250,11 +250,4 @@ public class PaymentService {
         paymentRepository.save(dbPayment);
     }
 
-    public void validatePayment(User user) {
-        if (!user.getUserType().equals("teacher")
-                || !user.getUserType().equals("admin")) {
-            throw new RuntimeException("권한이 없습니다.");
-        }
-    }
-
 }

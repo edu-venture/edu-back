@@ -79,11 +79,4 @@ public class LectureService {
         lectureRepository.deleteById(lecId);
     }
 
-    public void validateLecture(User user) {
-        if (!user.getUserType().equals("teacher")
-                || !user.getUserType().equals("admin")) {
-            throw new RuntimeException("권한이 없습니다.");
-        }
-    }
-
 }

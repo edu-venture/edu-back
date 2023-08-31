@@ -13,6 +13,7 @@ import com.bit.eduventure.payment.entity.Payment;
 import com.bit.eduventure.payment.entity.Receipt;
 import com.bit.eduventure.payment.service.PaymentService;
 import com.bit.eduventure.payment.service.ReceiptService;
+import com.bit.eduventure.validate.ValidateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,7 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final ReceiptService receiptService;
     private final UserService userService;
+    private final ValidateService validateService;
 
     private String[] issDateArray = {"year", "month", "day"};
 
@@ -44,7 +46,7 @@ public class PaymentController {
                                            @RequestBody PaymentRequestDTO requestDTO) {
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
         int userNo = Integer.parseInt(customUserDetails.getUsername());
-        paymentService.validatePayment(userService.findById(userNo));
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
 
         List<PaymentResponseDTO> returnList = new ArrayList<>();
 
@@ -74,7 +76,7 @@ public class PaymentController {
                                            @RequestBody PaymentRequestDTO requestDTO) {
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
         int userNo = customUserDetails.getUser().getId();
-        paymentService.validatePayment(userService.findById(userNo));
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
 
         List<PaymentResponseDTO> returnList = new ArrayList<>();
 
@@ -191,7 +193,7 @@ public class PaymentController {
     public ResponseEntity<?> getPaymentList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<PaymentResponseDTO> responseDTO = new ResponseDTO<>();
         int userNo = customUserDetails.getUser().getId();
-        paymentService.validatePayment(userService.findById(userNo));
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
 
         //모든 결제 정보 리스트
         List<Payment> paymentList = paymentService.getPaymentList();
@@ -237,7 +239,7 @@ public class PaymentController {
                                            @RequestBody String payNoList) {
         ResponseDTO<String> response = new ResponseDTO<>();
         int userNo = customUserDetails.getUser().getId();
-        paymentService.validatePayment(userService.findById(userNo));
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
 
         List<Integer> payNoIntList = paymentService.jsonTOpayNoList(payNoList);
 
@@ -255,7 +257,7 @@ public class PaymentController {
                                         @PathVariable int payNo) {
         ResponseDTO<PaymentResponseDTO> response = new ResponseDTO<>();
         int userNo = customUserDetails.getUser().getId();
-        paymentService.validatePayment(userService.findById(userNo));
+        validateService.validateTeacherAndAdmin(userService.findById(userNo));
 
         PaymentDTO paymentDTO = paymentService.getPayment(payNo).EntityTODTO();
         UserDTO userDTO = userService.findById(paymentDTO.getPayTo()).EntityToDTO();
