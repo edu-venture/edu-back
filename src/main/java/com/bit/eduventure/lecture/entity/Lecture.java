@@ -1,6 +1,5 @@
 package com.bit.eduventure.lecture.entity;
 
-import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import jakarta.persistence.*;
 import lombok.*;
