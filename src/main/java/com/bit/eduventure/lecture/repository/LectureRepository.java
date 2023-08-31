@@ -9,9 +9,11 @@ import java.util.Optional;
 public interface LectureRepository extends JpaRepository<Lecture, Integer> {
 
     List<Lecture> findAllByCouNo(Integer couNo);
-
-
     Optional<Lecture> findById(Integer lecId);
+
+    Lecture findByLiveStationId(String liveStationId);
+
+
 
 
 }
