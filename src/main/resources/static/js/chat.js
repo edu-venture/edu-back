@@ -25,16 +25,50 @@ function disconnect() {
 
 
 function sendMessage() {
+
+    let currentUserName = "";
+    let token = "";
+
+    // 페이지 로드시 사용자 이름을 가져옵니다.
+    $(document).ready(function() {
+        $.ajax({
+            url: "/lecUser/getCurrentUserName",
+            type: 'GET',
+            headers: {
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhIiwiaXNzIjoidG9kbyBib290IGFwcCIsImlhdCI6MTY5MzQ4NDY0NSwiZXhwIjoxNjkzNTcxMDQ1fQ.zS-m2xuO8vjaUgtmhdQq4i8DfM4WvaNGgCQ994mR9Sw'
+            },
+            success: function(data) {
+                currentUserName = data.userName;
+            },
+            error: function(error) {
+                console.error("Error fetching username:", error);
+            }
+        });
+
+        handleConnectClick();
+
+    });
+
     var messageContent = document.getElementById('msg').value.trim();
 
     if(messageContent && stompClient) {
         var chatMessage = {
             content: messageContent,
-            sender: "김민제" // For simplicity, using "anonymous" as sender
+            sender: currentUserName // For simplicity, using "anonymous" as sender
         };
         stompClient.send("/app/sendMsg/123", {}, JSON.stringify(chatMessage));
         // lectureId, userId
+        // 입력한 메시지를 아래의 #communicate에 추가합니다.
+        let communicateDiv = document.getElementById("communicate");
+        let messageDiv = document.createElement("div");
+        messageDiv.innerText = sender + ": " + messageContent;
+        communicateDiv.appendChild(messageDiv);
+
     }
+
+
+    // 입력 필드를 비웁니다.
+    document.getElementById("msg").value = "";
 }
 
 function showMessage(message) {
