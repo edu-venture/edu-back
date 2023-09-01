@@ -20,7 +20,7 @@ public class Lecture {
     private String title;
     @Column(name = "LEC_LIVE_ID", unique = true, nullable = false)
     private String liveStationId;
-    @Column(name = "COU_NO", nullable = false)
+    @Column(name = "COU_NO", unique = true, nullable = false)
     private int couNo;
 
     public LectureDTO EntityTODTO() {

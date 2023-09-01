@@ -10,6 +10,6 @@ import java.util.List;
 
 @Transactional
 public interface NoticeRepository extends JpaRepository<Notice,Integer> {
-    @Query("SELECT n FROM Notice n WHERE n.user.course.couNo = :couNo")
-    List<Notice> findAllByCourseId(@Param("couNo") int couNo);
+    @Query("SELECT n FROM Notice n WHERE n.user.course.couNo = :couNo OR n.user.userType = 'admin'")
+    List<Notice> findAllByCourseIdAndAdmin(@Param("couNo") int couNo);
 }

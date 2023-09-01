@@ -115,8 +115,8 @@ public class NoticeController {
             System.out.println("이게 그냥 노티스");
             Notice resultNotice = noticeService.create(notice);
             System.out.println("트라이로는 들어왔음");
-NoticeDTO resultNoticeDTO = resultNotice.EntityToDTO();
-responseDTO.setItem(resultNoticeDTO);
+            NoticeDTO resultNoticeDTO = resultNotice.EntityToDTO();
+            responseDTO.setItem(resultNoticeDTO);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {

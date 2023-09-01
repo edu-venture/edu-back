@@ -50,7 +50,7 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     public List<Notice> getCourseNoticeList(int couNo) {
-        return noticeRepository.findAllByCourseId(couNo);
+        return noticeRepository.findAllByCourseIdAndAdmin(couNo);
     }
 
 
