@@ -3,18 +3,13 @@ package com.bit.eduventure.ES5_Notice.Repository;
 import com.bit.eduventure.ES5_Notice.Entity.Notice;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-//update나 Delete가 발생했을 때 곧장 커밋 롤백 처리
-
+import java.util.List;
 
 @Transactional
 public interface NoticeRepository extends JpaRepository<Notice,Integer> {
-
-
-
-
-
-
-
-
+    @Query("SELECT n FROM Notice n WHERE n.user.course.couNo = :couNo")
+    List<Notice> findAllByCourseId(@Param("couNo") int couNo);
 }

@@ -80,7 +80,7 @@ public class NchatService {
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<MemberResponseDTO> responseEntity = restTemplate.exchange(new URI(url), HttpMethod.DELETE, requestEntity, MemberResponseDTO.class);
-            System.out.println("nChat 삭제 실패" + responseEntity.getBody());
+            System.out.println("nChat 삭제 성공" + responseEntity.getBody());
 
         } catch (URISyntaxException e) {
             throw new RuntimeException(e.getMessage());
