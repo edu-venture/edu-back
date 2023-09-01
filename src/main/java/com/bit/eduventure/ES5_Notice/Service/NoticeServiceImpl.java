@@ -49,8 +49,8 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public List<Notice> getCourseNoticeList(int couNo) {
-        return noticeRepository.findAllByCourseIdAndAdmin(couNo);
+    public List<Notice> getCourseNoticeList(String claName) {
+        return noticeRepository.findAllByClaAndAdmin(claName);
     }
 
 
