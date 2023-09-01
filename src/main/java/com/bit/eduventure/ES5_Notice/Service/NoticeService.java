@@ -14,7 +14,7 @@ public interface NoticeService {
 
     void deleteNotice(int id);
 
-    Optional<Notice> findById(Integer noticeNo);
+    Notice getNotice(Integer noticeNo);
 
     Notice update(Notice notice);
 

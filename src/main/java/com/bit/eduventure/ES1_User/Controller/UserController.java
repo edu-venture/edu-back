@@ -320,10 +320,6 @@ public class UserController {
 
         User updateUser = userService.findByUserId(userDTO.getUserId());
 
-        Course course = courseService.getCourse(userDTO.getCouNo());
-
-        updateUser.setCourse(course);
-
         userService.updateUser(updateUser, userDTO);
 
         responseDTO.setItem("수정 되었습니다.");
@@ -389,10 +385,10 @@ public class UserController {
 
         List<User> userList = userService.getUserTypeList(userType);
         List<UserDTO> userDTOList = userList.stream()
+                .filter(user -> !(userType.equals("teacher") && user.getApproval().equals("x")))
                 .map(user -> {
                     UserDTO userDTO = user.EntityToDTO();
                     if (userType.equals("student")) {
-                        System.out.println("가나다라마바사");
                         int id = user.getUserJoinId();
                         if (id != 0) {
                             UserDTO dto = userService.findById(id).EntityToDTO();
@@ -401,6 +397,23 @@ public class UserController {
                     }
                     return userDTO;
                 })
+                .collect(Collectors.toList());
+
+
+        responseDTO.setItems(userDTOList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("/admin/teacher-list")
+    public ResponseEntity<?> getTeacherList() {
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+
+        List<User> userList = userService.getUserTypeList("teacher");
+
+        List<UserDTO> userDTOList = userList.stream()
+                .map(User::EntityToDTO)
                 .collect(Collectors.toList());
 
 
