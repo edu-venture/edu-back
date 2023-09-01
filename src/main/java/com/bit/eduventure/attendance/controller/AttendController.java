@@ -37,6 +37,11 @@ public class AttendController {
 
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = customUserDetails.getUser().getId();
+        User user = userService.findById(userId);
+
+        if(user.getUserType().equals("parent")) {
+            userId = user.getUserJoinId();
+        }
 
         try {
             AttendDTO response = attendService.getIsCourseForUser(userId);
@@ -104,9 +109,12 @@ public class AttendController {
     public ResponseEntity<?> getAttendanceRecordsByUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = customUserDetails.getUser().getId();
-
+        User user = userService.findById(userId);
+        if (user.getUserType().equals("parent")) {
+            userId = user.getUserJoinId();
+            user = userService.findById(userId);
+        }
         try {
-            User user = userService.findById(userId);
             List<AttendDTO> records = attendService.getAttendanceRecordsByUser(user);
 
             for(AttendDTO dto : records) {
