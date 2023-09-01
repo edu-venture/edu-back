@@ -23,8 +23,8 @@ public class LectureService {
         return lectureRepository.save(lecture);
     }
 
-    public Lecture getLecture(int id) {
-        return lectureRepository.findById(id)
+    public Lecture getLecture(int lectureId) {
+        return lectureRepository.findById(lectureId)
                 .orElseThrow(() -> new NoSuchElementException());
     }
 
@@ -52,8 +52,8 @@ public class LectureService {
 
     //학생별 강의 주소 조회
     public Lecture getCouLecture(int couNo) {
-        return lectureRepository.findAllByCouNo(couNo).get(0);
-
+        return lectureRepository.findByCouNo(couNo)
+                .orElseThrow(() -> new RuntimeException("해당하는 반의 강의가 없습니다."));
     }
 
     //종료 하기 전 강의 찾고 게시물 작성하기

@@ -16,17 +16,13 @@ import java.time.LocalDateTime;
 public class NoticeDTO {
 
     private Integer noticeNo;
-
-
-
-    private Integer id;
-
-
     private String claName;
     private String noticeTitle;
     private String date;
     private String noticeContent;
-    private String noticeRegdate ;
+    private String noticeRegdate;
+
+    private Integer id;
 
 
     public Notice DTOToEntity(){
