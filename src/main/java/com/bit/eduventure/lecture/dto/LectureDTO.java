@@ -1,7 +1,5 @@
 package com.bit.eduventure.lecture.dto;
 
-import com.bit.eduventure.ES3_Course.DTO.CourseDTO;
-import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.lecture.entity.Lecture;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +16,6 @@ public class LectureDTO {
     private String liveStationId;
     private String liveThumb;
     private int couNo;
-
 
 
     public Lecture DTOTOEntity() {

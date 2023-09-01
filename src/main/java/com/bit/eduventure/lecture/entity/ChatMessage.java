@@ -1,12 +1,19 @@
 package com.bit.eduventure.lecture.entity;
 
 
+import com.google.gson.annotations.SerializedName;
+import lombok.Builder;
 import lombok.Data;
 
-@Data
-public class ChatMessage {
-    private String content;
-    private String sender;
+import java.util.List;
 
-    // 기본 생성자, 게터, 세터, toString 등의 메서드들 ...
+@Data
+@Builder
+public class ChatMessage {
+    @SerializedName("content")
+    private String content;
+    @SerializedName("sender")
+    private String sender;
+    @SerializedName("userList")
+    private List<String> userList;
 }
