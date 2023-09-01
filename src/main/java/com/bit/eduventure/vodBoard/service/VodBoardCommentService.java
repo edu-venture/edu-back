@@ -72,7 +72,8 @@ public class VodBoardCommentService {
 
     @Transactional
     public VodBoardComment getComment(int commentNo) {
-        return vodBoardCommentRepository.findById(commentNo).orElseThrow();
+        return vodBoardCommentRepository.findById(commentNo)
+                .orElseThrow();
     }
 
     @Transactional

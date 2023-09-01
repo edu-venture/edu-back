@@ -25,16 +25,16 @@ public class VodBoard {
     @Column(name = "VOD_NO")
     private Integer id;
 
-    @Column(name = "VOD_TITLE")
+    @Column(name = "VOD_TITLE", nullable = false)
     private String title;
 
-    @Column(name = "VOD_CONTENT")
+    @Column(name = "VOD_CONTENT", nullable = false)
     private String content;
 
-    @Column(name = "VOD_WRITER")
+    @Column(name = "VOD_WRITER", nullable = false)
     private String writer;
 
-    @Column(name = "VOD_REG")
+    @Column(name = "VOD_REG", nullable = false)
     private LocalDateTime regDate;
 
     @Column(name = "VOD_MOD")

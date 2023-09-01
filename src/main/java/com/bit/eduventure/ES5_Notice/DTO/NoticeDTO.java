@@ -1,8 +1,6 @@
 package com.bit.eduventure.ES5_Notice.DTO;
 
-
 import com.bit.eduventure.ES1_User.DTO.UserDTO;
-import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES5_Notice.Entity.Notice;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +21,7 @@ public class NoticeDTO {
     private String noticeContent;
     private String noticeRegdate;
 
-//    private Integer id;
+    private Integer id;
     private UserDTO userDTO;
 
     public Notice DTOToEntity(){

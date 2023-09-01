@@ -67,6 +67,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public User updateUser(User user, UserDTO userDTO) {
+        if (userDTO.getApproval().equals("o")) {
+            user.setApproval("o");
+        }
         user.setUserTel(userDTO.getUserTel());
         user.setUserBus(userDTO.getUserBus());
         user.setUserBirth(userDTO.getUserBirth());
@@ -87,7 +90,6 @@ public class UserServiceImpl implements UserService {
 
 
     public User findByUserId(String userId) {
-
         return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with userId: " + userId));
     }

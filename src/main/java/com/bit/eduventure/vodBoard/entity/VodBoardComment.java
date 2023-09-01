@@ -19,20 +19,20 @@ public class VodBoardComment {
     @Column(name = "VOD_CMT_NO")
     private Integer id; // 댓글의 고유한 인덱스(ID)
 
-    @Column(name="VOD_CMT_CONTENT")
+    @Column(name="VOD_CMT_CONTENT", nullable = false)
     private String vodCmtContent; // 댓글 내용
 
-    @Column(name="VOD_CMT_REGDATE")
+    @Column(name="VOD_CMT_REGDATE", nullable = false)
     private LocalDateTime vodCmtRegdate; // 댓글 작성일자와 시간
 
-    @Column(name="VOD_CMT_PAR_NO")
+    @Column(name="VOD_CMT_PAR_NO", nullable = false)
     private int vodCmtParentNo; //대댓글을 위한 부모 댓글의 인덱스
 
-    @Column(name = "VOD_NO")
+    @Column(name = "VOD_NO", nullable = false)
     private int vodNo; // 이 댓글이 어떤 게시물에 속하는지 표시
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_NO")
+    @JoinColumn(name = "USER_NO", nullable = false)
     private User user;  // 유저 정보를 findBy 안쓰고 편하게 쓰기 위해서 작성함.
 
     public VodBoardCommentDTO EntityTODTO() {

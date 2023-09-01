@@ -9,6 +9,7 @@ import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES5_Notice.DTO.NoticeDTO;
 import com.bit.eduventure.ES5_Notice.Entity.Notice;
 import com.bit.eduventure.ES5_Notice.Service.NoticeService;
+import com.bit.eduventure.validate.ValidateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class NoticeController {
 
     private final NoticeService noticeService;
     private final UserService userService;
+    private final ValidateService validateService;
 
 
     @GetMapping("/notice-list")
@@ -49,24 +51,31 @@ public class NoticeController {
 
 
     @PutMapping("/noticeupdate")
-    public ResponseEntity<?> update(@RequestBody NoticeDTO noticeDTO) {
+    public ResponseEntity<?> update(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                    @RequestBody NoticeDTO noticeDTO) {
         ResponseDTO<NoticeDTO> responseDTO = new ResponseDTO<>();
         System.out.println(noticeDTO);
         System.out.println("notice dto 업데이트에 들어왔음");
         try {
-            Notice notice = noticeDTO.DTOToEntity();
-            System.out.println(notice);
-//            user.setUserPw(
-//                    passwordEncoder.encode(userDTO.getUserPw())
-//            );
+            int userNo = customUserDetails.getUser().getId();
+            User user = userService.findById(userNo);
+            validateService.validateTeacherAndAdmin(user);
 
-            Notice noticetogo = noticeService.update(notice);
-            System.out.println(noticetogo);
+            Notice updateNotice = noticeService.getNotice(noticeDTO.getNoticeNo());
 
+            updateNotice.setUser(user);
+            updateNotice.setNoticeTitle(noticeDTO.getNoticeTitle());
+            updateNotice.setNoticeContent(noticeDTO.getNoticeContent());
+            updateNotice.setDate(noticeDTO.getDate());
+            updateNotice.setClaName(noticeDTO.getClaName());
 
-            NoticeDTO noticeDTOtogo = noticetogo.EntityToDTO();
-            responseDTO.setItem(noticeDTOtogo);
+            updateNotice = noticeService.update(updateNotice);
+
+            NoticeDTO returNotice = updateNotice.EntityToDTO();
+
+            responseDTO.setItem(returNotice);
             responseDTO.setStatusCode(HttpStatus.OK.value());
+
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
             responseDTO.setErrorMessage(e.getMessage());
@@ -85,8 +94,8 @@ public class NoticeController {
                                        @PathVariable int noticeNo) {
         ResponseDTO<NoticeDTO> responseDTO = new ResponseDTO<>();
 
-        Notice notice = noticeService.findById(noticeNo)
-                .orElseThrow(() -> new NoSuchElementException("Notice not found"));
+        Notice notice = noticeService.getNotice(noticeNo);
+
         NoticeDTO noticeDTOtosend = notice.EntityToDTO();
 
         responseDTO.setItem(noticeDTOtosend);
@@ -94,51 +103,41 @@ public class NoticeController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
-
-
-
-
-
-
-
     @PostMapping("/createnotice")
-    public ResponseEntity<?> join(@RequestBody NoticeDTO noticeDTO) {
+    public ResponseEntity<?> join(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                  @RequestBody NoticeDTO noticeDTO) {
         ResponseDTO<NoticeDTO> responseDTO = new ResponseDTO<>();
         System.out.println(noticeDTO);
-        try {
 
-            Notice notice = noticeDTO.DTOToEntity();
-            System.out.println(notice);
-            System.out.println("이게 그냥 노티스");
-            Notice resultNotice = noticeService.create(notice);
-            System.out.println("트라이로는 들어왔음");
-            NoticeDTO resultNoticeDTO = resultNotice.EntityToDTO();
-            responseDTO.setItem(resultNoticeDTO);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            System.out.println("캐치로 넘어왔다.");
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        int userId = userDetails.getUser().getId();
+        User user = userService.findById(userId);
+        Notice notice = noticeDTO.DTOToEntity();
+        notice.setUser(user);
+
+        Notice resultNotice = noticeService.create(notice);
+
+        NoticeDTO resultNoticeDTO = resultNotice.EntityToDTO();
+
+        responseDTO.setItem(resultNoticeDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteNotice(@PathVariable int id) {
-        ResponseDTO<Map<String, String>> responseDTO =
-                new ResponseDTO<Map<String, String>>();
-        try {
-            noticeService.deleteNotice(id);
-            Map<String, String> returnMap = new HashMap<String, String>();
-            returnMap.put("msg", "정상적으로 삭제되었습니다.");
-            responseDTO.setItem(returnMap);
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            responseDTO.setErrorMessage(e.getMessage());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        ResponseDTO<Map<String, String>> responseDTO = new ResponseDTO<Map<String, String>>();
+
+        noticeService.deleteNotice(id);
+
+        Map<String, String> returnMap = new HashMap<String, String>();
+
+        returnMap.put("msg", "정상적으로 삭제되었습니다.");
+
+        responseDTO.setItem(returnMap);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
     }
 
     @GetMapping("/course")
