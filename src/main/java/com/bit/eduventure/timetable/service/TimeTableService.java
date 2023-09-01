@@ -69,8 +69,8 @@ public class TimeTableService {
 
             TimeTableDTO dto = TimeTableDTO.builder()
                     .timeNo(timeTable.getTimeNo())
-                    .couNo(course.getCouNo())
-                    .claName(course.getClaName())
+                    .couNo(timeTable.getCouNo())
+                    .claName(timeTable.getClaName())
                     .timeWeek(timeTable.getTimeWeek())
                     .timeClass(timeTable.getTimeClass())
                     .timePlace(timeTable.getTimePlace())
