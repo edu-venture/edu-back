@@ -1,7 +1,6 @@
 package com.bit.eduventure.nchat.service;
 
 import com.bit.eduventure.ES1_User.DTO.UserDTO;
-import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.nchat.dto.ChatUserDTO;
 import com.bit.eduventure.nchat.dto.MemberResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,10 +20,9 @@ public class NchatService {
     @Value("${ncloudchat.api.key}")
     private String API_KEY;
 
-    private String BASE_URL = "https://dashboard-api.ncloudchat.naverncp.com/v1/api";
+    private final String BASE_URL = "https://dashboard-api.ncloudchat.naverncp.com/v1/api";
 
     public void nChatJoin (UserDTO user) {
-        ResponseDTO<MemberResponseDTO> responseDTO = new ResponseDTO<>();
         try {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(BASE_URL);

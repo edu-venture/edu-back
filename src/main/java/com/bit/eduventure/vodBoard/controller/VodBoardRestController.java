@@ -8,6 +8,7 @@ import com.bit.eduventure.objectStorage.service.ObjectStorageService;
 import com.bit.eduventure.validate.ValidateService;
 import com.bit.eduventure.vodBoard.dto.*;
 import com.bit.eduventure.vodBoard.entity.VodBoard;
+import com.bit.eduventure.vodBoard.entity.VodBoardComment;
 import com.bit.eduventure.vodBoard.entity.VodBoardFile;
 import com.bit.eduventure.vodBoard.service.VodBoardCommentService;
 import com.bit.eduventure.vodBoard.service.VodBoardLikeService;
@@ -124,10 +125,13 @@ public class VodBoardRestController {
 
         List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo); //첨부파일 첨가
 
-        //DTO형태의 list 선언해주기 하나씩 꺼내서 엔티티형태를 DTO형태의 list에 넣어주기
-        List<VodBoardFileDTO> boardFileDTOList = boardFileList.stream()
-                .map(VodBoardFile::EntityToDTO)
-                .collect(Collectors.toList());
+        List<VodBoardFileDTO> boardFileDTOList = new ArrayList<>();
+        if (!boardFileList.isEmpty()) {
+            //DTO형태의 list 선언해주기 하나씩 꺼내서 엔티티형태를 DTO형태의 list에 넣어주기
+            boardFileDTOList = boardFileList.stream()
+                    .map(VodBoardFile::EntityToDTO)
+                    .collect(Collectors.toList());
+        }
 
         List<VodBoardCommentDTO> commentList = vodBoardCommentService.getAllCommentList(boardNo);
 
@@ -276,18 +280,25 @@ public class VodBoardRestController {
 
     @PutMapping("/comment")
     public ResponseEntity<?> modifyComment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                           @RequestBody VodBoardCommentDTO vodBoardCommentDTO) {
-        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+                                           @RequestBody VodBoardCommentDTO updateComment) {
+        ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
 
         int userNo = customUserDetails.getUser().getId();
+        VodBoardComment originComment = vodBoardCommentService.getComment(updateComment.getId());
 
-        if (userNo != vodBoardCommentService.getComment(vodBoardCommentDTO.getId()).getUser().getId()) {
+        if (userNo != originComment.getUser().getId()) {
             throw new RuntimeException("수정 권한이 없습니다.");
         }
 
-        vodBoardCommentService.addComment(vodBoardCommentDTO);
+        vodBoardCommentService.modifyComment(originComment, updateComment);
 
-        responseDTO.setItem("저장되었습니다.");
+        List<VodBoardCommentDTO> commentList =
+                vodBoardCommentService.getAllCommentList(updateComment.getVodNo());
+
+        Map<String, Object> returnMap = new HashMap<>();
+
+        returnMap.put("commentList", commentList);
+        responseDTO.setItem(returnMap);
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
@@ -296,16 +307,24 @@ public class VodBoardRestController {
     @DeleteMapping("/comment/{commentNo}")
     public ResponseEntity<?> deleteComment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                            @PathVariable int commentNo) {
-        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
 
         int userNo = customUserDetails.getUser().getId();
+        VodBoardComment originComment = vodBoardCommentService.getComment(commentNo);
 
-        if (userNo != vodBoardCommentService.getComment(commentNo).getUser().getId()) {
+        if (userNo != originComment.getUser().getId()) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
         vodBoardCommentService.deleteComment(commentNo);
-        responseDTO.setItem("삭제되었습니다.");
+
+        List<VodBoardCommentDTO> commentList =
+                vodBoardCommentService.getAllCommentList(originComment.getVodNo());
+
+        Map<String, Object> returnMap = new HashMap<>();
+
+        returnMap.put("commentList", commentList);
+        responseDTO.setItem(returnMap);
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
     }
@@ -331,7 +350,7 @@ public class VodBoardRestController {
     // 좋아요 취소
     @GetMapping("/unlike/{vodNo}")
     public ResponseEntity<?> unlikeVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                               @PathVariable int vodNo) {
+                                            @PathVariable int vodNo) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
         int userNo = customUserDetails.getUser().getId();
 

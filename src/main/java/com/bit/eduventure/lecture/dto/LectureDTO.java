@@ -16,6 +16,7 @@ public class LectureDTO {
     private Integer id;
     private String title;
     private String liveStationId;
+    private String liveThumb;
     private int couNo;
 
 

@@ -8,6 +8,7 @@ import com.bit.eduventure.vodBoard.repository.VodBoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,12 +23,17 @@ public class VodBoardService {
     //게시글 등록하기 (게시물과 첨부파일 리스틀 받아 생성)
     @Transactional
     public void insertBoard(VodBoard board, List<VodBoardFile> fileList) {
+        if (!StringUtils.hasText(board.getContent())
+                || !StringUtils.hasText(board.getTitle())) {
+            throw new NullPointerException();
+        }
+
         board.setRegDate(LocalDateTime.now());
         board.setHits(0);
 
         vodBoardRepository.save(board);
         vodBoardRepository.flush();
-        if (fileList != null) {
+        if (!fileList.isEmpty()) {
             fileList.stream().forEach(boardFile -> {
                 boardFile.setVodBoardNo(board.getId());
                 vodBoardFileRepository.save(boardFile);
@@ -40,7 +46,7 @@ public class VodBoardService {
     public VodBoard getBoard(int boardNo) {
         VodBoard returnBoard = vodBoardRepository.findById(boardNo)
                 .orElseThrow(() -> new NoSuchElementException());
-        returnBoard.setHits(returnBoard.getHits()+1); //조회수 증가
+        returnBoard.setHits(returnBoard.getHits() + 1); //조회수 증가
         vodBoardRepository.save(returnBoard);
 
         return returnBoard;
@@ -57,6 +63,11 @@ public class VodBoardService {
     public void updateVodBoard(int boardNo, VodBoard updatedVodBoard) {
         VodBoard vodBoard= vodBoardRepository.findById(boardNo)
                 .orElseThrow(() -> new NoSuchElementException());
+
+        if (!StringUtils.hasText(vodBoard.getContent())
+                || !StringUtils.hasText(vodBoard.getTitle())) {
+            throw new NullPointerException();
+        }
 
         vodBoard.setTitle(updatedVodBoard.getTitle());
         vodBoard.setContent(updatedVodBoard.getContent());
