@@ -21,13 +21,11 @@ import java.net.URLEncoder;
 @Service
 @RequiredArgsConstructor
 public class ObjectStorageService {
-
     private final AmazonS3 s3;
     @Value("${cloud.aws.s3.bucket.name}")
     private String bucket;
 
-    private String ncpAddress = "https://kr.object.ncloudstorage.com/";
-
+    private final String ncpAddress = "https://kr.object.ncloudstorage.com/";
 
     public ResponseEntity<?> getObject(String objectName) {
         try {
@@ -61,24 +59,21 @@ public class ObjectStorageService {
     //파일 저장
     public String uploadFile(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
-        //기존값에다가 추가해서 변경하는것 StringBuilder
-        StringBuilder uniqueFilename = new StringBuilder(String.valueOf(System.currentTimeMillis())); //시간으로 이름지정
-        uniqueFilename.append("_"); //스트링빌더에 이름을 붙인다
-        uniqueFilename.append(originalFilename); //오리지널 네임을 맨 마지막에 붙인다
-        //시간값_원본명
 
-        String saveFilename = uniqueFilename.toString(); //스트링빌더 -> toString으로 String값으로 변환
+        StringBuilder uniqueFilename = new StringBuilder(String.valueOf(System.currentTimeMillis()));
+        uniqueFilename.append("_");
+        uniqueFilename.append(originalFilename);
+
+        String saveFilename = uniqueFilename.toString();
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
         objectMetadata.setContentLength(multipartFile.getSize());
 
-        PutObjectRequest putObjectRequest = null;
-        //공식 api 사용법
         try {
-            putObjectRequest = new PutObjectRequest(bucket, saveFilename, multipartFile.getInputStream(), objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead);;
-            //버킷, 실제리소스파일, 오브젝트메타데이타
+            PutObjectRequest putObjectRequest =
+                    new PutObjectRequest(bucket, saveFilename, multipartFile.getInputStream(), objectMetadata)
+                            .withCannedAcl(CannedAccessControlList.PublicRead);
 
             s3.putObject(putObjectRequest);
         } catch (Exception e) {
@@ -95,7 +90,7 @@ public class ObjectStorageService {
         storageAddress.append(bucket);
         storageAddress.append("/");
         storageAddress.append(saveFileName);
-        System.out.println("storageAddress.toString(): " + storageAddress.toString());
+
         return storageAddress.toString();
     }
 }

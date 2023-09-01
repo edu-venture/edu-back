@@ -34,7 +34,7 @@ public class LiveStationRestController {
     public ResponseEntity<?> getServiceURL(@PathVariable String channelId) {
         ResponseDTO<LiveStationUrlDTO> responseDTO = new ResponseDTO<>();
 
-        List<LiveStationUrlDTO> dtoList = liveStationService.getServiceURL(channelId);
+        List<LiveStationUrlDTO> dtoList = liveStationService.getServiceURL(channelId, "GENERAL");
 
         responseDTO.setItems(dtoList);
         responseDTO.setStatusCode(HttpStatus.OK.value());

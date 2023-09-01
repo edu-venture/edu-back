@@ -3,30 +3,26 @@ package com.bit.eduventure.ES5_Notice.Service;
 
 import com.bit.eduventure.ES5_Notice.Entity.Notice;
 import com.bit.eduventure.ES5_Notice.Repository.NoticeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class NoticeServiceImpl implements NoticeService {
 
-    private NoticeRepository noticeRepository;
-
-    @Autowired
-    public NoticeServiceImpl(NoticeRepository noticeRepository){
-        this.noticeRepository = noticeRepository;
-
-
-    }
+    private final NoticeRepository noticeRepository;
 
     @Override
     public Notice create(Notice notice) {
-
-        System.out.println("서비스까지 왔음");
+        if (!StringUtils.hasText(notice.getNoticeTitle())
+                || !StringUtils.hasText(notice.getNoticeContent())) {
+            throw new NullPointerException();
+        }
         return noticeRepository.save(notice);
     }
 
@@ -49,6 +45,10 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     @Transactional
     public Notice update(Notice notice) {
+        if (!StringUtils.hasText(notice.getNoticeTitle())
+                || !StringUtils.hasText(notice.getNoticeContent())) {
+            throw new NullPointerException();
+        }
         return noticeRepository.save(notice);
     }
 
@@ -56,6 +56,5 @@ public class NoticeServiceImpl implements NoticeService {
     public List<Notice> getCourseNoticeList(String claName) {
         return noticeRepository.findAllByClaAndAdmin(claName);
     }
-
 
 }

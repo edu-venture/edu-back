@@ -9,6 +9,7 @@ import com.bit.eduventure.ES3_Course.Service.CourseService;
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import com.bit.eduventure.lecture.entity.Lecture;
+import com.bit.eduventure.lecture.service.LecUserService;
 import com.bit.eduventure.lecture.service.LectureService;
 import com.bit.eduventure.livestation.dto.LiveStationInfoDTO;
 import com.bit.eduventure.livestation.dto.LiveStationUrlDTO;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +41,7 @@ public class LectureController {
     private final VodBoardService vodBoardService;
     private final ObjectStorageService objectStorageService;
     private final ValidateService validateService;
+    private final LecUserService lecUserService;
 
     //강사가 강의 개설
     @PostMapping("/lecture")
@@ -46,11 +49,14 @@ public class LectureController {
                                            @RequestBody LectureDTO lectureDTO) {
         ResponseDTO<LiveStationInfoDTO> responseDTO = new ResponseDTO<>();
 
-        System.out.println("강의 생성 시 couNo 들어오는 지 확인 lectureDTO.getCouNo(): " + lectureDTO.getCouNo());
         //권한 확인
         int userNo = customUserDetails.getUser().getId();
         User user = userService.findById(userNo);
         validateService.validateTeacherAndAdmin(user);
+
+        if (!StringUtils.hasText(lectureDTO.getTitle())) {
+            throw new NullPointerException();
+        }
 
         String title = lectureDTO.getTitle();
 
@@ -96,6 +102,9 @@ public class LectureController {
         User user = userService.findById(userNo);
         validateService.validateTeacherAndAdmin(user);
 
+        //실시간 강의 유저 리스트 삭제
+        lecUserService.deleteLecture(liveStationId);
+
         Lecture lecture = lectureService.getLectureLiveStationId(liveStationId);
         int lectureId = lecture.getId();
 
@@ -128,9 +137,10 @@ public class LectureController {
 
         if (recordVodDTO != null) {
             response.setItem("녹화된 강의가 게시되었습니다.");
-        } else if (recordVodDTO == null) {
+        } else {
             response.setItem("녹화된 강의가 없어 게시글 없이 삭제되었습니다.");
         }
+
         response.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(response);
@@ -153,10 +163,10 @@ public class LectureController {
             if (!dto.getChannelStatus().equals("PUBLISHING")) {
                 response.setErrorMessage("진행 중인 강의가 없습니다.");
                 response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-                return ResponseEntity.ok().body(response);
+                return ResponseEntity.badRequest().body(response);
             }
 
-            List<LiveStationUrlDTO> urlList = liveStationService.getServiceURL(channelID);
+            List<LiveStationUrlDTO> urlList = liveStationService.getServiceURL(channelID, "GENERAL");
 
             response.setItems(urlList);
             response.setStatusCode(HttpStatus.OK.value());
@@ -168,23 +178,34 @@ public class LectureController {
         }
     }
 
+    //방송 중인 강의 썸네일 포함
     @GetMapping("/lecture-list")
-    public ResponseEntity<?> getAllLectures() {
+    public ResponseEntity<?> getAllLectures(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<LectureDTO> response = new ResponseDTO<>();
 
-        try {
-            List<LectureDTO> res = lectureService.getAllLecture();
+        //권한 확인
+        int userNo = customUserDetails.getUser().getId();
+        User user = userService.findById(userNo);
+        validateService.validateTeacherAndAdmin(user);
 
-            response.setItems(res);
-            response.setStatusCode(HttpStatus.OK.value());
+        List<LectureDTO> lectureDTOList = lectureService.getAllLecture();
 
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            response.setErrorMessage(e.getMessage());
-
-            return ResponseEntity.badRequest().body(response);
+        if (lectureDTOList.isEmpty()) {
+            throw new NoSuchElementException();
         }
 
+        lectureDTOList.forEach(lectureDTO -> {
+            String liveStationId = lectureDTO.getLiveStationId();
+            List<LiveStationUrlDTO> thumbList = liveStationService.getServiceURL(liveStationId, "THUMBNAIL");
+            if (!thumbList.isEmpty()) {
+                String thumbnailUrl = thumbList.get(0).getUrl();
+                lectureDTO.setLiveThumb(thumbnailUrl);
+            }
+        });
+
+        response.setItems(lectureDTOList);
+        response.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(response);
     }
 }
