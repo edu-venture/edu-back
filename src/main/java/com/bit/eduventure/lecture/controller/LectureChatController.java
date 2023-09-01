@@ -2,10 +2,9 @@ package com.bit.eduventure.lecture.controller;
 
 import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.jwt.JwtTokenProvider;
-import com.bit.eduventure.lecture.entity.ChatMessage;
+import com.bit.eduventure.lecture.dto.ChatMessage;
 import com.bit.eduventure.lecture.entity.LecUser;
 import com.bit.eduventure.lecture.service.LecUserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.*;
@@ -13,7 +12,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -129,33 +127,6 @@ public class LectureChatController {
             throw new RuntimeException(e.getMessage());
         }
     }
-
-//    @PostMapping("/sendMsg")
-//    public void sendMessage(@RequestBody ChatMessage chatMessage,
-//                            @RequestHeader("Authorization") String token) {
-//        // 토큰에서 사용자 이름을 가져옵니다. (실제 로직은 JWT 라이브러리나 인증 로직에 따라 다를 수 있습니다.)
-//        String sender = jwtTokenProvider.validateAndGetUsername(token);
-//        chatMessage.setSender(sender);
-//
-//        // 메시지를 모든 구독자에게 전송
-//        template.convertAndSend("/topic/lecture/123", chatMessage);
-//    }
-
-
-
-//    @MessageMapping("/newUser")
-//    @SendTo("/topic/public")
-//    public ChatMessage newUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
-//        headerAccessor.getSessionAttributes().put("username", chatMessage.sender);
-//        return chatMessage;
-//    }
-
-//    @MessageMapping("/sendMessage/{lecId}")
-//    @SendTo("/topic/public/{lecId}")
-//    public String sendMessage(@Payload String chatMessage,
-//                              @DestinationVariable String lecId) {
-//        return chatBotService.processMessage(chatMessage);
-//    }
 
 
 }

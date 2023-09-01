@@ -1,4 +1,4 @@
-package com.bit.eduventure.lecture.entity;
+package com.bit.eduventure.lecture.dto;
 
 
 import com.google.gson.annotations.SerializedName;

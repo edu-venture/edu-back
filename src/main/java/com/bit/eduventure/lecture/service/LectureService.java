@@ -1,18 +1,13 @@
 package com.bit.eduventure.lecture.service;
 
-import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import com.bit.eduventure.lecture.entity.Lecture;
 import com.bit.eduventure.lecture.repository.LectureRepository;
-import com.bit.eduventure.livestation.service.LiveStationService;
-import com.bit.eduventure.vodBoard.service.VodBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
