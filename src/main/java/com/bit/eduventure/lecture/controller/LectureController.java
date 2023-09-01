@@ -9,6 +9,7 @@ import com.bit.eduventure.ES3_Course.Service.CourseService;
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import com.bit.eduventure.lecture.entity.Lecture;
+import com.bit.eduventure.lecture.service.LecUserService;
 import com.bit.eduventure.lecture.service.LectureService;
 import com.bit.eduventure.livestation.dto.LiveStationInfoDTO;
 import com.bit.eduventure.livestation.dto.LiveStationUrlDTO;
@@ -40,6 +41,7 @@ public class LectureController {
     private final VodBoardService vodBoardService;
     private final ObjectStorageService objectStorageService;
     private final ValidateService validateService;
+    private final LecUserService lecUserService;
 
     //강사가 강의 개설
     @PostMapping("/lecture")
@@ -99,6 +101,9 @@ public class LectureController {
         int userNo = customUserDetails.getUser().getId();
         User user = userService.findById(userNo);
         validateService.validateTeacherAndAdmin(user);
+
+        //실시간 강의 유저 리스트 삭제
+        lecUserService.deleteLecture(liveStationId);
 
         Lecture lecture = lectureService.getLectureLiveStationId(liveStationId);
         int lectureId = lecture.getId();

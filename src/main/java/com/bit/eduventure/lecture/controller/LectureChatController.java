@@ -6,6 +6,7 @@ import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.jwt.JwtTokenProvider;
 import com.bit.eduventure.lecture.entity.ChatMessage;
 import com.bit.eduventure.lecture.entity.LecUser;
+import com.bit.eduventure.lecture.service.LecUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.*;
@@ -15,8 +16,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -28,6 +32,7 @@ public class LectureChatController {
     private final SimpMessagingTemplate template;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
+    private final LecUserService lecUserService;
 
 
     @GetMapping("/abc")
@@ -74,14 +79,61 @@ public class LectureChatController {
     @SendTo("/topic/lecture/{lectureId}") //보내는 곳은 똑같이
     public String addUser(@Header("Authorization") String token,
                           @DestinationVariable String lectureId) {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> responseMap = new HashMap<>();
+
         try {
             token = token.substring(7);
             String userId = jwtTokenProvider.validateAndGetUsername(token);
             String userName = userService.findByUserId(userId).getUserName();
+
             String enterMsg = userName + "님이 입장하였습니다.";
-            Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("content", enterMsg);
-            ObjectMapper mapper = new ObjectMapper();
+
+            //DB에 강의에 들어온 유저 저장
+            lecUserService.enterLecUser(lectureId, userName);
+
+            List<LecUser> lecUserList = lecUserService.lecUserList(lectureId);
+
+            if (!lecUserList.isEmpty()) {
+                List<String> userList = lecUserList.stream()
+                        .map(LecUser::getUserName)
+                        .collect(Collectors.toList());
+                responseMap.put("userList", userList);
+            }
+
+            return mapper.writeValueAsString(responseMap);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @MessageMapping("/sendMsg/{lectureId}/leave")
+    @SendTo("/topic/lecture/{lectureId}") //보내는 곳은 똑같이
+    public String leaveUser(@Header("Authorization") String token,
+                            @DestinationVariable String lectureId) {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> responseMap = new HashMap<>();
+        try {
+            token = token.substring(7);
+            String userId = jwtTokenProvider.validateAndGetUsername(token);
+            String userName = userService.findByUserId(userId).getUserName();
+            String enterMsg = userName + "님이 나가셨습니다.";
+
+            responseMap.put("content", enterMsg);
+
+            //DB에 강의에 나간 유저 삭제
+            lecUserService.leaveLecUser(lectureId, userName);
+
+            List<LecUser> lecUserList = lecUserService.lecUserList(lectureId);
+
+            if (!lecUserList.isEmpty()) {
+                List<String> userList = lecUserList.stream()
+                        .map(LecUser::getUserName)
+                        .collect(Collectors.toList());
+                responseMap.put("userList", userList);
+            }
 
             return mapper.writeValueAsString(responseMap);
         } catch (Exception e) {
@@ -100,7 +152,6 @@ public class LectureChatController {
         // 메시지를 모든 구독자에게 전송
         template.convertAndSend("/topic/lecture/123", chatMessage);
     }
-
 
 
 
