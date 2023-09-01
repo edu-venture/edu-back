@@ -5,8 +5,10 @@ import com.bit.eduventure.ES5_Notice.Entity.Notice;
 import com.bit.eduventure.ES5_Notice.Repository.NoticeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -39,13 +41,20 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public Optional<Notice> findById(Integer noticeNo) {
-        return noticeRepository.findById(noticeNo);
+    public Notice getNotice (Integer noticeNo) {
+        return noticeRepository.findById(noticeNo)
+                .orElseThrow(() -> new NoSuchElementException());
     }
 
     @Override
+    @Transactional
     public Notice update(Notice notice) {
         return noticeRepository.save(notice);
+    }
+
+    @Override
+    public List<Notice> getCourseNoticeList(String claName) {
+        return noticeRepository.findAllByClaAndAdmin(claName);
     }
 
 

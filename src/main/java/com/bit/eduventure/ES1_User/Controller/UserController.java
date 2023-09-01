@@ -103,18 +103,18 @@ public class UserController {
             System.out.println(pageUser);
             System.out.println("이게 페이지유저");
             Page<UserDTO> pageUserDTO = pageUser.map(user ->
-                            UserDTO.builder()
-                                    .id(user.getId()).userScore(user.getUserScore())
-                                    .userId(user.getUserId()).courseDTO(user.getCourse().EntityToDTO())
-                                    .userPw(user.getUserPw()).userBus(user.getUserBus())
-                                    .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote())
-                                    .userConsultContent(user.getUserConsultContent()).approval(user.getApproval())
-                                    .userName(user.getUserName())
-                                    .userTel(user.getUserTel()).userAddressDetail(user.getUserAddressDetail())
-                                    .userRegdate(user.getUserRegdate())
-                                    .role(user.getRole()).userBirth(user.getUserBirth()).userSchool(user.getUserSchool())
-                                    .userAddress(user.getUserAddress()).userJoinId(user.getUserJoinId())
-                                    .build()
+                    UserDTO.builder()
+                            .id(user.getId()).userScore(user.getUserScore())
+                            .userId(user.getUserId()).courseDTO(user.getCourse().EntityToDTO())
+                            .userPw(user.getUserPw()).userBus(user.getUserBus())
+                            .userType(user.getUserType()).userSpecialNote(user.getUserSpecialNote())
+                            .userConsultContent(user.getUserConsultContent()).approval(user.getApproval())
+                            .userName(user.getUserName())
+                            .userTel(user.getUserTel()).userAddressDetail(user.getUserAddressDetail())
+                            .userRegdate(user.getUserRegdate())
+                            .role(user.getRole()).userBirth(user.getUserBirth()).userSchool(user.getUserSchool())
+                            .userAddress(user.getUserAddress()).userJoinId(user.getUserJoinId())
+                            .build()
             );
             System.out.println("이게 페이지유저 디티오");
 
@@ -246,8 +246,6 @@ public class UserController {
         parent.setUserPw(passwordEncoder.encode(parentDTO.getUserPw()));
         user.setRole("ROLE_USER");
         parent.setRole("ROLE_USER");
-        System.out.println(user);
-        System.out.println(parent);
         //회원가입처리(화면에서 보내준 내용을 디비에 저장)
         if (couNo != 0) {
             Course course = courseService.getCourse(couNo);
@@ -277,7 +275,6 @@ public class UserController {
         System.out.println("admin가입에 들어왔다.");
         System.out.println(memberDTO);
 
-
         User user = memberDTO.DTOToEntity();
 
         user.setUserPw(
@@ -285,12 +282,6 @@ public class UserController {
         );
         user.setApproval("x");
         user.setRole("ROLE_ADMIN");
-//        Course course = Course.builder().couNo(1).build();
-
-//        user.setCourse(course);
-        System.out.println(user);
-        //회원가입처리(화면에서 보내준 내용을 디비에 저장)
-        System.out.println("admin가입 서비스넣기 일보직전");
         User joinUser = userService.join(user);
         joinUser.setUserPw("");
         UserDTO joinUserDTO = joinUser.EntityToDTO();
@@ -329,10 +320,6 @@ public class UserController {
 
         User updateUser = userService.findByUserId(userDTO.getUserId());
 
-        Course course = courseService.getCourse(userDTO.getCouNo());
-
-        updateUser.setCourse(course);
-
         userService.updateUser(updateUser, userDTO);
 
         responseDTO.setItem("수정 되었습니다.");
@@ -350,12 +337,7 @@ public class UserController {
         userBulk.setUserPw(passwordEncoder.encode(userDTO.getUserPw()));
         System.out.println("이것은 유저버크");
         System.out.println(userBulk);
-        System.out.println(userBulk);
-        System.out.println(userBulk);
-        System.out.println(userBulk);
-//            user.setUserPw(
-//                    passwordEncoder.encode(userDTO.getUserPw())
-//            );
+
         User joinUser = userService.createUser(userBulk);
         System.out.println("parent가입도 됨");
         joinUser.setUserPw("");
@@ -367,14 +349,11 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpSession session) {
+    public ResponseEntity<?> login(@RequestBody UserDTO userDTO,
+                                   HttpSession session) {
         System.out.println(userDTO);
-        System.out.println("로그인하러 들어왔다.");
-        ResponseDTO<UserDTO> responseDTO =
-                new ResponseDTO<>();
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
 
-
-        System.out.println("로그인 트라이 안으로 들어옴");
         //메시지를 담을 맵 선언
         Map<String, String> returnMap = new HashMap<>();
 
@@ -406,10 +385,10 @@ public class UserController {
 
         List<User> userList = userService.getUserTypeList(userType);
         List<UserDTO> userDTOList = userList.stream()
+                .filter(user -> !(userType.equals("teacher") && user.getApproval().equals("x")))
                 .map(user -> {
                     UserDTO userDTO = user.EntityToDTO();
                     if (userType.equals("student")) {
-                        System.out.println("가나다라마바사");
                         int id = user.getUserJoinId();
                         if (id != 0) {
                             UserDTO dto = userService.findById(id).EntityToDTO();
@@ -418,6 +397,23 @@ public class UserController {
                     }
                     return userDTO;
                 })
+                .collect(Collectors.toList());
+
+
+        responseDTO.setItems(userDTOList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("/admin/teacher-list")
+    public ResponseEntity<?> getTeacherList() {
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+
+        List<User> userList = userService.getUserTypeList("teacher");
+
+        List<UserDTO> userDTOList = userList.stream()
+                .map(User::EntityToDTO)
                 .collect(Collectors.toList());
 
 
@@ -458,6 +454,19 @@ public class UserController {
             UserDTO parentDTO = userService.findById(userDTO.getUserJoinId()).EntityToDTO();
             userDTO.setParentDTO(parentDTO);
         }
+        responseDTO.setItem(userDTO);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("/myInfo")
+    public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+        int userNo = customUserDetails.getUser().getId();
+
+        UserDTO userDTO = userService.findById(userNo).EntityToDTO();
+
         responseDTO.setItem(userDTO);
         responseDTO.setStatusCode(HttpStatus.OK.value());
 

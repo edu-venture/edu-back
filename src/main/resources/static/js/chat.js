@@ -7,8 +7,10 @@ function connect() {
     stompClient.connect({}, function(frame) {
         console.log('Connected: ' + frame);
         stompClient.subscribe('/topic/lecture/123', function(chatMessage) {
-            showMessage(JSON.parse(chatMessage.body).content);
+            showMessage(chatMessage.body);
         });
+        let token = sessionStorage.getItem('Authorization');
+        stompClient.send("/app/sendMsg/123/addUser", {'Authorization': 'Bearer ' + token});
     });
 }
 
@@ -19,28 +21,65 @@ function disconnect() {
     console.log("Disconnected");
 
     // Reset the buttons
-    document.getElementById('connect').disabled = false;
+    // document.getElementById('connect').disabled = false;
     document.getElementById('send').disabled = true;
 }
 
+// 페이지 로드 후 접속시, 사용자 이름을 가져옵니다.
+$(document).ready(function() {
+    // sessionStorage에서 token 값을 가져옵니다.
+    let token = sessionStorage.getItem('Authorization');
+
+    if (token) {
+        handleConnectClick();
+    } else {
+        console.error("Token not found in sessionStorage.");
+    }
+
+
+    document.getElementById('msg').addEventListener('keyup', function(event) {
+        // Enter 키의 keyCode는 13입니다.
+        if (event.keyCode === 13) {
+            // 이 부분은 입력 필드에서 Enter 키를 누를 때마다 실행됩니다.
+            event.preventDefault(); // Enter 키의 기본 동작(예: 폼 전송)을 방지합니다.
+            sendMessage(); // 메시지 전송 함수 호출
+        }
+    });
+
+
+    $("form").submit(function(event) {
+        event.preventDefault();
+    });
+});
 
 function sendMessage() {
-    var messageContent = document.getElementById('msg').value.trim();
+    let messageContent = document.getElementById('msg').value.trim();
 
     if(messageContent && stompClient) {
         var chatMessage = {
-            content: messageContent,
-            sender: "김민제" // For simplicity, using "anonymous" as sender
+            content: messageContent
         };
-        stompClient.send("/app/sendMsg/123", {}, JSON.stringify(chatMessage));
-        // lectureId, userId
+
+        let token = sessionStorage.getItem('Authorization');
+        stompClient.send("/app/sendMsg/123", {'Authorization': 'Bearer ' + token}, JSON.stringify(chatMessage));
     }
+
+    // 입력 필드를 비웁니다.
+    document.getElementById("msg").value = "";
 }
 
-function showMessage(message) {
+function showMessage(chatMessage) {
     var messageList = document.getElementById('message-list');
     var messageElement = document.createElement('li');
-    messageElement.innerHTML = message;
+    var user = JSON.parse(chatMessage).sender;
+    var msg = JSON.parse(chatMessage).content;
+    messageElement.style.listStyle = 'none';
+    if (user != null) {
+        messageElement.innerHTML = user + ": " + msg;
+    }else {
+        messageElement.innerHTML = msg;
+    }
+
     messageList.appendChild(messageElement);
 }
 
@@ -49,7 +88,6 @@ function showMessage(message) {
 function handleConnectClick() {
     connect();
 
-    // Disable the "연결" button and enable the "보내기" button after connection.
-    document.getElementById('connect').disabled = true;
     document.getElementById('send').disabled = false;
 }
+

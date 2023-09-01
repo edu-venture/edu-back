@@ -37,6 +37,11 @@ public class AttendController {
 
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = customUserDetails.getUser().getId();
+        User user = userService.findById(userId);
+
+        if(user.getUserType().equals("parent")) {
+            userId = user.getUserJoinId();
+        }
 
         try {
             AttendDTO response = attendService.getIsCourseForUser(userId);
@@ -104,9 +109,12 @@ public class AttendController {
     public ResponseEntity<?> getAttendanceRecordsByUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<AttendDTO> responseDTO = new ResponseDTO<>();
         int userId = customUserDetails.getUser().getId();
-
+        User user = userService.findById(userId);
+        if (user.getUserType().equals("parent")) {
+            userId = user.getUserJoinId();
+            user = userService.findById(userId);
+        }
         try {
-            User user = userService.findById(userId);
             List<AttendDTO> records = attendService.getAttendanceRecordsByUser(user);
 
             for(AttendDTO dto : records) {
@@ -137,7 +145,7 @@ public class AttendController {
             User user = userService.findById(userId);
 
             List<AttendDTO> records = attendService.getAttendanceRecordsByUserAndDate(user, date);
-            for(AttendDTO dto : records) {
+            for (AttendDTO dto : records) {
                 dto.setUserName(userService.findById(userId).getUserName());
             }
             responseDTO.setItems(records);
@@ -168,11 +176,11 @@ public class AttendController {
             List<AttendDTO> records_prev = attendService.getAttendanceRecordsByUserAndMonth(user, yearMonth.minusMonths(1));
 
             //합쳐주겠다.
-            for(AttendDTO record : records_prev) {
+            for (AttendDTO record : records_prev) {
                 records.add(record);
             }
 
-            for(AttendDTO dto : records) {
+            for (AttendDTO dto : records) {
                 dto.setUserName(userService.findById(userId).getUserName());
             }
 
@@ -220,7 +228,7 @@ public class AttendController {
                                                     @RequestBody String attList) {
         ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>();
 
-        try{
+        try {
             attendService.deleteAttendList(attList);
 
             Map<String, Object> returnMap = new HashMap<>();

@@ -262,7 +262,10 @@ public class LiveStationService {
 
             return ResponseEntity.ok().body(responseDTO);
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e.getMessage());
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+
+            return ResponseEntity.badRequest().body(responseDTO);
         }
     }
 
