@@ -240,20 +240,12 @@ public class AttendService {
         record.setAttDate(exitTime.toLocalDate());
 
         String currentStatus = record.getAttContent();
-        System.out.println(currentStatus);
 
         if (currentStatus.equals("출석중") &&
                 exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
             record.setAttContent("0");
 
         }
-//        if (exitTime.isBefore(LocalDateTime.of(exitTime.toLocalDate(), courseEndTime))) {
-//            record.setAttContent("0");
-//        }
-//        else {
-//            record.setAttContent("2");
-//        }
-
 
         return record;
     }

@@ -48,5 +48,10 @@ public class NoticeServiceImpl implements NoticeService {
         return noticeRepository.save(notice);
     }
 
+    @Override
+    public List<Notice> getCourseNoticeList(int couNo) {
+        return noticeRepository.findAllByCourseIdAndAdmin(couNo);
+    }
+
 
 }

@@ -8,14 +8,15 @@ import java.util.Optional;
 
 public interface NoticeService {
 
+    Notice create(Notice notice);
 
-    public Notice create(Notice notice);
-
-    public List<Notice> getNoticeList();
+    List<Notice> getNoticeList();
 
     void deleteNotice(int id);
 
     Optional<Notice> findById(Integer noticeNo);
 
     Notice update(Notice notice);
+
+    List<Notice> getCourseNoticeList(int couNo);
 }

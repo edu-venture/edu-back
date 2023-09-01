@@ -145,11 +145,12 @@ public class LectureController {
 
         if (user.getCourse() != null) {
             int couNo = user.getCourse().getCouNo();
-            LectureDTO lectureDTO = lectureService.getCouLecture(couNo).EntityTODTO();
-            String channelID = lectureDTO.getLiveStationId();
+            Lecture lecture = lectureService.getCouLecture(couNo);
+            String channelID = lecture.getLiveStationId();
+
             LiveStationInfoDTO dto = liveStationService.getChannelInfo(channelID);
 
-            if (!dto.getChannelStatus().equals("PUBLISH")) {
+            if (!dto.getChannelStatus().equals("PUBLISHING")) {
                 response.setErrorMessage("진행 중인 강의가 없습니다.");
                 response.setStatusCode(HttpStatus.BAD_REQUEST.value());
                 return ResponseEntity.ok().body(response);

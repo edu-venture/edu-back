@@ -21,6 +21,9 @@ public interface AttendRepository extends JpaRepository<Attend, Integer> {
 
     Attend findByUserNoAndAttRegDate(int userNo, LocalDate today);
 
+    //스케줄링 처리를 위해 퇴실 안찍은 사람 조회
     List<Attend> findByAttFinishIsNull();
+
+    List<Attend> findByAttFinishIsNullAndAttRegDate(LocalDate yesterDay);
 
 }
