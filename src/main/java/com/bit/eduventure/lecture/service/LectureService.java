@@ -1,5 +1,6 @@
 package com.bit.eduventure.lecture.service;
 
+import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import com.bit.eduventure.lecture.entity.Lecture;
 import com.bit.eduventure.lecture.repository.LectureRepository;
@@ -24,6 +25,11 @@ public class LectureService {
 
     public Lecture getLecture(int id) {
         return lectureRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException());
+    }
+
+    public Lecture getLectureLiveStationId(String liveStationId) {
+        return lectureRepository.findByLiveStationId(liveStationId)
                 .orElseThrow(() -> new NoSuchElementException());
     }
 
@@ -72,6 +78,5 @@ public class LectureService {
     public void deleteLecture(int lecId) {
         lectureRepository.deleteById(lecId);
     }
-
 
 }

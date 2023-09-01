@@ -42,7 +42,7 @@ public class User {
     @Column(name = "USER_BUS")
     private Integer userBus;
     @Column(name = "USER_JOIN_ID") //
-    private Integer userJoinId;
+    private Integer userJoinId = 0;
 
     @Column(name = "USER_SCORE")
     @ColumnDefault("0")

@@ -29,7 +29,6 @@ public class CourseServiceImpl  implements CourseService {
     private final TimeTableService timeTableService;
     private final UserService userService;
 
-
     @Override
     public List<Course> getCourseList() {
         return courseRepository.findAll();
@@ -41,25 +40,32 @@ public class CourseServiceImpl  implements CourseService {
                 .orElseThrow(() -> new NoSuchElementException());
     }
 
-    //선생님 이름으로 반 정보 찾기
+    //선생님PK로 반 정보 찾기
     @Override
     public List<Course> findByTeacherId(int teacherId) {
         return courseRepository.findByUserId(teacherId);
     }
 
     @Override
+    @Transactional
     public void createCourse(CourseDTO courseDTO) {
         Course course = courseDTO.DTOToEntity();
+        if (course.getCouMemo() == null) {
+            course.setCouMemo("");
+        }
         courseRepository.save(course);
     }
 
     @Override
+    @Transactional
     public void deleteCourseList(List<Integer> couNoList) {
         couNoList.stream()
                 .forEach(couNo -> {
                     deleteCourseAndAdjustUsers(couNo);
                 });
     }
+
+    @Override
     @Transactional
     public void deleteCourseAndAdjustUsers(int couNo) {
         // t_course 레코드 삭제
@@ -68,16 +74,16 @@ public class CourseServiceImpl  implements CourseService {
         if (course != null) {
             // t_user 레코드들의 외래 키 값을 변경
             List<User> userList = userService.getUserListForCouNo(couNo);
-            for (User user : userList) {
+            userList.forEach(user -> {
                 user.setCourse(null);
-                userService.update(user);
-            }
+                userService.createUser(user);
+            });
+            //연동된 시간표 삭제
             timeTableService.deleteAllCourse(couNo);
             // t_course 레코드 삭제
             courseRepository.delete(course);
         }
     }
-
 
     @Override
     public List<Integer> jsonToIntList(String couNoList) {
@@ -96,6 +102,5 @@ public class CourseServiceImpl  implements CourseService {
             throw new RuntimeException("JSON 처리 오류");
         }
     }
-
 
 }

@@ -1,6 +1,5 @@
 package com.bit.eduventure.lecture.entity;
 
-import com.bit.eduventure.ES3_Course.Entity.Course;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,13 +16,11 @@ public class Lecture {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "LEC_ID")
     private Integer id;
-    @Column(name = "LEC_TITLE")
+    @Column(name = "LEC_TITLE", nullable = false)
     private String title;
-
-    @Column(name = "LEC_LIVE_ID")
+    @Column(name = "LEC_LIVE_ID", unique = true, nullable = false)
     private String liveStationId;
-
-    @Column(name = "COU_NO")
+    @Column(name = "COU_NO", nullable = false)
     private int couNo;
 
     public LectureDTO EntityTODTO() {

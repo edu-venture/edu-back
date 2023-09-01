@@ -9,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -65,7 +62,8 @@ public class TimeTableService {
         System.out.println("시간표 서비스 returnList1==========="+returnList);
 
         for (TimeTable timeTable : timeTableList) {
-            Course course = courseRepository.findByClaName(timeTable.getClaName());
+            Course course = courseRepository.findByClaName(timeTable.getClaName())
+                    .orElseThrow(() -> new NoSuchElementException());
 
             TimeTableDTO dto = TimeTableDTO.builder()
                     .timeNo(timeTable.getTimeNo())
@@ -109,7 +107,8 @@ public class TimeTableService {
         Map<String, TimeTableDTO> groupedMap = new HashMap<>();
 
         for (TimeTable timeTable : timeTableList) {
-            Course course = courseRepository.findByClaName(timeTable.getClaName());
+            Course course = courseRepository.findByClaName(timeTable.getClaName())
+                    .orElseThrow(() -> new NoSuchElementException());
 
             if (course == null) {
                 System.out.println("No course found for claName: " + timeTable.getClaName());

@@ -258,7 +258,7 @@ public class UserController {
         parent.setUserJoinId(joinUser.getId());
         User joinParent = userService.join(parent);
         joinUser.setUserJoinId(joinParent.getId());
-        joinUser = userService.joinforgivingjoinidforparent(joinUser);
+        joinUser = userService.createUser(joinUser);
         joinUser.setUserPw("");
         joinParent.setUserPw("");
         UserDTO joinUserDTO = joinUser.EntityToDTO();
@@ -300,34 +300,45 @@ public class UserController {
     }
 
 
-    @PutMapping("/update")
-    public ResponseEntity<?> update(@RequestBody UserDTO userDTO) {
-        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
-        System.out.println(userDTO);
-        System.out.println("업데이트에 들어왔음");
-        Course course = courseService.getCourse(userDTO.getCouNo());
-        User user = userDTO.DTOToEntity();
-        System.out.println(user);
-//            user.setUserPw(
-//                    passwordEncoder.encode(userDTO.getUserPw())
-//            );
-        User userBulk = userService.findById(userDTO.getId());
-        System.out.println(userBulk);
-        System.out.println("위에꺼가 userBulk");
-        user.setUserPw(userBulk.getUserPw());
-        user.setRole("ROLE_USER");
-        user.setCourse(course);
-        User joinUser = userService.update(user);
-        System.out.println(joinUser);
-        System.out.println("위에꺼가 JOinuser");
-        System.out.println("parent가입도 됨");
-        joinUser.setUserPw("");
-        UserDTO joinUserDTO = joinUser.EntityToDTO();
-        responseDTO.setItem(joinUserDTO);
+    @PutMapping("/admin/update")
+    public ResponseEntity<?> adminUpdate(@RequestBody JoinDTO joinDTO) {
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+
+        UserDTO updateSon = joinDTO.getUserDTO();
+        UserDTO updatePar = joinDTO.getParentDTO();
+
+        User sonUser = userService.findByUserId(updateSon.getUserId());
+        User parUser = userService.findByUserId(updatePar.getUserId());
+
+        Course course = courseService.getCourse(updateSon.getCouNo());
+
+        sonUser.setCourse(course);
+        userService.updateUser(sonUser, updateSon);
+
+        parUser.setCourse(course);
+        userService.updateUser(parUser, updatePar);
+
+        responseDTO.setItem("수정 되었습니다.");
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<?> update(@RequestBody UserDTO userDTO) {
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+
+        User updateUser = userService.findByUserId(userDTO.getUserId());
+
+        Course course = courseService.getCourse(userDTO.getCouNo());
+
+        updateUser.setCourse(course);
+
+        userService.updateUser(updateUser, userDTO);
+
+        responseDTO.setItem("수정 되었습니다.");
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
+    }
 
     @PutMapping("/updatepassword")
     public ResponseEntity<?> updatepassword(@RequestBody UserDTO userDTO) {
@@ -345,7 +356,7 @@ public class UserController {
 //            user.setUserPw(
 //                    passwordEncoder.encode(userDTO.getUserPw())
 //            );
-        User joinUser = userService.update(userBulk);
+        User joinUser = userService.createUser(userBulk);
         System.out.println("parent가입도 됨");
         joinUser.setUserPw("");
         UserDTO joinUserDTO = joinUser.EntityToDTO();
@@ -398,9 +409,12 @@ public class UserController {
                 .map(user -> {
                     UserDTO userDTO = user.EntityToDTO();
                     if (userType.equals("student")) {
+                        System.out.println("가나다라마바사");
                         int id = user.getUserJoinId();
-                        UserDTO dto = userService.findById(id).EntityToDTO();
-                        userDTO.setParentDTO(dto);
+                        if (id != 0) {
+                            UserDTO dto = userService.findById(id).EntityToDTO();
+                            userDTO.setParentDTO(dto);
+                        }
                     }
                     return userDTO;
                 })

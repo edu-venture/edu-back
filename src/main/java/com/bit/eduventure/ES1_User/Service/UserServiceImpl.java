@@ -1,6 +1,8 @@
 package com.bit.eduventure.ES1_User.Service;
 
 
+import com.bit.eduventure.ES1_User.DTO.JoinDTO;
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Repository.UserRepository;
 import com.bit.eduventure.ES4_Email.Service.EmailService;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,14 +56,24 @@ public class UserServiceImpl implements UserService {
         }
         return userRepository.save(user);
     }
-    @Override
-    public User joinforgivingjoinidforparent(User user) {
 
+    @Override
+    public User createUser(User user) {
         return userRepository.save(user);
     }
 
+    @Transactional
     @Override
-    public User update(User user) {
+    public User updateUser(User user, UserDTO userDTO) {
+        user.setUserTel(userDTO.getUserTel());
+        user.setUserBus(userDTO.getUserBus());
+        user.setUserBirth(userDTO.getUserBirth());
+        user.setUserSchool(userDTO.getUserSchool());
+        user.setUserAddress(userDTO.getUserAddress());
+        user.setUserAddressDetail(userDTO.getUserAddressDetail());
+        user.setUserConsultContent(userDTO.getUserConsultContent());
+        user.setUserSpecialNote(userDTO.getUserSpecialNote());
+
         return userRepository.save(user);
     }
 
@@ -71,10 +84,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
-
     public User findByUserId(String userId) {
-
 
         return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with userId: " + userId));
