@@ -42,7 +42,7 @@ public class Notice {
                 .date(this.date)
                 .noticeContent(this.noticeContent)
                 .noticeRegdate(this.noticeRegdate.toString())
-                .id(this.user.getId())
+                .userDTO(this.user.EntityToDTO())
                 .build();
         return noticeDTO;
 

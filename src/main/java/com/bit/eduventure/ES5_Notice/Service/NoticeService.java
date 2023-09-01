@@ -18,5 +18,5 @@ public interface NoticeService {
 
     Notice update(Notice notice);
 
-    List<Notice> getCourseNoticeList(int couNo);
+    List<Notice> getCourseNoticeList(String claName);
 }
