@@ -70,13 +70,25 @@ public class LectureChatController {
         }
     }
 
-//    @MessageMapping("/sendMsg/{lectureId}/addUser")
-//    @SendTo("/topic/lecture/{lectureId}") //보내는 곳은 똑같이
-//    public String addUser(@Payload LecUser lecUser,
-//                          @DestinationVariable String lectureId) {
-//        return null;
-//
-//    }
+    @MessageMapping("/sendMsg/{lectureId}/addUser")
+    @SendTo("/topic/lecture/{lectureId}") //보내는 곳은 똑같이
+    public String addUser(@Header("Authorization") String token,
+                          @DestinationVariable String lectureId) {
+        try {
+            token = token.substring(7);
+            String userId = jwtTokenProvider.validateAndGetUsername(token);
+            String userName = userService.findByUserId(userId).getUserName();
+            String enterMsg = userName + "님이 입장하였습니다.";
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("content", enterMsg);
+            ObjectMapper mapper = new ObjectMapper();
+
+            return mapper.writeValueAsString(responseMap);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 
     @PostMapping("/sendMsg")
     public void sendMessage(@RequestBody ChatMessage chatMessage,
