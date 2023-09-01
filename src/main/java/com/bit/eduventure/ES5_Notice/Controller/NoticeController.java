@@ -151,7 +151,7 @@ public class NoticeController {
         int userNo = userDetails.getUser().getId();
         User user = userService.findById(userNo);
 
-        List<Notice> noticeList = noticeService.getCourseNoticeList(user.getCourse().getCouNo());
+        List<Notice> noticeList = noticeService.getCourseNoticeList(user.getCourse().getClaName());
 
         List<NoticeDTO> noticeDTOList = noticeList.stream()
                 .map(Notice::EntityToDTO)
