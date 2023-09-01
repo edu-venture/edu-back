@@ -1,6 +1,7 @@
 package com.bit.eduventure.ES5_Notice.Controller;
 
 
+import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.dto.ResponseDTO;
@@ -31,21 +32,17 @@ public class NoticeController {
                                           @AuthenticationPrincipal CustomUserDetails customUserDetails
                                          ) {
         ResponseDTO<NoticeDTO> responseDTO = new ResponseDTO<>();
-        System.out.println("노티스리스트 도착완료 트라이 직전");
-        try {
-            List<Notice> noticeList = noticeService.getNoticeList();
-            List<NoticeDTO> noticeDTOList = new ArrayList<>();
-            for(Notice notice : noticeList) {
-                noticeDTOList.add(notice.EntityToDTO());
-            }
-            responseDTO.setItems(noticeDTOList);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch(Exception e) {
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            responseDTO.setErrorMessage(e.getMessage());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+
+        List<Notice> noticeList = noticeService.getNoticeList();
+
+        List<NoticeDTO> noticeDTOList = noticeList.stream()
+                .map(Notice::EntityToDTO)
+                .collect(Collectors.toList());
+
+        responseDTO.setItems(noticeDTOList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
+
     }
 
 
