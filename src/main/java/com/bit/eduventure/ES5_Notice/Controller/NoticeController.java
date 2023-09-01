@@ -1,6 +1,8 @@
 package com.bit.eduventure.ES5_Notice.Controller;
 
 
+import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.ES1_User.Service.UserService;
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
 import com.bit.eduventure.ES5_Notice.DTO.NoticeDTO;
@@ -13,15 +15,15 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/notice")
 @RequiredArgsConstructor
 public class NoticeController {
 
-
     private final NoticeService noticeService;
-
+    private final UserService userService;
 
 
     @GetMapping("/notice-list")
@@ -81,24 +83,18 @@ public class NoticeController {
 
 
 
-    @PostMapping("/getnotice")
-    public ResponseEntity<?> getnotice(@RequestBody NoticeDTO noticeDTO) {
+    @GetMapping("/getnotice/{noticeNo}")
+    public ResponseEntity<?> getNotice(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                       @PathVariable int noticeNo) {
         ResponseDTO<NoticeDTO> responseDTO = new ResponseDTO<>();
 
-        try {
-            Notice notice = noticeService.findById(noticeDTO.getNoticeNo())
-                    .orElseThrow(() -> new NoSuchElementException("Notice not found"));
-            NoticeDTO noticeDTOtosend = notice.EntityToDTO();
-            responseDTO.setItem(noticeDTOtosend);
-            responseDTO.setStatusCode(HttpStatus.OK.value());
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            responseDTO.setErrorMessage(e.getMessage());
-            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+        Notice notice = noticeService.findById(noticeNo)
+                .orElseThrow(() -> new NoSuchElementException("Notice not found"));
+        NoticeDTO noticeDTOtosend = notice.EntityToDTO();
 
-
+        responseDTO.setItem(noticeDTOtosend);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
     }
 
 
@@ -119,8 +115,8 @@ public class NoticeController {
             System.out.println("이게 그냥 노티스");
             Notice resultNotice = noticeService.create(notice);
             System.out.println("트라이로는 들어왔음");
-NoticeDTO resultNoticeDTO = resultNotice.EntityToDTO();
-responseDTO.setItem(resultNoticeDTO);
+            NoticeDTO resultNoticeDTO = resultNotice.EntityToDTO();
+            responseDTO.setItem(resultNoticeDTO);
             responseDTO.setStatusCode(HttpStatus.OK.value());
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
@@ -148,12 +144,23 @@ responseDTO.setItem(resultNoticeDTO);
         }
     }
 
+    @GetMapping("/course")
+    public ResponseEntity<?> getCourseNotice(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        ResponseDTO<NoticeDTO> responseDTO = new ResponseDTO<>();
 
+        int userNo = userDetails.getUser().getId();
+        User user = userService.findById(userNo);
 
+        List<Notice> noticeList = noticeService.getCourseNoticeList(user.getCourse().getCouNo());
 
+        List<NoticeDTO> noticeDTOList = noticeList.stream()
+                .map(Notice::EntityToDTO)
+                .collect(Collectors.toList());
 
-
-
+        responseDTO.setItems(noticeDTOList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.ok().body(responseDTO);
+    }
 
 
 

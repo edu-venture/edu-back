@@ -246,14 +246,15 @@ public class UserController {
         parent.setUserPw(passwordEncoder.encode(parentDTO.getUserPw()));
         user.setRole("ROLE_USER");
         parent.setRole("ROLE_USER");
-        System.out.println(user);
-        System.out.println(parent);
         //회원가입처리(화면에서 보내준 내용을 디비에 저장)
         if (couNo != 0) {
+            System.out.println("이게게게게ㅔ게게게게 실행된다,");
             Course course = courseService.getCourse(couNo);
             user.setCourse(course);
             parent.setCourse(course);
         }
+        System.out.println("반반반" + user.getCourse());
+        System.out.println("반반반" + parent.getCourse());
         User joinUser = userService.join(user);
         parent.setUserJoinId(joinUser.getId());
         User joinParent = userService.join(parent);
@@ -367,14 +368,11 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpSession session) {
+    public ResponseEntity<?> login(@RequestBody UserDTO userDTO,
+                                   HttpSession session) {
         System.out.println(userDTO);
-        System.out.println("로그인하러 들어왔다.");
-        ResponseDTO<UserDTO> responseDTO =
-                new ResponseDTO<>();
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
 
-
-        System.out.println("로그인 트라이 안으로 들어옴");
         //메시지를 담을 맵 선언
         Map<String, String> returnMap = new HashMap<>();
 

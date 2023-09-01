@@ -6,6 +6,7 @@ import com.bit.eduventure.ES1_User.DTO.UserDTO;
 import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.ES1_User.Repository.UserRepository;
 import com.bit.eduventure.ES4_Email.Service.EmailService;
+import com.bit.eduventure.nchat.service.NchatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-
+    private final NchatService nchatService;
     private final PasswordEncoder passwordEncoder;
     private  final EmailService emailService;
     @Override
@@ -51,6 +52,7 @@ public class UserServiceImpl implements UserService {
             }else {
                 emailService.sendHtmlMessage(user.getUserId(), "에듀우-벤처러부터 온 메세지라우! 환영합니다 ^_^ 당신은 부모구만", "교육계의 혁신 에듀우-벤처에 오신걸 환영합니다. \n 당신은 우리의 일원입니다 이제 \n 자식키우기 쉽지 않겟구만!");
             }
+            nchatService.nChatJoin(user.EntityToDTO());
         }catch (Exception e){
             System.out.println(e);
         }
@@ -159,8 +161,10 @@ public class UserServiceImpl implements UserService {
                         findById(id)
                         .getUserJoinId());
         if (parent != null) {
+            nchatService.nChatDelete(parent.EntityToDTO());
             userRepository.deleteById(parent.getId());
         }
+        nchatService.nChatDelete(userRepository.findById(id).get().EntityToDTO());
         userRepository.deleteById(id);
     }
 
