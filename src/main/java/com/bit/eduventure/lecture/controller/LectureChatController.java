@@ -8,12 +8,10 @@ import com.bit.eduventure.lecture.service.LecUserService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.*;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -23,7 +21,6 @@ import java.util.stream.Collectors;
 //@RestController
 public class LectureChatController {
 
-    private final SimpMessagingTemplate template;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
     private final LecUserService lecUserService;
@@ -41,16 +38,14 @@ public class LectureChatController {
                               @DestinationVariable String lectureId) {
         Gson gson = new Gson();
         try {
-            Map<String, Object> chatMsgMap = gson.fromJson(chatMessage, Map.class);
-
-            String content = (String) chatMsgMap.get("content");
+            ChatMessage jsonMessage = gson.fromJson(chatMessage, ChatMessage.class);
 
             token = token.substring(7);
             String userId = jwtTokenProvider.validateAndGetUsername(token);
             String userName = userService.findByUserId(userId).getUserName();
 
             ChatMessage returnMsg = ChatMessage.builder()
-                    .content(content)
+                    .content(jsonMessage.getContent())
                     .sender(userName)
                     .build();
 
