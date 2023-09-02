@@ -63,6 +63,7 @@ public class LectureChatController {
                           @DestinationVariable String lectureId) {
         Gson gson = new Gson();
         try {
+            System.out.println(token);
             token = token.substring(7);
             String userId = jwtTokenProvider.validateAndGetUsername(token);
             String userName = userService.findByUserId(userId).getUserName();
