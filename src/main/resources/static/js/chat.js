@@ -16,6 +16,8 @@ function connect() {
 
 function disconnect() {
     if (stompClient !== null) {
+        let token = sessionStorage.getItem('Authorization');
+        stompClient.send("/app/sendMsg/123/leave", {'Authorization': 'Bearer ' + token});
         stompClient.disconnect();
     }
     console.log("Disconnected");
@@ -24,6 +26,7 @@ function disconnect() {
     // document.getElementById('connect').disabled = false;
     document.getElementById('send').disabled = true;
 }
+
 
 // 페이지 로드 후 접속시, 사용자 이름을 가져옵니다.
 $(document).ready(function() {
@@ -81,6 +84,21 @@ function showMessage(chatMessage) {
     }
 
     messageList.appendChild(messageElement);
+
+    var userListDiv = document.getElementById('userList');
+    var userList = JSON.parse(chatMessage).userList;
+
+    userListDiv.innerHTML = '';
+
+    if (userList != null) {
+        userList.forEach(function(user) {
+            var userElement = document.createElement('li');
+            userElement.innerHTML  = user;
+            userListDiv.appendChild(userElement);
+        });
+    }
+
+
 }
 
 // Connect to the websocket upon page load
@@ -90,4 +108,5 @@ function handleConnectClick() {
 
     document.getElementById('send').disabled = false;
 }
+
 
