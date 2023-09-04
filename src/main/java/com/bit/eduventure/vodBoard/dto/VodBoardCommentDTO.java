@@ -1,6 +1,6 @@
 package com.bit.eduventure.vodBoard.dto;
 
-import com.bit.eduventure.ES1_User.DTO.UserDTO;
+import com.bit.eduventure.User.DTO.UserDTO;
 import com.bit.eduventure.vodBoard.entity.VodBoardComment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

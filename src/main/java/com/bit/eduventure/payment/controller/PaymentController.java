@@ -1,9 +1,9 @@
 package com.bit.eduventure.payment.controller;
 
-import com.bit.eduventure.ES1_User.DTO.UserDTO;
-import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
-import com.bit.eduventure.ES1_User.Entity.User;
-import com.bit.eduventure.ES1_User.Service.UserService;
+import com.bit.eduventure.User.DTO.UserDTO;
+import com.bit.eduventure.User.Entity.CustomUserDetails;
+import com.bit.eduventure.User.Entity.User;
+import com.bit.eduventure.User.Service.UserService;
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.payment.dto.PaymentDTO;
 import com.bit.eduventure.payment.dto.PaymentRequestDTO;
@@ -19,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import retrofit2.http.Path;
 
 import java.time.LocalDateTime;
 import java.time.Month;

@@ -1,6 +1,6 @@
 package com.bit.eduventure.postIt.entity;
 
-import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.User.Entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

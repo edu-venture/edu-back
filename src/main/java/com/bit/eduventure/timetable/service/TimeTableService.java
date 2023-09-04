@@ -1,8 +1,8 @@
 package com.bit.eduventure.timetable.service;
 
 import com.bit.eduventure.timetable.dto.TimeTableDTO;
-import com.bit.eduventure.ES3_Course.Entity.Course;
-import com.bit.eduventure.ES3_Course.Repository.CourseRepository;
+import com.bit.eduventure.Course.Entity.Course;
+import com.bit.eduventure.Course.Repository.CourseRepository;
 import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.repository.TimeTableRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Service

@@ -1,6 +1,6 @@
 package com.bit.eduventure.lecture.controller;
 
-import com.bit.eduventure.ES1_User.Service.UserService;
+import com.bit.eduventure.User.Service.UserService;
 import com.bit.eduventure.jwt.JwtTokenProvider;
 import com.bit.eduventure.lecture.dto.ChatMessage;
 import com.bit.eduventure.lecture.entity.LecUser;

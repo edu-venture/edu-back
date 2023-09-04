@@ -1,6 +1,6 @@
 package com.bit.eduventure.validate;
 
-import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.User.Entity.User;
 import org.springframework.stereotype.Service;
 
 @Service

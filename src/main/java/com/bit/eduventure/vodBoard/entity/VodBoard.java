@@ -1,7 +1,7 @@
 package com.bit.eduventure.vodBoard.entity;
 
 
-import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.User.Entity.User;
 import com.bit.eduventure.vodBoard.dto.VodBoardDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Builder

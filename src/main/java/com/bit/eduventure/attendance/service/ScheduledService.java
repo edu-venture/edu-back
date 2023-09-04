@@ -1,8 +1,8 @@
 package com.bit.eduventure.attendance.service;
 
 
-import com.bit.eduventure.ES1_User.Entity.User;
-import com.bit.eduventure.ES1_User.Service.UserService;
+import com.bit.eduventure.User.Entity.User;
+import com.bit.eduventure.User.Service.UserService;
 import com.bit.eduventure.attendance.entity.Attend;
 import com.bit.eduventure.attendance.repository.AttendRepository;
 import com.bit.eduventure.timetable.entity.TimeTable;

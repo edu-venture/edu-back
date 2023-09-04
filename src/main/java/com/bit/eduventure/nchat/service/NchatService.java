@@ -1,6 +1,6 @@
 package com.bit.eduventure.nchat.service;
 
-import com.bit.eduventure.ES1_User.DTO.UserDTO;
+import com.bit.eduventure.User.DTO.UserDTO;
 import com.bit.eduventure.nchat.dto.ChatUserDTO;
 import com.bit.eduventure.nchat.dto.MemberResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
