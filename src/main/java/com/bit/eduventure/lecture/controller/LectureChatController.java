@@ -62,11 +62,9 @@ public class LectureChatController {
     @MessageMapping("/sendMsg/{lectureId}/addUser")
     @SendTo("/topic/lecture/{lectureId}") //보내는 곳은 똑같이
     public String addUser(@Header("Authorization") String token,
-                          @Payload String chatMessage,
                           @DestinationVariable String lectureId) {
         Gson gson = new Gson();
         try {
-            ChatMessage jsonMessage = gson.fromJson(chatMessage, ChatMessage.class);
 
             int lecturePK = Integer.parseInt(lectureId);
 
@@ -81,7 +79,6 @@ public class LectureChatController {
 
             ChatMessage returnMsg = ChatMessage.builder()
                     .content(userName + "님이 입장하였습니다.")
-                    .time(jsonMessage.getTime())
                     .build();
 
             List<LecUser> lecUserList = lecUserService.lecUserList(lecturePK);
@@ -103,11 +100,9 @@ public class LectureChatController {
     @MessageMapping("/sendMsg/{lectureId}/leave")
     @SendTo("/topic/lecture/{lectureId}") //보내는 곳은 똑같이
     public String leaveUser(@Header("Authorization") String token,
-                            @Payload String chatMessage,
                             @DestinationVariable String lectureId) {
         Gson gson = new Gson();
         try {
-            ChatMessage jsonMessage = gson.fromJson(chatMessage, ChatMessage.class);
 
             int lecturePK = Integer.parseInt(lectureId);
 
@@ -119,7 +114,6 @@ public class LectureChatController {
 
             ChatMessage returnMsg = ChatMessage.builder()
                     .content(userName + "님이 나가셨습니다.")
-                    .time(jsonMessage.getTime())
                     .build();
 
             //DB에 강의에 나간 유저 삭제
