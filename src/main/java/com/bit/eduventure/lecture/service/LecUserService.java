@@ -14,26 +14,29 @@ public class LecUserService {
     private final LecUserRepository lecUserRepository;
 
     @Transactional
-    public void enterLecUser(String liveStationId, String userName) {
-        LecUser lecUser = LecUser.builder()
-                .liveStationId(liveStationId)
-                .userName(userName)
-                .build();
-        lecUserRepository.save(lecUser);
-        lecUserRepository.flush();
+    public void enterLecUser(int lecturePK, int userPK, String userName) {
+        if (!lecUserRepository.existsByLecturePKAndUserPK(lecturePK, userPK)) {
+            LecUser lecUser = LecUser.builder()
+                    .lecturePK(lecturePK)
+                    .userPK(userPK)
+                    .userName(userName)
+                    .build();
+            lecUserRepository.save(lecUser);
+            lecUserRepository.flush();
+        }
     }
 
     @Transactional
-    public void leaveLecUser(String liveStationId, String userName) {
-        lecUserRepository.deleteAllByLiveStationIdAndUserName(liveStationId, userName);
+    public void leaveLecUser(int lecturePK, int userPK) {
+        lecUserRepository.deleteAllByLecturePKAndUserPK(lecturePK, userPK);
         lecUserRepository.flush();
     }
 
-    public List<LecUser> lecUserList(String liveStationId) {
-        return lecUserRepository.findAllByLiveStationId(liveStationId);
+    public List<LecUser> lecUserList(int lecturePK) {
+        return lecUserRepository.findAllByLecturePK(lecturePK);
     }
 
-    public void deleteLecture(String liveStationId) {
-        lecUserRepository.deleteAllByLiveStationId(liveStationId);
+    public void deleteLecture(int lecturePK) {
+        lecUserRepository.deleteAllByLecturePK(lecturePK);
     }
 }

@@ -14,6 +14,9 @@ public class ChatMessage {
     private String content;
     @SerializedName("sender")
     private String sender;
+    @SerializedName("time")
+    private String time;
     @SerializedName("userList")
     private List<String> userList;
+
 }
