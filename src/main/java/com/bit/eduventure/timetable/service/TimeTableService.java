@@ -62,13 +62,11 @@ public class TimeTableService {
         System.out.println("시간표 서비스 returnList1==========="+returnList);
 
         for (TimeTable timeTable : timeTableList) {
-            Course course = courseRepository.findByClaName(timeTable.getClaName())
-                    .orElseThrow(() -> new NoSuchElementException());
 
             TimeTableDTO dto = TimeTableDTO.builder()
                     .timeNo(timeTable.getTimeNo())
-                    .couNo(course.getCouNo())
-                    .claName(course.getClaName())
+                    .couNo(timeTable.getCouNo())
+                    .claName(timeTable.getClaName())
                     .timeWeek(timeTable.getTimeWeek())
                     .timeClass(timeTable.getTimeClass())
                     .timePlace(timeTable.getTimePlace())

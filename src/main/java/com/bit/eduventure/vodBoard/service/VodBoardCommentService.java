@@ -6,12 +6,10 @@ import com.bit.eduventure.vodBoard.repository.VodBoardCommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,7 +19,6 @@ public class VodBoardCommentService {
     private final VodBoardCommentRepository vodBoardCommentRepository;
 
     //게시물에 해당하는 모든 댓글 리스트 가져오는 메서드
-    @Transactional
     public List<VodBoardCommentDTO> getAllCommentList(int vodNo) {
         List<VodBoardComment> list = vodBoardCommentRepository.findAllByVodNo(vodNo);
         List<VodBoardCommentDTO> dtoList = list.stream()
@@ -35,7 +32,6 @@ public class VodBoardCommentService {
             if (commentDTO.getVodCmtParentNo() == 0) {
                 returnList.add(commentDTO);
             }
-
             dtoMap.put(commentDTO.getId(), commentDTO); // Add DTOs to the map using their ID
         }
 
@@ -56,11 +52,28 @@ public class VodBoardCommentService {
 
     //댓글 작성 메소드
     @Transactional
-    public VodBoardCommentDTO addComment(VodBoardCommentDTO commentDTO) {
+    public void addComment(VodBoardCommentDTO commentDTO) {
+        if (commentDTO.getVodNo() == 0
+                || !StringUtils.hasText(commentDTO.getVodCmtContent())) {
+            throw new NullPointerException();
+        }
         commentDTO.setVodCmtRegdate(LocalDateTime.now());
         VodBoardComment comment = commentDTO.DTOTOEntity();
-        VodBoardComment savedComment = vodBoardCommentRepository.save(comment);
-        return savedComment.EntityTODTO();
+
+        vodBoardCommentRepository.save(comment);
+        vodBoardCommentRepository.flush();
+    }
+
+    @Transactional
+    public void modifyComment(VodBoardComment originComment, VodBoardCommentDTO updateComment) {
+        if (updateComment.getVodNo() == 0
+                || !StringUtils.hasText(updateComment.getVodCmtContent())) {
+            throw new NullPointerException();
+        }
+        originComment.setVodCmtRegdate(LocalDateTime.now());
+        originComment.setVodCmtContent(updateComment.getVodCmtContent());
+        vodBoardCommentRepository.save(originComment);
+        vodBoardCommentRepository.flush();
     }
 
     @Transactional
@@ -70,9 +83,9 @@ public class VodBoardCommentService {
         vodBoardCommentRepository.deleteById(commentNo);
     }
 
-    @Transactional
     public VodBoardComment getComment(int commentNo) {
-        return vodBoardCommentRepository.findById(commentNo).orElseThrow();
+        return vodBoardCommentRepository.findById(commentNo)
+                .orElseThrow(() -> new NoSuchElementException());
     }
 
     @Transactional

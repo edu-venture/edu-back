@@ -37,7 +37,7 @@ public class PaymentController {
     private final UserService userService;
     private final ValidateService validateService;
 
-    private String[] issDateArray = {"year", "month", "day"};
+    private final String[] ISS_DATE_ARRAY = {"year", "month", "day"};
 
     //납부서 등록
     @PostMapping("/admin/bill")
@@ -130,9 +130,9 @@ public class PaymentController {
                 .payFrom(paymentDTO.getPayFrom())
                 .totalPrice(paymentDTO.getTotalPrice())
                 .userName(userService.findById(paymentDTO.getPayTo()).getUserName())
-                .issDay(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[2]))
-                .issMonth(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[1]))
-                .issYear(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[0]))
+                .issDay(paymentService.getIssDate(paymentDTO.getIssDate().toString(), ISS_DATE_ARRAY[2]))
+                .issMonth(paymentService.getIssDate(paymentDTO.getIssDate().toString(), ISS_DATE_ARRAY[1]))
+                .issYear(paymentService.getIssDate(paymentDTO.getIssDate().toString(), ISS_DATE_ARRAY[0]))
                 .productList(receiptDTOList)
                 .isPay(paymentDTO.isPay())
                 .build();
@@ -168,9 +168,9 @@ public class PaymentController {
                             .userName(user.getUserName())
                             .couNo(user.getCourse().getCouNo())
                             .claName(user.getCourse().getClaName())
-                            .issDay(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[2]))
-                            .issMonth(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[1]))
-                            .issYear(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[0]))
+                            .issDay(paymentService.getIssDate(payment.getIssDate().toString(), ISS_DATE_ARRAY[2]))
+                            .issMonth(paymentService.getIssDate(payment.getIssDate().toString(), ISS_DATE_ARRAY[1]))
+                            .issYear(paymentService.getIssDate(payment.getIssDate().toString(), ISS_DATE_ARRAY[0]))
                             .totalPrice(payment.getTotalPrice())
                             .parentTel(parentUser.getUserTel())
                             .payMethod(payment.getPayMethod())
@@ -214,9 +214,9 @@ public class PaymentController {
                             .userName(user.getUserName())
                             .couNo(user.getCourse().getCouNo())
                             .claName(user.getCourse().getClaName())
-                            .issDay(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[2]))
-                            .issMonth(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[1]))
-                            .issYear(paymentService.getIssDate(payment.getIssDate().toString(), issDateArray[0]))
+                            .issDay(paymentService.getIssDate(payment.getIssDate().toString(), ISS_DATE_ARRAY[2]))
+                            .issMonth(paymentService.getIssDate(payment.getIssDate().toString(), ISS_DATE_ARRAY[1]))
+                            .issYear(paymentService.getIssDate(payment.getIssDate().toString(), ISS_DATE_ARRAY[0]))
                             .totalPrice(payment.getTotalPrice())
                             .parentTel(parentUser.getUserTel())
                             .payMethod(payment.getPayMethod())
@@ -271,8 +271,8 @@ public class PaymentController {
         PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
                 .claName(userDTO.getCourseDTO().getClaName())
                 .userName(userDTO.getUserName())
-                .issYear(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[0]))
-                .issMonth(paymentService.getIssDate(paymentDTO.getIssDate().toString(), issDateArray[1]))
+                .issYear(paymentService.getIssDate(paymentDTO.getIssDate().toString(), ISS_DATE_ARRAY[0]))
+                .issMonth(paymentService.getIssDate(paymentDTO.getIssDate().toString(), ISS_DATE_ARRAY[1]))
                 .totalPrice(paymentDTO.getTotalPrice())
                 .productList(receiptDTOList)
                 .build();

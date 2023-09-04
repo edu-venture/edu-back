@@ -14,6 +14,7 @@ import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,9 +51,15 @@ public class CourseServiceImpl  implements CourseService {
     @Transactional
     public void createCourse(CourseDTO courseDTO) {
         Course course = courseDTO.DTOToEntity();
-        if (course.getCouMemo() == null) {
+
+        if (!StringUtils.hasText(course.getClaName())) {
+            throw new NullPointerException();
+        }
+
+        if (!StringUtils.hasText(course.getCouMemo())) {
             course.setCouMemo("");
         }
+
         courseRepository.save(course);
     }
 

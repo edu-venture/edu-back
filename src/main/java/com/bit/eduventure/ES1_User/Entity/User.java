@@ -18,18 +18,16 @@ import java.time.LocalDateTime;
 @Builder
 public class User {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY
-    )
-    @Column(name = "USER_NO") //
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "USER_NO")
     private Integer id;
-    @Column(unique = true)
+    @Column(name = "USER_ID", unique = true)
     private String userId;
     @Column(name = "USER_PWD")
     private String userPw;
     @Column(name = "USER_NAME")
     private String userName;
-    @Column(name = "USER_TEL")
+    @Column(name = "USER_TEL", unique = true)
     private String userTel;
     @Column(name = "USER_BIRTH")
     private String userBirth;
@@ -41,8 +39,8 @@ public class User {
     private String userAddressDetail;
     @Column(name = "USER_BUS")
     private Integer userBus;
-    @Column(name = "USER_JOIN_ID") //
-    private Integer userJoinId;
+    @Column(name = "USER_JOIN_ID", unique = true) //
+    private Integer userJoinId = 0;
 
     @Column(name = "USER_SCORE")
     @ColumnDefault("0")

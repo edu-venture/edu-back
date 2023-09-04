@@ -113,7 +113,6 @@ public class LiveStationService {
 
             ResponseEntity<LiveStationResponseDTO> response = restTemplate.exchange(new URI(url), HttpMethod.POST, body, LiveStationResponseDTO.class);
 
-
             return response.getBody().getContent().getChannelId();  // channelId 반환
         } catch (URISyntaxException e) {
             throw new RuntimeException(e.getMessage());
@@ -172,15 +171,14 @@ public class LiveStationService {
 
     }
 
-    public List<LiveStationUrlDTO> getServiceURL(String channelID) {
-
+    public List<LiveStationUrlDTO> getServiceURL(String channelID, String urlType) {
         try {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(liveStationUrl);
             urlBuilder.append("/");
             urlBuilder.append(channelID);
             urlBuilder.append("/serviceUrls?serviceUrlType=");
-            urlBuilder.append("GENERAL");
+            urlBuilder.append(urlType);
             String url = urlBuilder.toString();
 
             String signUrl = url.substring(url.indexOf(".com") + 4);
@@ -262,7 +260,10 @@ public class LiveStationService {
 
             return ResponseEntity.ok().body(responseDTO);
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e.getMessage());
+            responseDTO.setErrorMessage(e.getMessage());
+            responseDTO.setStatusCode(HttpStatus.BAD_REQUEST.value());
+
+            return ResponseEntity.badRequest().body(responseDTO);
         }
     }
 

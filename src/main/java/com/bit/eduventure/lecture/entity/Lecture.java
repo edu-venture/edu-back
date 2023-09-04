@@ -16,11 +16,11 @@ public class Lecture {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "LEC_ID")
     private Integer id;
-    @Column(name = "LEC_TITLE")
+    @Column(name = "LEC_TITLE", nullable = false)
     private String title;
     @Column(name = "LEC_LIVE_ID", unique = true, nullable = false)
     private String liveStationId;
-    @Column(name = "COU_NO", nullable = false)
+    @Column(name = "COU_NO", unique = true, nullable = false)
     private int couNo;
 
     public LectureDTO EntityTODTO() {
