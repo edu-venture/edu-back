@@ -18,6 +18,7 @@ import com.bit.eduventure.livestation.service.LiveStationService;
 import com.bit.eduventure.objectStorage.service.ObjectStorageService;
 import com.bit.eduventure.validate.ValidateService;
 import com.bit.eduventure.vodBoard.entity.VodBoard;
+import com.bit.eduventure.vodBoard.entity.VodBoardFile;
 import com.bit.eduventure.vodBoard.service.VodBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -129,7 +131,8 @@ public class LectureController {
                     .objectThumb(thumb)
                     .user(course.getUser())
                     .build();
-            vodBoardService.insertBoard(vodBoard, null);
+            List<VodBoardFile> fileList = new ArrayList<>();
+            vodBoardService.insertBoard(vodBoard, fileList);
         }
 
         liveStationService.deleteChannel(liveStationId);
