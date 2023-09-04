@@ -167,7 +167,11 @@ public class LectureController {
             }
 
             List<LiveStationUrlDTO> urlList = liveStationService.getServiceURL(channelID, "GENERAL");
+            LiveStationUrlDTO lectureId = LiveStationUrlDTO.builder()
+                    .lectureId(lecture.getId())
+                    .build();
 
+            response.setItem(lectureId);
             response.setItems(urlList);
             response.setStatusCode(HttpStatus.OK.value());
 
