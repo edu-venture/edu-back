@@ -28,7 +28,9 @@ public class CourseController {
     @PostMapping("/getcourse")
     public ResponseEntity<?> getcourse(@RequestBody CourseDTO courseDTO) {
         ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
-
+        System.out.println(courseDTO);
+        System.out.println(courseDTO.getCouNo());
+        System.out.println("/////////////////");
         Course course = courseService.getCourse(courseDTO.getCouNo());
 
         CourseDTO courseDTOtosend = course.EntityToDTO();

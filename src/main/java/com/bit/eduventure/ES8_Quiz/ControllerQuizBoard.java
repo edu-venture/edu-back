@@ -276,8 +276,11 @@ public class ControllerQuizBoard {
         ResponseDTO<Map<String, String>> responseDTO =
                 new ResponseDTO<Map<String, String>>();
         try {
-            quizBoardService.deleteQuizFileList(boardNo);
             quizBoardService.deleteBoard(boardNo);
+
+            quizBoardService.deleteQuizFileList(boardNo);
+            System.out.println("지우러 들어왔음.");
+            System.out.println(boardNo);
             Map<String, String> returnMap = new HashMap<String, String>();
             returnMap.put("msg", "정상적으로 삭제되었습니다.");
             responseDTO.setItem(returnMap);

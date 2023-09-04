@@ -130,7 +130,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
-
+/// 되나 한번 보는거
     /////여기에
     @PostMapping("/getuser")
     public ResponseEntity<?> getuser(@RequestBody UserDTO user) {
