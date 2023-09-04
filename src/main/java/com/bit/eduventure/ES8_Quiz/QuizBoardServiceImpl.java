@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
 @Service
 public class QuizBoardServiceImpl implements QuizBoardService {
-
 
 
     private RepositoryQuizBoard repositoryQuizBoard;
@@ -35,7 +35,7 @@ public class QuizBoardServiceImpl implements QuizBoardService {
 
     @Override
     public QuizBoard getBoard(int boardNo) {
-        if(repositoryQuizBoard.findById(boardNo).isEmpty())
+        if (repositoryQuizBoard.findById(boardNo).isEmpty())
             return null;
 
         return repositoryQuizBoard.findById(boardNo).get();
@@ -52,7 +52,7 @@ public class QuizBoardServiceImpl implements QuizBoardService {
         //변경사항 커밋 후 저징
         repositoryQuizBoard.flush();
 
-        for(QuizBoardFile quizBoardFile : uploadFileList) {
+        for (QuizBoardFile quizBoardFile : uploadFileList) {
             quizBoardFile.setQuizBoard(quizBoard);
             int boardFileNo = repositoryQuizBoardFile.findMaxFileNo(quizBoard.getBoardNo());
             quizBoardFile.setBoardFileNo(boardFileNo);
@@ -65,13 +65,13 @@ public class QuizBoardServiceImpl implements QuizBoardService {
     public void updateBoard(QuizBoard quizBoard, List<QuizBoardFile> uFileList) {
         repositoryQuizBoard.save(quizBoard);
 
-        if(uFileList.size() > 0) {
-            for(int i = 0; i < uFileList.size(); i++) {
-                if(uFileList.get(i).getBoardFileStatus().equals("U")) {
+        if (uFileList.size() > 0) {
+            for (int i = 0; i < uFileList.size(); i++) {
+                if (uFileList.get(i).getBoardFileStatus().equals("U")) {
                     repositoryQuizBoardFile.save(uFileList.get(i));
-                } else if(uFileList.get(i).getBoardFileStatus().equals("D")) {
+                } else if (uFileList.get(i).getBoardFileStatus().equals("D")) {
                     repositoryQuizBoardFile.delete(uFileList.get(i));
-                } else if(uFileList.get(i).getBoardFileStatus().equals("I")) {
+                } else if (uFileList.get(i).getBoardFileStatus().equals("I")) {
                     //추가한 파일들은 boardNo은 가지고 있지만 boardFileNo가 없는 상태라
                     //boardFileNo를 추가
                     int boardFileNo = repositoryQuizBoardFile.findMaxFileNo(
@@ -88,6 +88,8 @@ public class QuizBoardServiceImpl implements QuizBoardService {
     @Override
     public void deleteBoard(int boardNo) {
         repositoryQuizBoard.deleteById(boardNo);
+        repositoryQuizBoard.flush();
+
     }
 
     @Override
@@ -98,21 +100,21 @@ public class QuizBoardServiceImpl implements QuizBoardService {
 
     @Override
     public Page<QuizBoard> getBoardList(Pageable pageable, String searchCondition, String searchKeyword) {
-        if(searchCondition.equals("all")) {
-            if(searchKeyword.equals("")) {
+        if (searchCondition.equals("all")) {
+            if (searchKeyword.equals("")) {
                 return repositoryQuizBoard.findAll(pageable);
             } else {
                 return repositoryQuizBoard.findByBoardTitleContainingOrBoardContentContainingOrBoardWriterContaining(searchKeyword, searchKeyword, searchKeyword, pageable);
             }
         } else {
-            if(searchKeyword.equals("")) {
+            if (searchKeyword.equals("")) {
                 return repositoryQuizBoard.findAll(pageable);
             } else {
-                if(searchCondition.equals("title")) {
+                if (searchCondition.equals("title")) {
                     return repositoryQuizBoard.findByBoardTitleContaining(searchKeyword, pageable);
-                } else if(searchCondition.equals("content")) {
+                } else if (searchCondition.equals("content")) {
                     return repositoryQuizBoard.findByBoardContentContaining(searchKeyword, pageable);
-                } else if(searchCondition.equals("writer")) {
+                } else if (searchCondition.equals("writer")) {
                     return repositoryQuizBoard.findByBoardWriterContaining(searchKeyword, pageable);
                 } else {
                     return repositoryQuizBoard.findAll(pageable);
@@ -153,6 +155,8 @@ public class QuizBoardServiceImpl implements QuizBoardService {
                 .forEach(quizBoardFile -> {
                     objectStorageService.deleteObject(quizBoardFile.getBoardFileName());
                 });
+        repositoryQuizBoard.flush();
+
     }
 
 
