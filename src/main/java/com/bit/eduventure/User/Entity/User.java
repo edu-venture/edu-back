@@ -2,8 +2,8 @@ package com.bit.eduventure.User.Entity;
 
 
 import com.bit.eduventure.User.DTO.UserDTO;
-import com.bit.eduventure.Course.DTO.CourseDTO;
-import com.bit.eduventure.Course.Entity.Course;
+import com.bit.eduventure.course.DTO.CourseDTO;
+import com.bit.eduventure.course.Entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;

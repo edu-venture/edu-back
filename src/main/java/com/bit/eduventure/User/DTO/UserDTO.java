@@ -2,8 +2,8 @@ package com.bit.eduventure.User.DTO;
 
 
 import com.bit.eduventure.User.Entity.User;
-import com.bit.eduventure.Course.DTO.CourseDTO;
-import com.bit.eduventure.Course.Entity.Course;
+import com.bit.eduventure.course.DTO.CourseDTO;
+import com.bit.eduventure.course.Entity.Course;
 import lombok.*;
 
 import java.time.LocalDateTime;
