@@ -42,11 +42,13 @@ public class LectureChatController {
 
             token = token.substring(7);
             String userId = jwtTokenProvider.validateAndGetUsername(token);
+
             String userName = userService.findByUserId(userId).getUserName();
 
             ChatMessage returnMsg = ChatMessage.builder()
                     .content(jsonMessage.getContent())
                     .sender(userName)
+                    .time(jsonMessage.getTime())
                     .build();
 
             return gson.toJson(returnMsg);
@@ -60,22 +62,29 @@ public class LectureChatController {
     @MessageMapping("/sendMsg/{lectureId}/addUser")
     @SendTo("/topic/lecture/{lectureId}") //보내는 곳은 똑같이
     public String addUser(@Header("Authorization") String token,
+                          @Payload String chatMessage,
                           @DestinationVariable String lectureId) {
         Gson gson = new Gson();
         try {
-            System.out.println(token);
+            ChatMessage jsonMessage = gson.fromJson(chatMessage, ChatMessage.class);
+
+            int lecturePK = Integer.parseInt(lectureId);
+
             token = token.substring(7);
             String userId = jwtTokenProvider.validateAndGetUsername(token);
-            String userName = userService.findByUserId(userId).getUserName();
+
+            int userPK = Integer.parseInt(userId);
+            String userName = userService.findById(userPK).getUserName();
+
+            //DB에 강의에 들어온 유저 저장
+            lecUserService.enterLecUser(lecturePK, userPK, userName);
 
             ChatMessage returnMsg = ChatMessage.builder()
                     .content(userName + "님이 입장하였습니다.")
+                    .time(jsonMessage.getTime())
                     .build();
 
-            //DB에 강의에 들어온 유저 저장
-            lecUserService.enterLecUser(lectureId, userName);
-
-            List<LecUser> lecUserList = lecUserService.lecUserList(lectureId);
+            List<LecUser> lecUserList = lecUserService.lecUserList(lecturePK);
 
             if (!lecUserList.isEmpty()) {
                 List<String> userList = lecUserList.stream()
@@ -94,21 +103,29 @@ public class LectureChatController {
     @MessageMapping("/sendMsg/{lectureId}/leave")
     @SendTo("/topic/lecture/{lectureId}") //보내는 곳은 똑같이
     public String leaveUser(@Header("Authorization") String token,
+                            @Payload String chatMessage,
                             @DestinationVariable String lectureId) {
         Gson gson = new Gson();
         try {
+            ChatMessage jsonMessage = gson.fromJson(chatMessage, ChatMessage.class);
+
+            int lecturePK = Integer.parseInt(lectureId);
+
             token = token.substring(7);
             String userId = jwtTokenProvider.validateAndGetUsername(token);
+
+            int userPK = Integer.parseInt(userId);
             String userName = userService.findByUserId(userId).getUserName();
 
             ChatMessage returnMsg = ChatMessage.builder()
                     .content(userName + "님이 나가셨습니다.")
+                    .time(jsonMessage.getTime())
                     .build();
 
             //DB에 강의에 나간 유저 삭제
-            lecUserService.leaveLecUser(lectureId, userName);
+            lecUserService.leaveLecUser(lecturePK, userPK);
 
-            List<LecUser> lecUserList = lecUserService.lecUserList(lectureId);
+            List<LecUser> lecUserList = lecUserService.lecUserList(lecturePK);
 
             if (!lecUserList.isEmpty()) {
                 List<String> userList = lecUserList.stream()

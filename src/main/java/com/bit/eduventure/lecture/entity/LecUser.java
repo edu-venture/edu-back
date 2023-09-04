@@ -17,13 +17,15 @@ public class LecUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
-    String liveStationId;
+    int lecturePK;
+    int userPK;
     String userName;
 
     public LecUserDTO EntityTODTO() {
         return LecUserDTO.builder()
                 .id(this.id)
-                .liveStationId(this.liveStationId)
+                .lecturePK(this.lecturePK)
+                .userPK(this.userPK)
                 .userName(this.userName)
                 .build();
     }

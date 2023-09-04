@@ -102,11 +102,11 @@ public class LectureController {
         User user = userService.findById(userNo);
         validateService.validateTeacherAndAdmin(user);
 
-        //실시간 강의 유저 리스트 삭제
-        lecUserService.deleteLecture(liveStationId);
-
         Lecture lecture = lectureService.getLectureLiveStationId(liveStationId);
         int lectureId = lecture.getId();
+
+        //실시간 강의 유저 리스트 삭제
+        lecUserService.deleteLecture(lectureId);
 
         RecordVodDTO recordVodDTO = liveStationService.getRecord(liveStationId);
 

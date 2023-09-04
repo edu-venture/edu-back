@@ -6,13 +6,15 @@ import lombok.Builder;
 @Builder
 public class LecUserDTO {
     int id;
-    String liveStationId;
+    int lecturePK;
+    int userPK;
     String userName;
 
     public LecUser DTOTOEntity() {
         return LecUser.builder()
                 .id(this.id)
-                .liveStationId(this.liveStationId)
+                .lecturePK(this.lecturePK)
+                .userPK(this.userPK)
                 .userName(this.userName)
                 .build();
     }
