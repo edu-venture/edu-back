@@ -1,8 +1,8 @@
 package com.bit.eduventure.timetable.service;
 
 import com.bit.eduventure.timetable.dto.TimeTableDTO;
-import com.bit.eduventure.Course.Entity.Course;
-import com.bit.eduventure.Course.Repository.CourseRepository;
+import com.bit.eduventure.course.Entity.Course;
+import com.bit.eduventure.course.Repository.CourseRepository;
 import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.repository.TimeTableRepository;
 import lombok.RequiredArgsConstructor;
