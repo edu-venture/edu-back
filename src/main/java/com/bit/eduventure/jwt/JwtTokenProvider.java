@@ -1,6 +1,6 @@
 package com.bit.eduventure.jwt;
 
-import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.User.Entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

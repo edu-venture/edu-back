@@ -1,6 +1,6 @@
 package com.bit.eduventure.vodBoard.entity;
 
-import com.bit.eduventure.ES1_User.Entity.User;
+import com.bit.eduventure.User.Entity.User;
 import com.bit.eduventure.vodBoard.dto.VodBoardCommentDTO;
 import jakarta.persistence.*;
 import lombok.*;

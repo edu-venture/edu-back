@@ -1,8 +1,8 @@
 package com.bit.eduventure.vodBoard.controller;
 
-import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
-import com.bit.eduventure.ES1_User.Entity.User;
-import com.bit.eduventure.ES1_User.Service.UserService;
+import com.bit.eduventure.User.Entity.CustomUserDetails;
+import com.bit.eduventure.User.Entity.User;
+import com.bit.eduventure.User.Service.UserService;
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.objectStorage.service.ObjectStorageService;
 import com.bit.eduventure.validate.ValidateService;

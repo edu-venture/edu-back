@@ -1,6 +1,5 @@
 package com.bit.eduventure.attendance.repository;
 
-import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.attendance.entity.Attend;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

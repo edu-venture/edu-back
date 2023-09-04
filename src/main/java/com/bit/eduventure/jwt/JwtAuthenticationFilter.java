@@ -1,7 +1,7 @@
 package com.bit.eduventure.jwt;
 
 
-import com.bit.eduventure.ES1_User.Service.UserDetailsServiceImpl;
+import com.bit.eduventure.User.Service.UserDetailsServiceImpl;
 import com.bit.eduventure.exception.errorCode.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

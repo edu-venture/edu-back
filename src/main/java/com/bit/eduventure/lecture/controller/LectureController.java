@@ -1,11 +1,11 @@
 package com.bit.eduventure.lecture.controller;
 
 
-import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
-import com.bit.eduventure.ES1_User.Entity.User;
-import com.bit.eduventure.ES1_User.Service.UserService;
-import com.bit.eduventure.ES3_Course.Entity.Course;
-import com.bit.eduventure.ES3_Course.Service.CourseService;
+import com.bit.eduventure.User.Entity.CustomUserDetails;
+import com.bit.eduventure.User.Entity.User;
+import com.bit.eduventure.User.Service.UserService;
+import com.bit.eduventure.Course.Entity.Course;
+import com.bit.eduventure.Course.Service.CourseService;
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import com.bit.eduventure.lecture.entity.Lecture;

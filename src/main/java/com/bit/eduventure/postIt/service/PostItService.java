@@ -1,7 +1,7 @@
 package com.bit.eduventure.postIt.service;
 
-import com.bit.eduventure.ES1_User.Entity.User;
-import com.bit.eduventure.ES1_User.Repository.UserRepository;
+import com.bit.eduventure.User.Entity.User;
+import com.bit.eduventure.User.Repository.UserRepository;
 import com.bit.eduventure.postIt.dto.PostItDTO;
 import com.bit.eduventure.postIt.entity.PostItEntity;
 import com.bit.eduventure.postIt.repository.PostItRepository;

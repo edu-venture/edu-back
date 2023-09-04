@@ -1,6 +1,5 @@
 package com.bit.eduventure.attendance.entity;
 
-import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.attendance.dto.AttendDTO;
 
 import jakarta.persistence.*;

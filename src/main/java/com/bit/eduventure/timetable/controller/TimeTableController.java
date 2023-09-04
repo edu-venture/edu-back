@@ -1,11 +1,10 @@
 package com.bit.eduventure.timetable.controller;
 
-import com.bit.eduventure.ES1_User.DTO.UserDTO;
-import com.bit.eduventure.ES1_User.Entity.CustomUserDetails;
-import com.bit.eduventure.ES1_User.Service.UserService;
+import com.bit.eduventure.User.DTO.UserDTO;
+import com.bit.eduventure.User.Entity.CustomUserDetails;
+import com.bit.eduventure.User.Service.UserService;
 import com.bit.eduventure.dto.ResponseDTO;
 import com.bit.eduventure.timetable.dto.TimeTableDTO;
-import com.bit.eduventure.timetable.entity.TimeTable;
 import com.bit.eduventure.timetable.service.TimeTableService;
 import com.bit.eduventure.validate.ValidateService;
 import lombok.RequiredArgsConstructor;

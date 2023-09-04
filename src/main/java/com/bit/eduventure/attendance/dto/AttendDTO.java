@@ -1,6 +1,5 @@
 package com.bit.eduventure.attendance.dto;
 
-import com.bit.eduventure.ES1_User.Entity.User;
 import com.bit.eduventure.attendance.entity.Attend;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
