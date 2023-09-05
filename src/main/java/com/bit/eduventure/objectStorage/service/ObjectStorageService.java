@@ -50,7 +50,9 @@ public class ObjectStorageService {
 
     public void deleteObject(String objectName) {
         try {
-            s3.deleteObject(bucket, objectName);
+            if (!objectName.equals("edu-venture.png")) {
+                s3.deleteObject(bucket, objectName);
+            }
         } catch (Exception e) {
             throw new ObjectStorageException();
         }
