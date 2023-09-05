@@ -16,7 +16,8 @@ public class ChatMessage {
     private String sender;
     @SerializedName("time")
     private String time;
+    @SerializedName("exit")
+    private boolean exit;
     @SerializedName("userList")
     private List<String> userList;
-
 }
