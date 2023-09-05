@@ -4,6 +4,7 @@ import com.bit.eduventure.User.Entity.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,27 +19,15 @@ import java.util.Optional;
 
 @Transactional
 public interface UserRepository extends JpaRepository<User,Integer> {
-    //select * from t_user
-
-    //where user_id =:userId
-
 
     Optional<User> findByUserId(String userId);
-    Optional<User> findById(int id);
-@Modifying
-    @Query( value = "update t_user set user_name = :userName", nativeQuery = true)
-    public void updateUser(@Param("userName") String userName);
-
+//    Optional<User> findById(int id);
 
     boolean existsByUserId(String userId);
 
     Page<User> findByUserNameContaining(String searchKeyword, Pageable pageable);
 
     Page<User> findByUserIdContaining(String searchKeyword, Pageable pageable);
-
-//    @Query(value = "SELECT * FROM t_user WHERE CONCAT(user_no, '') LIKE :userNoKeyword", nativeQuery = true)
-//    Page<User>findById(@Param("userNoKeyword") String userNoKeyword, Pageable pageable);
-
 
     Page<User> findById(Integer usernoKeyword, Pageable pageable);
 
@@ -62,20 +51,6 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     @Query("UPDATE User u SET u.userScore = u.userScore + 1 WHERE u.id = ?1")
     void increaseuserscore(Integer id);
 
-
-//    @Modifying
-//    @Query("UPDATE User u SET u.userScore = u.userScore + 1 WHERE u.id = :userId")
-//    void increaseUserScore(@Param("userId") Integer id);
-//이렇게도 할 수 있음
-
-
-
-//    @Query( value = "select * from t_user where user_name=:userId", nativeQuery = true)
-//
-//    Optional<User>  findByUserId(  @Param("userId") String userId);
-
-
-
-
+    Page<User> findAll(Specification<User> spec, Pageable pageable);
 
 }

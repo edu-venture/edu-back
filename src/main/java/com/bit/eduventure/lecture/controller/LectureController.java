@@ -220,8 +220,8 @@ public class LectureController {
     //방송 중인 강의 썸네일 포함
     @GetMapping("/page/lecture-list")
     public ResponseEntity<?> getLectureList(@PageableDefault(page = 0, size = 10) Pageable pageable,
-                                            @RequestParam(value = "searchCondition", required = false) String searchCondition,
-                                            @RequestParam(value = "searchKeyword", required = false) String searchKeyword,
+                                            @RequestParam(value = "searchCondition", required = false, defaultValue = "all") String category,
+                                            @RequestParam(value = "searchKeyword", required = false, defaultValue = "") String keyword,
                                             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<LectureDTO> response = new ResponseDTO<>();
 

@@ -15,6 +15,7 @@ import com.bit.eduventure.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,6 @@ import java.util.stream.Collectors;
 public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final CourseService courseService;
@@ -477,4 +477,26 @@ public class UserController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
+    @GetMapping("/page/user-list")
+    public ResponseEntity<?> getUserList(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                                          @RequestParam(value = "category", required = false, defaultValue = "all") String category,
+                                          @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
+                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+
+        Page<User> pageBoard = userService.getUserPage(page, category, keyword);
+
+        Page<UserDTO> pageList = new PageImpl<>(
+                pageBoard.get().map(User::EntityToDTO).collect(Collectors.toList()),
+                pageBoard.getPageable(),
+                pageBoard.getTotalElements()
+        );
+
+        responseDTO.setPageItems(pageList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
+
+    }
 }

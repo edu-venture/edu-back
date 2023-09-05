@@ -3,9 +3,16 @@ package com.bit.eduventure.lecture.service;
 import com.bit.eduventure.lecture.dto.LectureDTO;
 import com.bit.eduventure.lecture.entity.Lecture;
 import com.bit.eduventure.lecture.repository.LectureRepository;
+import com.bit.eduventure.vodBoard.entity.VodBoard;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
