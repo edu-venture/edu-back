@@ -1,5 +1,6 @@
 package com.bit.eduventure.lecture.controller;
 
+import com.bit.eduventure.User.Entity.User;
 import com.bit.eduventure.User.Service.UserService;
 import com.bit.eduventure.jwt.JwtTokenProvider;
 import com.bit.eduventure.lecture.dto.ChatMessage;
@@ -65,14 +66,13 @@ public class LectureChatController {
                           @DestinationVariable String lectureId) {
         Gson gson = new Gson();
         try {
-
             int lecturePK = Integer.parseInt(lectureId);
 
             token = token.substring(7);
             String userId = jwtTokenProvider.validateAndGetUsername(token);
-
-            int userPK = Integer.parseInt(userId);
-            String userName = userService.findById(userPK).getUserName();
+            User user = userService.findByUserId(userId);
+            int userPK = user.getId();
+            String userName = user.getUserName();
 
             //DB에 강의에 들어온 유저 저장
             lecUserService.enterLecUser(lecturePK, userPK, userName);
@@ -103,14 +103,13 @@ public class LectureChatController {
                             @DestinationVariable String lectureId) {
         Gson gson = new Gson();
         try {
-
             int lecturePK = Integer.parseInt(lectureId);
 
             token = token.substring(7);
             String userId = jwtTokenProvider.validateAndGetUsername(token);
-
-            int userPK = Integer.parseInt(userId);
-            String userName = userService.findByUserId(userId).getUserName();
+            User user = userService.findByUserId(userId);
+            int userPK = user.getId();
+            String userName = user.getUserName();
 
             ChatMessage returnMsg = ChatMessage.builder()
                     .content(userName + "님이 나가셨습니다.")
@@ -127,6 +126,35 @@ public class LectureChatController {
                         .collect(Collectors.toList());
                 returnMsg.setUserList(userList);
             }
+
+            return gson.toJson(returnMsg);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @MessageMapping("/sendMsg/{lectureId}/exit")
+    @SendTo("/topic/lecture/{lectureId}") //보내는 곳은 똑같이
+    public String exitLecture(@Header("Authorization") String token,
+                            @DestinationVariable String lectureId) {
+        Gson gson = new Gson();
+        try {
+            int lecturePK = Integer.parseInt(lectureId);
+
+            token = token.substring(7);
+            String userId = jwtTokenProvider.validateAndGetUsername(token);
+            User user = userService.findByUserId(userId);
+            String userName = user.getUserName();
+
+            ChatMessage returnMsg = ChatMessage.builder()
+                    .content(userName + "님이 강의를 종료하셨습니다.")
+                    .sender("Server")
+                    .exit(true)
+                    .build();
+
+            //실시간 강의 유저 리스트 삭제
+            lecUserService.deleteLecture(lecturePK);
 
             return gson.toJson(returnMsg);
         } catch (Exception e) {

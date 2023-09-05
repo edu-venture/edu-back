@@ -21,6 +21,8 @@ import com.bit.eduventure.vodBoard.entity.VodBoard;
 import com.bit.eduventure.vodBoard.entity.VodBoardFile;
 import com.bit.eduventure.vodBoard.service.VodBoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -107,9 +109,6 @@ public class LectureController {
         Lecture lecture = lectureService.getLectureLiveStationId(liveStationId);
         int lectureId = lecture.getId();
 
-        //실시간 강의 유저 리스트 삭제
-        lecUserService.deleteLecture(lectureId);
-
         RecordVodDTO recordVodDTO = liveStationService.getRecord(liveStationId);
 
         //녹화된 파일이 있다면 게시글 작성
@@ -185,9 +184,45 @@ public class LectureController {
         }
     }
 
+
     //방송 중인 강의 썸네일 포함
     @GetMapping("/lecture-list")
     public ResponseEntity<?> getAllLectures(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        ResponseDTO<LectureDTO> response = new ResponseDTO<>();
+
+        //권한 확인
+        int userNo = customUserDetails.getUser().getId();
+        User user = userService.findById(userNo);
+        validateService.validateTeacherAndAdmin(user);
+
+        List<LectureDTO> lectureDTOList = lectureService.getAllLecture();
+
+        if (lectureDTOList.isEmpty()) {
+            throw new NoSuchElementException();
+        }
+
+        lectureDTOList.forEach(lectureDTO -> {
+            String liveStationId = lectureDTO.getLiveStationId();
+            List<LiveStationUrlDTO> thumbList = liveStationService.getServiceURL(liveStationId, "THUMBNAIL");
+            if (!thumbList.isEmpty()) {
+                String thumbnailUrl = thumbList.get(0).getUrl();
+                lectureDTO.setLiveThumb(thumbnailUrl);
+            }
+        });
+
+        response.setItems(lectureDTOList);
+        response.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(response);
+    }
+
+
+    //방송 중인 강의 썸네일 포함
+    @GetMapping("/page/lecture-list")
+    public ResponseEntity<?> getLectureList(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                            @RequestParam(value = "searchCondition", required = false) String searchCondition,
+                                            @RequestParam(value = "searchKeyword", required = false) String searchKeyword,
+                                            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         ResponseDTO<LectureDTO> response = new ResponseDTO<>();
 
         //권한 확인
