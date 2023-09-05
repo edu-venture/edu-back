@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -435,8 +436,11 @@ public class UserController {
         //엔티티 리스트를 dto 리스트로 변환하면서 반 번호에 맞는 유저만 저장
         List<UserDTO> userDTOList = userList.stream()
                 .map(User::EntityToDTO)
-                .filter(user -> user.getCourseDTO().getCouNo() == couNo)
+                .filter(user -> Optional.ofNullable(user.getCourseDTO())
+                        .map(courseDTO -> courseDTO.getCouNo() == couNo)
+                        .orElse(false))
                 .collect(Collectors.toList());
+
 
         responseDTO.setItems(userDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
