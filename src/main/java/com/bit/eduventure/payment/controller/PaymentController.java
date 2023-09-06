@@ -268,6 +268,8 @@ public class PaymentController {
                 .collect(Collectors.toList());
 
         PaymentResponseDTO paymentResponseDTO = PaymentResponseDTO.builder()
+                .payNo(payNo)
+                .userNo(userDTO.getId())
                 .claName(userDTO.getCourseDTO().getClaName())
                 .userName(userDTO.getUserName())
                 .issYear(paymentService.getIssDate(paymentDTO.getIssDate().toString(), ISS_DATE_ARRAY[0]))
