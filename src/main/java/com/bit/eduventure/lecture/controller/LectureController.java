@@ -219,7 +219,7 @@ public class LectureController {
 
     //방송 중인 강의 썸네일 포함
     @GetMapping("/page/lecture-list")
-    public ResponseEntity<?> getLectureList(@PageableDefault(page = 0, size = 10) Pageable pageable,
+    public ResponseEntity<?> getLectureList(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
                                             @RequestParam(value = "searchCondition", required = false, defaultValue = "all") String category,
                                             @RequestParam(value = "searchKeyword", required = false, defaultValue = "") String keyword,
                                             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -229,6 +229,9 @@ public class LectureController {
         int userNo = customUserDetails.getUser().getId();
         User user = userService.findById(userNo);
         validateService.validateTeacherAndAdmin(user);
+
+
+        lectureService.getLecturePage(page, category, keyword);
 
         List<LectureDTO> lectureDTOList = lectureService.getAllLecture();
 

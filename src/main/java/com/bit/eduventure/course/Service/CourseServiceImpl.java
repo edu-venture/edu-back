@@ -10,7 +10,13 @@ import com.bit.eduventure.timetable.service.TimeTableService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import jakarta.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -107,4 +113,34 @@ public class CourseServiceImpl  implements CourseService {
         }
     }
 
+    @Override
+    public Page<Course> getCourseList(int page, String category, String keyword) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("couNo"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+        Specification<Course> spec = searchByCategory(category, keyword);
+        Page<Course> coursePage = courseRepository.findAll(spec, pageable);
+        return coursePage;
+    }
+
+    private Specification<Course> searchByCategory(String category, String kw) {
+        return (b, query, cb) -> {
+            query.distinct(true);
+            String likeKeyword = "%" + kw + "%";
+            switch (category) {
+                case "claName":
+                    return cb.like(b.get("claName"), likeKeyword);
+                case "user":
+                    // "userName"으로 검색하도록 수정
+                    Join<Course, User> userJoin = b.join("user");
+                    return cb.like(userJoin.get("userName"), likeKeyword);
+                default:
+                    userJoin = b.join("user");
+                    return cb.or(
+                            cb.like(b.get("claName"), likeKeyword),
+                            cb.like(userJoin.get("userName"), likeKeyword)
+                    );
+            }
+        };
+    }
 }

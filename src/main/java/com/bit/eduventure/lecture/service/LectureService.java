@@ -57,4 +57,32 @@ public class LectureService {
         lectureRepository.deleteById(lecId);
     }
 
+    public Page<Lecture> getLecturePage(int page, String category, String keyword) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("id"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+
+        Specification<Lecture> spec = searchByCategory(category, keyword);
+        Page<Lecture> vodBoardPage = lectureRepository.findAll(spec, pageable);
+        return vodBoardPage;
+    }
+
+    private Specification<Lecture> searchByCategory(String category, String kw) {
+        return (b, query, cb) -> {
+            query.distinct(true);
+            String likeKeyword = "%" + kw + "%";
+            switch (category) {
+                case "title":
+                    return cb.like(b.get("title"), likeKeyword);
+                case "couNo":
+                    return cb.like(b.get("couNo"), likeKeyword);
+                default:
+                    return cb.or(
+                            cb.like(b.get("title"), likeKeyword),
+                            cb.like(b.get("couNo"), likeKeyword)
+                    );
+            }
+        };
+    }
+
 }

@@ -9,6 +9,8 @@ import com.bit.eduventure.course.Entity.Course;
 import com.bit.eduventure.course.Service.CourseService;
 import com.bit.eduventure.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -54,7 +56,7 @@ public class CourseController {
                     return courseDTO;
                 })
                 .collect(Collectors.toList());
-        System.out.println(courseDTOList.get(0).getCouNo());
+
         responseDTO.setItems(courseDTOList);
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
@@ -122,5 +124,34 @@ public class CourseController {
         responseDTO.setItem("반 수정 완료");
         responseDTO.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("/page/course-list")
+    public ResponseEntity<?> getCourseList(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                                          @RequestParam(value = "category", required = false, defaultValue = "all") String category,
+                                          @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
+                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        ResponseDTO<CourseDTO> responseDTO = new ResponseDTO<>();
+
+        Page<Course> pageBoard = courseService.getCourseList(page, category, keyword);
+
+        Page<CourseDTO> pageList = new PageImpl<>(
+                pageBoard.get().map(course -> {
+                    CourseDTO courseDTO = course.EntityToDTO();
+                    long studentCnt = userService.getUserCountCourse(course.getCouNo());
+                    courseDTO.setStudentCnt(studentCnt);
+                    return courseDTO;
+                }).collect(Collectors.toList()),
+                pageBoard.getPageable(),
+                pageBoard.getTotalElements()
+        );
+
+
+        responseDTO.setPageItems(pageList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
+
     }
 }
