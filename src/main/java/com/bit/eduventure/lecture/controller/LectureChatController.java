@@ -39,6 +39,7 @@ public class LectureChatController {
                               @DestinationVariable String lectureId) {
         Gson gson = new Gson();
         try {
+            int lecturePK = Integer.parseInt(lectureId);
             ChatMessage jsonMessage = gson.fromJson(chatMessage, ChatMessage.class);
 
             token = token.substring(7);
@@ -51,6 +52,14 @@ public class LectureChatController {
                     .sender(userName)
                     .time(jsonMessage.getTime())
                     .build();
+            List<LecUser> lecUserList = lecUserService.lecUserList(lecturePK);
+
+            if (!lecUserList.isEmpty()) {
+                List<String> userList = lecUserList.stream()
+                        .map(LecUser::getUserName)
+                        .collect(Collectors.toList());
+                returnMsg.setUserList(userList);
+            }
 
             return gson.toJson(returnMsg);
 
