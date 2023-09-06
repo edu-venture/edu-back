@@ -390,10 +390,12 @@ public class UserController {
                 .map(user -> {
                     UserDTO userDTO = user.EntityToDTO();
                     if (userType.equals("student")) {
-                        int id = user.getUserJoinId();
-                        if (id != 0) {
-                            UserDTO dto = userService.findById(id).EntityToDTO();
-                            userDTO.setParentDTO(dto);
+                        Integer id = user.getUserJoinId();
+                        if (id != null) {
+                            if (id != 0) {
+                                UserDTO dto = userService.findById(id).EntityToDTO();
+                                userDTO.setParentDTO(dto);
+                            }
                         }
                     }
                     return userDTO;
