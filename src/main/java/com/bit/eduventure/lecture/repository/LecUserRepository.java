@@ -10,4 +10,6 @@ public interface LecUserRepository extends JpaRepository<LecUser, Integer> {
     void deleteAllByLecturePKAndUserPK(int lecturePK, int userPK);
     void deleteAllByLecturePK(int lecturePK);
     boolean existsByLecturePKAndUserPK(int lecturePK, int userPK);
+
+    int countAllByLecturePK(int lecturePK);
 }

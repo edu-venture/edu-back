@@ -191,9 +191,9 @@ public class LectureController {
         ResponseDTO<LectureDTO> response = new ResponseDTO<>();
 
         //권한 확인
-        int userNo = customUserDetails.getUser().getId();
-        User user = userService.findById(userNo);
-        validateService.validateTeacherAndAdmin(user);
+//        int userNo = customUserDetails.getUser().getId();
+//        User user = userService.findById(userNo);
+//        validateService.validateTeacherAndAdmin(user);
 
         List<LectureDTO> lectureDTOList = lectureService.getAllLecture();
 
@@ -208,6 +208,8 @@ public class LectureController {
                 String thumbnailUrl = thumbList.get(0).getUrl();
                 lectureDTO.setLiveThumb(thumbnailUrl);
             }
+            lectureDTO.setTeacher(courseService.getCourse(lectureDTO.getCouNo()).getUser().getUserName());
+            lectureDTO.setUserCount(lecUserService.userCount(lectureDTO.getId()));
         });
 
         response.setItems(lectureDTOList);

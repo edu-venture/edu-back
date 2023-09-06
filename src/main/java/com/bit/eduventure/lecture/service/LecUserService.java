@@ -39,4 +39,8 @@ public class LecUserService {
     public void deleteLecture(int lecturePK) {
         lecUserRepository.deleteAllByLecturePK(lecturePK);
     }
+
+    public int userCount(int lecturePK) {
+        return lecUserRepository.countAllByLecturePK(lecturePK);
+    }
 }
