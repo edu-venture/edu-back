@@ -499,6 +499,38 @@ public class UserController {
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
+    }
 
+    @GetMapping("/page/user-list/{userType}")
+    public ResponseEntity<?> getTypeUserList(@PathVariable String userType,
+                                             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                                             @RequestParam(value = "category", required = false, defaultValue = "all") String category,
+                                             @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword) {
+        ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+        System.out.println(userType);
+        Page<User> userList = userService.getUserTypePage(userType, page, category, keyword);
+
+        List<UserDTO> userDTOList = userList.stream()
+                .filter(user -> !(userType.equals("teacher") && user.getApproval().equals("x")))
+                .map(user -> {
+                    UserDTO userDTO = user.EntityToDTO();
+                    if (userType.equals("student")) {
+                        Integer id = user.getUserJoinId();
+                        if (id != null) {
+                            if (id != 0) {
+                                UserDTO dto = userService.findById(id).EntityToDTO();
+                                userDTO.setParentDTO(dto);
+                            }
+                        }
+                    }
+                    return userDTO;
+                })
+                .collect(Collectors.toList());
+
+
+        responseDTO.setItems(userDTOList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
     }
 }

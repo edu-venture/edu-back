@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -205,6 +206,20 @@ public class UserServiceImpl implements UserService {
         return userPageList;
     }
 
+    @Override
+    public Page<User> getUserTypePage(String type, int page, String category, String keyword) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("userRegdate"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+        Specification<User> typeSpec = searchByUserType(type);
+        Specification<User> searchSpec = searchByCategory(category, keyword);
+
+        Specification<User> combinedSpec = typeSpec.and(searchSpec);
+
+        Page<User> userPageList = userRepository.findAll(combinedSpec, pageable);
+        return userPageList;
+    }
+
     private Specification<User> searchByCategory(String category, String kw) {
         return (b, query, cb) -> {
             query.distinct(true);
@@ -223,6 +238,15 @@ public class UserServiceImpl implements UserService {
                             cb.like(b.get("userSchool"), likeKeyword)
                     );
             }
+        };
+    }
+
+    private Specification<User> searchByUserType(String userType) {
+        return (root, query, cb) -> {
+            if (StringUtils.isEmpty(userType)) {
+                return null; // userType이 비어 있으면 조건을 추가하지 않음
+            }
+            return cb.equal(root.get("userType"), userType);
         };
     }
 }
