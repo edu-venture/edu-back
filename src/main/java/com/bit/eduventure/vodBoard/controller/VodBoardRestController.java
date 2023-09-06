@@ -167,11 +167,6 @@ public class VodBoardRestController {
         int userNo = customUserDetails.getUser().getId();
         validateService.validateTeacherAndAdmin(userService.findById(userNo));
 
-        VodBoard vodBoard = vodBoardService.getBoard(boardNo);
-        if (vodBoard.getUser().getId() != userNo) {
-            throw new RuntimeException("수정 권한이 없습니다.");
-        }
-
         // 기존에 등록된 첨부파일 정보 가져오기
         List<VodBoardFile> existingFileList = vodBoardService.getBoardFileList(boardNo);
         // 기존에 등록된 파일 삭제
@@ -230,9 +225,7 @@ public class VodBoardRestController {
         int userNo = customUserDetails.getUser().getId();
         validateService.validateTeacherAndAdmin(userService.findById(userNo));
         VodBoard vodBoard = vodBoardService.getBoard(boardNo);
-        if (vodBoard.getUser().getId() != userNo) {
-            throw new RuntimeException("삭제 권한이 없습니다.");
-        }
+
 
         List<VodBoardFile> boardFileList = vodBoardService.getBoardFileList(boardNo);
 
