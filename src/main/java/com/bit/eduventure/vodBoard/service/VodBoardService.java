@@ -6,16 +6,24 @@ import com.bit.eduventure.vodBoard.entity.VodBoardFile;
 import com.bit.eduventure.vodBoard.repository.VodBoardFileRepository;
 import com.bit.eduventure.vodBoard.repository.VodBoardRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VodBoardService {
     private final VodBoardRepository vodBoardRepository;
     private final VodBoardFileRepository vodBoardFileRepository;
@@ -106,5 +114,50 @@ public class VodBoardService {
         vodBoardFileRepository.deleteAllByVodBoardNo(vodNo);
     }
 
+//    -----------페이징--------
 
+    public Page<VodBoard> getBoardPage(int page, String category, String keyword) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("regDate"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+        Specification<VodBoard> spec = searchByCategory(category, keyword);
+        Page<VodBoard> vodBoardPage = vodBoardRepository.findAll(spec, pageable);
+        return vodBoardPage;
+    }
+
+    private Specification<VodBoard> searchByCategory(String category, String kw) {
+        return (b, query, cb) -> {
+            query.distinct(true);
+            String likeKeyword = "%" + kw + "%";
+            switch (category) {
+                case "title":
+                    return cb.like(b.get("title"), likeKeyword);
+                case "content":
+                    return cb.like(b.get("content"), likeKeyword);
+                case "writer":
+                    return cb.like(b.get("writer"), likeKeyword);
+                default:
+                    return cb.or(
+                            cb.like(b.get("title"), likeKeyword),
+                            cb.like(b.get("content"), likeKeyword),
+                            cb.like(b.get("writer"), likeKeyword)
+                    );
+            }
+        };
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

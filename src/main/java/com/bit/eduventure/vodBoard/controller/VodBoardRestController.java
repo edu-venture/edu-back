@@ -14,6 +14,11 @@ import com.bit.eduventure.vodBoard.service.VodBoardCommentService;
 import com.bit.eduventure.vodBoard.service.VodBoardLikeService;
 import com.bit.eduventure.vodBoard.service.VodBoardService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,6 +31,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/vod")
 @RequiredArgsConstructor
+@Slf4j
 public class VodBoardRestController {
     private final VodBoardService vodBoardService;
     private final ObjectStorageService objectStorageService;
@@ -36,10 +42,10 @@ public class VodBoardRestController {
 
     @PostMapping("/board")
     public ResponseEntity<?> insertBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                        @RequestPart(value = "boardDTO", required = false) VodBoardDTO boardDTO,
-                                        @RequestPart(value = "videoFile", required = false) MultipartFile videoFile,
-                                        @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
-                                        @RequestPart(value = "fileList", required = false) MultipartFile[] fileList) {
+                                         @RequestPart(value = "boardDTO", required = false) VodBoardDTO boardDTO,
+                                         @RequestPart(value = "videoFile", required = false) MultipartFile videoFile,
+                                         @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
+                                         @RequestPart(value = "fileList", required = false) MultipartFile[] fileList) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
         List<VodBoardFile> uploadFileList = new ArrayList<>();
         String saveName;
@@ -158,7 +164,7 @@ public class VodBoardRestController {
         String saveName;
 
         //게시글 작성자와 수정자 비교
-        int userNo= customUserDetails.getUser().getId();
+        int userNo = customUserDetails.getUser().getId();
         validateService.validateTeacherAndAdmin(userService.findById(userNo));
 
         VodBoard vodBoard = vodBoardService.getBoard(boardNo);
@@ -221,7 +227,7 @@ public class VodBoardRestController {
     public ResponseEntity<?> deleteVodBoard(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                             @PathVariable int boardNo) {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
-        int userNo= customUserDetails.getUser().getId();
+        int userNo = customUserDetails.getUser().getId();
         validateService.validateTeacherAndAdmin(userService.findById(userNo));
         VodBoard vodBoard = vodBoardService.getBoard(boardNo);
         if (vodBoard.getUser().getId() != userNo) {
@@ -360,5 +366,31 @@ public class VodBoardRestController {
         responseDTO.setStatusCode(HttpStatus.OK.value());
 
         return ResponseEntity.ok().body(responseDTO);
+    }
+
+//    ---------------------------------------- 좋아요 ----------------------------------------
+
+    @GetMapping("/page/board-list")
+    public ResponseEntity<?> getBoardList(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                                          @RequestParam(value = "category", required = false, defaultValue = "all") String category,
+                                          @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
+                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        ResponseDTO<VodBoardDTO> responseDTO = new ResponseDTO<>();
+
+        Page<VodBoard> pageBoard = vodBoardService.getBoardPage(page, category, keyword);
+
+        Page<VodBoardDTO> pageList = new PageImpl<>(
+                pageBoard.get().map(VodBoard::EntityToDTO).collect(Collectors.toList()),
+                pageBoard.getPageable(),
+                pageBoard.getTotalElements()
+        );
+
+
+        responseDTO.setPageItems(pageList);
+        responseDTO.setStatusCode(HttpStatus.OK.value());
+
+        return ResponseEntity.ok().body(responseDTO);
+
     }
 }

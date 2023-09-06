@@ -8,11 +8,16 @@ import com.bit.eduventure.Email.Service.EmailService;
 import com.bit.eduventure.nchat.service.NchatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -189,5 +194,59 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getUserListForCouNo(int couNo) {
         return userRepository.findAllByCourseCouNo(couNo);
+    }
+
+    @Override
+    public Page<User> getUserPage(int page, String category, String keyword) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("userRegdate"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+        Specification<User> spec = searchByCategory(category, keyword);
+        Page<User> userPageList = userRepository.findAll(spec, pageable);
+        return userPageList;
+    }
+
+    @Override
+    public Page<User> getUserTypePage(String type, int page, String category, String keyword) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("userRegdate"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+        Specification<User> typeSpec = searchByUserType(type);
+        Specification<User> searchSpec = searchByCategory(category, keyword);
+
+        Specification<User> combinedSpec = typeSpec.and(searchSpec);
+
+        Page<User> userPageList = userRepository.findAll(combinedSpec, pageable);
+        return userPageList;
+    }
+
+    private Specification<User> searchByCategory(String category, String kw) {
+        return (b, query, cb) -> {
+            query.distinct(true);
+            String likeKeyword = "%" + kw + "%";
+            switch (category) {
+                case "id":
+                    return cb.like(b.get("userId"), likeKeyword);
+                case "name":
+                    return cb.like(b.get("userName"), likeKeyword);
+                case "school":
+                    return cb.like(b.get("userSchool"), likeKeyword);
+                default:
+                    return cb.or(
+                            cb.like(b.get("userId"), likeKeyword),
+                            cb.like(b.get("userName"), likeKeyword),
+                            cb.like(b.get("userSchool"), likeKeyword)
+                    );
+            }
+        };
+    }
+
+    private Specification<User> searchByUserType(String userType) {
+        return (root, query, cb) -> {
+            if (StringUtils.isEmpty(userType)) {
+                return null; // userType이 비어 있으면 조건을 추가하지 않음
+            }
+            return cb.equal(root.get("userType"), userType);
+        };
     }
 }

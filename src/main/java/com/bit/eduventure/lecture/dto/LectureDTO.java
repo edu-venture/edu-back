@@ -16,6 +16,8 @@ public class LectureDTO {
     private String liveStationId;
     private String liveThumb;
     private int couNo;
+    private String teacher;
+    private int userCount;
 
 
     public Lecture DTOTOEntity() {

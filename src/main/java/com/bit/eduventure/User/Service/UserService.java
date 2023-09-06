@@ -23,4 +23,7 @@ public interface UserService {
     void increaseuserscore(Integer id);
     long getUserCountCourse(int couNo);
     List<User> getUserListForCouNo(int couNo);
+
+    Page<User> getUserPage(int page, String category, String keyword);
+    Page<User> getUserTypePage(String type, int page, String category, String keyword);
 }
