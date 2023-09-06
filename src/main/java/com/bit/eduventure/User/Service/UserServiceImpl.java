@@ -71,18 +71,38 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public User updateUser(User user, UserDTO userDTO) {
-        if (userDTO.getApproval().equals("o")) {
-            user.setApproval("o");
+        if (StringUtils.hasText(userDTO.getApproval())) {
+            if (userDTO.getApproval().equals("o")) {
+                user.setApproval("o");
+            }
         }
-        user.setUserTel(userDTO.getUserTel());
-        user.setUserBus(userDTO.getUserBus());
-        user.setUserBirth(userDTO.getUserBirth());
-        user.setUserSchool(userDTO.getUserSchool());
-        user.setUserAddress(userDTO.getUserAddress());
-        user.setUserAddressDetail(userDTO.getUserAddressDetail());
-        user.setUserConsultContent(userDTO.getUserConsultContent());
-        user.setUserSpecialNote(userDTO.getUserSpecialNote());
-
+        if (StringUtils.hasText(userDTO.getUserTel())) {
+            user.setUserTel(userDTO.getUserTel());
+        }
+        Integer bus = userDTO.getUserBus();
+        if (bus != null) {
+            if (bus != 0) {
+                user.setUserBus(userDTO.getUserBus());
+            }
+        }
+        if (StringUtils.hasText(userDTO.getUserBirth())) {
+            user.setUserBirth(userDTO.getUserBirth());
+        }
+        if (StringUtils.hasText(userDTO.getUserSchool())) {
+            user.setUserSchool(userDTO.getUserSchool());
+        }
+        if (StringUtils.hasText(userDTO.getUserAddress())) {
+            user.setUserAddress(userDTO.getUserAddress());
+        }
+        if (StringUtils.hasText(userDTO.getUserAddressDetail())) {
+            user.setUserAddressDetail(userDTO.getUserAddressDetail());
+        }
+        if (StringUtils.hasText(userDTO.getUserConsultContent())) {
+            user.setUserConsultContent(userDTO.getUserConsultContent());
+        }
+        if (StringUtils.hasText(userDTO.getUserSpecialNote())) {
+            user.setUserSpecialNote(userDTO.getUserSpecialNote());
+        }
         return userRepository.save(user);
     }
 
