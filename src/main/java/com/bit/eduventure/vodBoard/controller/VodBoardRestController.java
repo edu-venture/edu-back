@@ -22,6 +22,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -242,8 +243,14 @@ public class VodBoardRestController {
         //게시물 좋아요 삭제
         vodBoardLikeService.deleteVodBoard(boardNo);
         //오브젝트 스토리지 파일 삭제
-        objectStorageService.deleteObject(vodBoard.getObjectPath());
-        objectStorageService.deleteObject(vodBoard.getObjectThumb());
+        if (StringUtils.hasText(vodBoard.getObjectPath())) {
+            objectStorageService.deleteObject(vodBoard.getObjectPath());
+        }
+        if (StringUtils.hasText(vodBoard.getOriginThumb())) {
+            objectStorageService.deleteObject(vodBoard.getObjectThumb());
+        }
+
+
         //게시물 삭제
         vodBoardService.deleteVodBoard(boardNo);
 
